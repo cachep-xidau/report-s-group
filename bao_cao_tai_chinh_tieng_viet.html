@@ -59,25 +59,33 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
         }
 
-        .nav-links a {
+        .nav-links button {
             text-decoration: none;
             color: #3A464E;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
             background: white;
             border: 2px solid #3A464E;
+            border-bottom: none;
             transition: all 0.3s;
             font-weight: 600;
+            cursor: pointer;
+            font-size: 1em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .nav-links a:hover {
+        .nav-links button:hover {
+            background: #E5E6E5;
+            transform: translateY(-2px);
+        }
+
+        .nav-links button.active {
             background: #3A464E;
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(0);
         }
 
         .content {
@@ -87,6 +95,11 @@
         .section {
             margin-bottom: 60px;
             scroll-margin-top: 80px;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
         }
 
         .section-title {
@@ -449,19 +462,19 @@
         <!-- Menu Điều Hướng -->
         <div class="nav">
             <div class="nav-links">
-                <a href="#overview">📈 Tổng Quan</a>
-                <a href="#section1">Q1 Phân Tích Theo Quý</a>
-                <a href="#section2">Q2 Thực Tế vs KH</a>
-                <a href="#section3">Q3 Chi Phí & Tỷ Suất</a>
-                <a href="#section4">Q4 Phát Hiện Bất Thường</a>
-                <a href="#section5">Q5 Khuyến Nghị</a>
+                <button class="tab-btn active" data-tab="overview">📈 Tổng Quan</button>
+                <button class="tab-btn" data-tab="section1">Phân Tích Theo Quý</button>
+                <button class="tab-btn" data-tab="section2">So Sánh Kế Hoạch Với Thực Tế</button>
+                <button class="tab-btn" data-tab="section3">Phân Tích Chi Phí</button>
+                <button class="tab-btn" data-tab="section4">Phát Hiện Bất Thường</button>
+                <button class="tab-btn" data-tab="section5">Khuyến Nghị</button>
             </div>
         </div>
 
         <!-- Nội Dung -->
         <div class="content">
             <!-- Tổng Quan Điều Hành -->
-            <div id="overview" class="section">
+            <div id="overview" class="section active">
                 <h2 class="section-title"><span class="emoji">🎯</span>Tổng Quan Điều Hành</h2>
 
                 <div class="key-metrics">
@@ -540,7 +553,7 @@
 
             <!-- Phần 1: Tổng Quan Theo Quý -->
             <div id="section1" class="section">
-                <h2 class="section-title"><span class="emoji">📊</span>Phần 1: Tổng Quan Hiệu Suất Theo Quý</h2>
+                <h2 class="section-title"><span class="emoji">📊</span>Phân Tích Theo Quý</h2>
 
                 <div class="text-content">
                     <h3>Bảng Tóm Tắt Hiệu Suất Theo Quý (Tất Cả Các Công Ty):</h3>
@@ -615,7 +628,7 @@
 
             <!-- Phần 2: Thực Tế vs Kế Hoạch -->
             <div id="section2" class="section">
-                <h2 class="section-title"><span class="emoji">🎯</span>Phần 2: So Sánh Thực Tế vs Kế Hoạch</h2>
+                <h2 class="section-title"><span class="emoji">🎯</span>So Sánh Kế Hoạch Với Thực Tế</h2>
 
                 <div class="chart-container">
                     <html>
@@ -639,7 +652,7 @@
 
             <!-- Phần 3: Phân Tích Chi Phí -->
             <div id="section3" class="section">
-                <h2 class="section-title"><span class="emoji">💰</span>Phần 3: Phân Tích Chi Phí & Khả Năng Sinh Lời</h2>
+                <h2 class="section-title"><span class="emoji">💰</span>Phân Tích Chi Phí</h2>
 
                 <div class="text-content">
                     <h3>Các Tỷ Lệ Tài Chính Theo Công Ty (% Trên Doanh Thu):</h3>
@@ -756,7 +769,7 @@
 
             <!-- Phần 4: Phát Hiện Bất Thường -->
             <div id="section4" class="section">
-                <h2 class="section-title"><span class="emoji">🔍</span>Phần 4: Phát Hiện Chi Phí Bất Thường & Biểu Đồ Thác</h2>
+                <h2 class="section-title"><span class="emoji">🔍</span>Phát Hiện Bất Thường</h2>
 
                 <div class="text-content">
                     <h3>Phân Tích Độ Biến Động Chi Phí:</h3>
@@ -891,7 +904,7 @@
 
             <!-- Phần 5: Khuyến Nghị -->
             <div id="section5" class="section">
-                <h2 class="section-title"><span class="emoji">💡</span>Phần 5: Khuyến Nghị Chiến Lược</h2>
+                <h2 class="section-title"><span class="emoji">💡</span>Khuyến Nghị</h2>
 
                 <div class="recommendations">
                     <h3>🏢 SAN - CẦN CHÚ Ý NGAY LẬP TỨC</h3>
@@ -1030,5 +1043,30 @@
             <p style="margin-top: 10px; opacity: 0.8;">Được chuẩn bị bởi Chuyên Gia Tài Chính & Phân Tích Dữ Liệu | Được hỗ trợ bởi Claude Code</p>
         </div>
     </div>
+
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const sections = document.querySelectorAll('.section');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+
+                    // Remove active class from all buttons and sections
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    sections.forEach(section => section.classList.remove('active'));
+
+                    // Add active class to clicked button and corresponding section
+                    this.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+
+                    // Scroll to top of content
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
