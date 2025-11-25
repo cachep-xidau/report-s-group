@@ -1045,14 +1045,19 @@
     </div>
 
     <script>
-        // Tab switching functionality
+        // Tab switching functionality - v2
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Tab navigation loaded');
             const tabButtons = document.querySelectorAll('.tab-btn');
             const sections = document.querySelectorAll('.section');
+
+            console.log('Found', tabButtons.length, 'tab buttons');
+            console.log('Found', sections.length, 'sections');
 
             tabButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const targetTab = this.getAttribute('data-tab');
+                    console.log('Switching to tab:', targetTab);
 
                     // Remove active class from all buttons and sections
                     tabButtons.forEach(btn => btn.classList.remove('active'));
@@ -1060,7 +1065,13 @@
 
                     // Add active class to clicked button and corresponding section
                     this.classList.add('active');
-                    document.getElementById(targetTab).classList.add('active');
+                    const targetSection = document.getElementById(targetTab);
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                        console.log('Activated section:', targetTab);
+                    } else {
+                        console.error('Section not found:', targetTab);
+                    }
 
                     // Scroll to top of content
                     window.scrollTo({ top: 0, behavior: 'smooth' });
