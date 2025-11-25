@@ -59,25 +59,33 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
         }
 
-        .nav-links a {
+        .nav-links button {
             text-decoration: none;
             color: #3A464E;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
             background: white;
             border: 2px solid #3A464E;
+            border-bottom: none;
             transition: all 0.3s;
             font-weight: 600;
+            cursor: pointer;
+            font-size: 1em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .nav-links a:hover {
+        .nav-links button:hover {
+            background: #E5E6E5;
+            transform: translateY(-2px);
+        }
+
+        .nav-links button.active {
             background: #3A464E;
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(0);
         }
 
         .content {
@@ -87,6 +95,11 @@
         .section {
             margin-bottom: 60px;
             scroll-margin-top: 80px;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
         }
 
         .section-title {
@@ -228,6 +241,202 @@
             text-align: center;
         }
 
+        /* Mobile Responsive Styles */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+                margin-bottom: 8px;
+            }
+
+            .header p {
+                font-size: 0.9em;
+            }
+
+            .nav {
+                padding: 10px;
+            }
+
+            .nav-links {
+                gap: 8px;
+            }
+
+            .nav-links a {
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .section {
+                margin-bottom: 30px;
+                scroll-margin-top: 60px;
+            }
+
+            .section-title {
+                font-size: 1.3em;
+                margin-bottom: 15px;
+                gap: 10px;
+            }
+
+            .text-content {
+                padding: 15px;
+                font-size: 0.9em;
+                line-height: 1.6;
+            }
+
+            .chart-container {
+                margin: 15px 0;
+                padding: 10px;
+                overflow: hidden;
+                width: 100%;
+            }
+
+            /* Force Plotly charts to be responsive */
+            .chart-container .plotly-graph-div {
+                width: 100% !important;
+                height: auto !important;
+                min-height: 300px !important;
+                max-height: 500px !important;
+            }
+
+            .chart-container .plotly {
+                width: 100% !important;
+            }
+
+            .chart-container .svg-container {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            .chart-container svg.main-svg {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            /* Tối ưu bảng cho mobile */
+            table {
+                font-size: 0.75em;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            th, td {
+                padding: 8px 10px;
+                min-width: 80px;
+            }
+
+            th {
+                font-size: 0.85em;
+            }
+
+            .key-metrics {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin: 20px 0;
+            }
+
+            .metric-card {
+                padding: 20px;
+            }
+
+            .metric-value {
+                font-size: 2em;
+            }
+
+            .metric-label {
+                font-size: 1em;
+            }
+
+            .highlight-box {
+                padding: 15px;
+                font-size: 0.9em;
+            }
+
+            .highlight-box h3 {
+                font-size: 1.1em;
+                margin-bottom: 10px;
+            }
+
+            .highlight-box ul {
+                font-size: 0.9em;
+                line-height: 1.6;
+            }
+
+            .recommendations {
+                padding: 15px;
+                font-size: 0.9em;
+            }
+
+            .recommendations h3 {
+                font-size: 1.1em;
+                margin-bottom: 10px;
+            }
+
+            .recommendations h4 {
+                font-size: 1em;
+                margin-top: 15px;
+            }
+
+            .recommendations ul {
+                line-height: 1.6;
+            }
+
+            .footer {
+                padding: 20px 15px;
+                font-size: 0.9em;
+            }
+        }
+
+        /* Extra small phones */
+        @media screen and (max-width: 480px) {
+            .header h1 {
+                font-size: 1.2em;
+            }
+
+            .header p {
+                font-size: 0.8em;
+            }
+
+            .nav-links a {
+                padding: 6px 10px;
+                font-size: 0.75em;
+            }
+
+            .section-title {
+                font-size: 1.1em;
+            }
+
+            .metric-value {
+                font-size: 1.5em;
+            }
+
+            table {
+                font-size: 0.7em;
+            }
+
+            th, td {
+                padding: 6px 8px;
+                min-width: 70px;
+            }
+        }
+
         @media print {
             body {
                 background: white;
@@ -253,19 +462,19 @@
         <!-- Menu Điều Hướng -->
         <div class="nav">
             <div class="nav-links">
-                <a href="#overview">📈 Tổng Quan</a>
-                <a href="#section1">Q1 Phân Tích Theo Quý</a>
-                <a href="#section2">Q2 Thực Tế vs KH</a>
-                <a href="#section3">Q3 Chi Phí & Tỷ Suất</a>
-                <a href="#section4">Q4 Phát Hiện Bất Thường</a>
-                <a href="#section5">Q5 Khuyến Nghị</a>
+                <button class="tab-btn active" data-tab="overview">📈 Tổng Quan</button>
+                <button class="tab-btn" data-tab="section1">Phân Tích Theo Quý</button>
+                <button class="tab-btn" data-tab="section2">So Sánh Kế Hoạch Với Thực Tế</button>
+                <button class="tab-btn" data-tab="section3">Phân Tích Chi Phí</button>
+                <button class="tab-btn" data-tab="section4">Phát Hiện Bất Thường</button>
+                <button class="tab-btn" data-tab="section5">Khuyến Nghị</button>
             </div>
         </div>
 
         <!-- Nội Dung -->
         <div class="content">
             <!-- Tổng Quan Điều Hành -->
-            <div id="overview" class="section">
+            <div id="overview" class="section active">
                 <h2 class="section-title"><span class="emoji">🎯</span>Tổng Quan Điều Hành</h2>
 
                 <div class="key-metrics">
@@ -344,7 +553,7 @@
 
             <!-- Phần 1: Tổng Quan Theo Quý -->
             <div id="section1" class="section">
-                <h2 class="section-title"><span class="emoji">📊</span>Phần 1: Tổng Quan Hiệu Suất Theo Quý</h2>
+                <h2 class="section-title"><span class="emoji">📊</span>Phân Tích Theo Quý</h2>
 
                 <div class="text-content">
                     <h3>Bảng Tóm Tắt Hiệu Suất Theo Quý (Tất Cả Các Công Ty):</h3>
@@ -419,14 +628,14 @@
 
             <!-- Phần 2: Thực Tế vs Kế Hoạch -->
             <div id="section2" class="section">
-                <h2 class="section-title"><span class="emoji">🎯</span>Phần 2: So Sánh Thực Tế vs Kế Hoạch</h2>
+                <h2 class="section-title"><span class="emoji">🎯</span>So Sánh Kế Hoạch Với Thực Tế</h2>
 
                 <div class="chart-container">
                     <html>
 <head><meta charset="utf-8" /></head>
 <body>
     <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="chart3" class="plotly-graph-div" style="height:550px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("chart3")) {                    Plotly.newPlot(                        "chart3",                        [{"marker":{"color":"#3A464E"},"name":"SAN Th\u1ef1c T\u1ebf","showlegend":true,"text":["5.770 M","5.168 M","4.415 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"exSuR2GKtkA9CtejcDC0QK5H4XrUPrFA"},"type":"bar","xaxis":"x","yaxis":"y"},{"marker":{"color":"#3A464E","pattern":{"shape":"\u002f"}},"name":"SAN K\u1ebf Ho\u1ea1ch","opacity":0.6,"showlegend":true,"text":["7.154 M","7.464 M","7.464 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"AAAAAADyu0AAAAAAACi9QAAAAAAAKL1A"},"type":"bar","xaxis":"x","yaxis":"y"},{"line":{"color":"#FE3A45","dash":"dash","width":3},"marker":{"size":10,"symbol":"diamond"},"mode":"lines+markers+text","name":"SAN % \u0110\u1ea1t","showlegend":true,"text":["80.7%","69.2%","59.1%"],"textfont":{"color":"#FE3A45","family":"Arial Black","size":12},"textposition":"top center","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"CtejcD0qVECPwvUoXE9RQDMzMzMzk01A"},"yaxis":"y2","type":"scatter","xaxis":"x"},{"marker":{"color":"#E5E6E5"},"name":"TEENNIE Th\u1ef1c T\u1ebf","showlegend":false,"text":["6.996 M","8.533 M","9.123 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"CtejcP1Tu0C4HoXrcarAQM3MzMyM0cFA"},"type":"bar","xaxis":"x2","yaxis":"y3"},{"marker":{"color":"#E5E6E5","pattern":{"shape":"\u002f"}},"name":"TEENNIE K\u1ebf Ho\u1ea1ch","opacity":0.6,"showlegend":false,"text":["9.246 M","10.098 M","10.098 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"AAAAAAAPwkAAAAAAALnDQAAAAAAAucNA"},"type":"bar","xaxis":"x2","yaxis":"y3"},{"line":{"color":"#FE3A45","dash":"dash","width":3},"marker":{"size":10,"symbol":"diamond"},"mode":"lines+markers+text","name":"TEENNIE % \u0110\u1ea1t","showlegend":false,"text":["75.7%","84.5%","90.3%"],"textfont":{"color":"#FE3A45","family":"Arial Black","size":12},"textposition":"top center","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"exSuR+HqUkAAAAAAACBVQGZmZmZmllZA"},"yaxis":"y4","type":"scatter","xaxis":"x2"},{"marker":{"color":"#FE3A45"},"name":"TGIL Th\u1ef1c T\u1ebf","showlegend":false,"text":["5.920 M","6.815 M","5.871 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"XI\u002fC9agft0DhehSuB5+6QNejcD0K77ZA"},"type":"bar","xaxis":"x3","yaxis":"y5"},{"marker":{"color":"#FE3A45","pattern":{"shape":"\u002f"}},"name":"TGIL K\u1ebf Ho\u1ea1ch","opacity":0.6,"showlegend":false,"text":["5.230 M","6.825 M","7.801 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"AAAAAAButEAAAAAAAKm6QAAAAAAAeb5A"},"type":"bar","xaxis":"x3","yaxis":"y5"},{"line":{"color":"#FE3A45","dash":"dash","width":3},"marker":{"size":10,"symbol":"diamond"},"mode":"lines+markers+text","name":"TGIL % \u0110\u1ea1t","showlegend":false,"text":["113.2%","99.8%","75.3%"],"textfont":{"color":"#FE3A45","family":"Arial Black","size":12},"textposition":"top center","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"XI\u002fC9ShMXEBmZmZmZvZYQHE9Ctej0FJA"},"yaxis":"y6","type":"scatter","xaxis":"x3"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,0.2333333333333333]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Doanh Thu (Tri\u1ec7u)"}},"yaxis2":{"anchor":"x","overlaying":"y","side":"right"},"xaxis2":{"anchor":"y3","domain":[0.3533333333333333,0.5866666666666666]},"yaxis3":{"anchor":"x2","domain":[0.0,1.0],"title":{"text":"Doanh Thu (Tri\u1ec7u)"}},"yaxis4":{"anchor":"x2","overlaying":"y3","side":"right"},"xaxis3":{"anchor":"y5","domain":[0.7066666666666666,0.9399999999999998]},"yaxis5":{"anchor":"x3","domain":[0.0,1.0],"title":{"text":"Doanh Thu (Tri\u1ec7u)"}},"yaxis6":{"anchor":"x3","overlaying":"y5","side":"right","title":{"text":"% \u0110\u1ea1t K\u1ebf Ho\u1ea1ch"},"range":[0,150]},"annotations":[{"font":{"size":16},"showarrow":false,"text":"SAN: Th\u1ef1c T\u1ebf vs K\u1ebf Ho\u1ea1ch","x":0.11666666666666665,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"TEENNIE: Th\u1ef1c T\u1ebf vs K\u1ebf Ho\u1ea1ch","x":0.4699999999999999,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"TGIL: Th\u1ef1c T\u1ebf vs K\u1ebf Ho\u1ea1ch","x":0.8233333333333333,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"text":"\u003cb\u003eHi\u1ec7u Su\u1ea5t Doanh Thu: Th\u1ef1c T\u1ebf vs K\u1ebf Ho\u1ea1ch Theo C\u00f4ng Ty\u003c\u002fb\u003e"},"height":550,"barmode":"group","hovermode":"x unified","shapes":[{"line":{"color":"#3A464E","dash":"dot","width":2},"type":"line","x0":-0.5,"x1":2.5,"xref":"x","y0":100,"y1":100,"yref":"y2"},{"line":{"color":"#3A464E","dash":"dot","width":2},"type":"line","x0":-0.5,"x1":2.5,"xref":"x2","y0":100,"y1":100,"yref":"y4"},{"line":{"color":"#3A464E","dash":"dot","width":2},"type":"line","x0":-0.5,"x1":2.5,"xref":"x3","y0":100,"y1":100,"yref":"y6"}]},                        {"responsive": true}                    )                };            </script>        </div>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="chart3" class="plotly-graph-div" style="height:550px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("chart3")) {                    Plotly.newPlot(                        "chart3",                        [{"marker":{"color":"#3A464E"},"name":"SAN Th\u1ef1c T\u1ebf","showlegend":true,"text":["5.770 M","5.168 M","4.415 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"exSuR2GKtkA9CtejcDC0QK5H4XrUPrFA"},"type":"bar","xaxis":"x","yaxis":"y"},{"marker":{"color":"#3A464E","pattern":{"shape":"\u002f"}},"name":"SAN K\u1ebf Ho\u1ea1ch","opacity":0.6,"showlegend":true,"text":["7.154 M","7.464 M","7.464 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"AAAAAADyu0AAAAAAACi9QAAAAAAAKL1A"},"type":"bar","xaxis":"x","yaxis":"y"},{"line":{"color":"#FE3A45","dash":"dash","width":3},"marker":{"size":10,"symbol":"diamond"},"mode":"lines+markers+text","name":"SAN % \u0110\u1ea1t","showlegend":true,"text":["80.7%","69.2%","59.1%"],"textfont":{"color":"#FE3A45","family":"Arial Black","size":12},"textposition":"top center","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"CtejcD0qVECPwvUoXE9RQDMzMzMzk01A"},"yaxis":"y2","type":"scatter","xaxis":"x"},{"marker":{"color":"#E5E6E5"},"name":"TEENNIE Th\u1ef1c T\u1ebf","showlegend":false,"text":["6.996 M","8.533 M","9.123 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"CtejcP1Tu0C4HoXrcarAQM3MzMyM0cFA"},"type":"bar","xaxis":"x2","yaxis":"y3"},{"marker":{"color":"#E5E6E5","pattern":{"shape":"\u002f"}},"name":"TEENNIE K\u1ebf Ho\u1ea1ch","opacity":0.6,"showlegend":false,"text":["9.246 M","10.098 M","10.098 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"AAAAAAAPwkAAAAAAALnDQAAAAAAAucNA"},"type":"bar","xaxis":"x2","yaxis":"y3"},{"line":{"color":"#FE3A45","dash":"dash","width":3},"marker":{"size":10,"symbol":"diamond"},"mode":"lines+markers+text","name":"TEENNIE % \u0110\u1ea1t","showlegend":false,"text":["75.7%","84.5%","90.3%"],"textfont":{"color":"#FE3A45","family":"Arial Black","size":12},"textposition":"top center","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"exSuR+HqUkAAAAAAACBVQGZmZmZmllZA"},"yaxis":"y4","type":"scatter","xaxis":"x2"},{"marker":{"color":"#FE3A45"},"name":"TGIL Th\u1ef1c T\u1ebf","showlegend":false,"text":["5.920 M","6.815 M","5.871 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"XI\u002fC9agft0DhehSuB5+6QNejcD0K77ZA"},"type":"bar","xaxis":"x3","yaxis":"y5"},{"marker":{"color":"#FE3A45","pattern":{"shape":"\u002f"}},"name":"TGIL K\u1ebf Ho\u1ea1ch","opacity":0.6,"showlegend":false,"text":["5.230 M","6.825 M","7.801 M"],"textposition":"outside","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"AAAAAAButEAAAAAAAKm6QAAAAAAAeb5A"},"type":"bar","xaxis":"x3","yaxis":"y5"},{"line":{"color":"#FE3A45","dash":"dash","width":3},"marker":{"size":10,"symbol":"diamond"},"mode":"lines+markers+text","name":"TGIL % \u0110\u1ea1t","showlegend":false,"text":["113.2%","99.8%","75.3%"],"textfont":{"color":"#FE3A45","family":"Arial Black","size":12},"textposition":"top center","x":["Qu\u00fd 1","Qu\u00fd 2","Qu\u00fd 3"],"y":{"dtype":"f8","bdata":"XI\u002fC9ShMXEBmZmZmZvZYQHE9Ctej0FJA"},"yaxis":"y6","type":"scatter","xaxis":"x3"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,0.22444444444444445]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Doanh Thu (Tri\u1ec7u)"}},"yaxis2":{"anchor":"x","overlaying":"y","side":"right"},"xaxis2":{"anchor":"y3","domain":[0.35777777777777775,0.5822222222222222]},"yaxis3":{"anchor":"x2","domain":[0.0,1.0],"title":{"text":"Doanh Thu (Tri\u1ec7u)"}},"yaxis4":{"anchor":"x2","overlaying":"y3","side":"right"},"xaxis3":{"anchor":"y5","domain":[0.7155555555555555,0.94]},"yaxis5":{"anchor":"x3","domain":[0.0,1.0],"title":{"text":"Doanh Thu (Tri\u1ec7u)"}},"yaxis6":{"anchor":"x3","overlaying":"y5","side":"right","title":{"text":"% \u0110\u1ea1t K\u1ebf Ho\u1ea1ch"},"range":[0,150]},"annotations":[{"font":{"size":16},"showarrow":false,"text":"SAN: Th\u1ef1c T\u1ebf vs K\u1ebf Ho\u1ea1ch","x":0.11222222222222222,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"TEENNIE: Th\u1ef1c T\u1ebf vs K\u1ebf Ho\u1ea1ch","x":0.47,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"TGIL: Th\u1ef1c T\u1ebf vs K\u1ebf Ho\u1ea1ch","x":0.8277777777777777,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"text":"\u003cb\u003eHi\u1ec7u Su\u1ea5t Doanh Thu: Th\u1ef1c T\u1ebf vs K\u1ebf Ho\u1ea1ch Theo C\u00f4ng Ty\u003c\u002fb\u003e"},"height":550,"barmode":"group","hovermode":"x unified","shapes":[{"line":{"color":"#3A464E","dash":"dot","width":2},"type":"line","x0":-0.5,"x1":2.5,"xref":"x","y0":100,"y1":100,"yref":"y2"},{"line":{"color":"#3A464E","dash":"dot","width":2},"type":"line","x0":-0.5,"x1":2.5,"xref":"x2","y0":100,"y1":100,"yref":"y4"},{"line":{"color":"#3A464E","dash":"dot","width":2},"type":"line","x0":-0.5,"x1":2.5,"xref":"x3","y0":100,"y1":100,"yref":"y6"}]},                        {"responsive": true}                    )                };            </script>        </div>
 </body>
 </html>
                 </div>
@@ -443,7 +652,7 @@
 
             <!-- Phần 3: Phân Tích Chi Phí -->
             <div id="section3" class="section">
-                <h2 class="section-title"><span class="emoji">💰</span>Phần 3: Phân Tích Chi Phí & Khả Năng Sinh Lời</h2>
+                <h2 class="section-title"><span class="emoji">💰</span>Phân Tích Chi Phí</h2>
 
                 <div class="text-content">
                     <h3>Các Tỷ Lệ Tài Chính Theo Công Ty (% Trên Doanh Thu):</h3>
@@ -560,7 +769,7 @@
 
             <!-- Phần 4: Phát Hiện Bất Thường -->
             <div id="section4" class="section">
-                <h2 class="section-title"><span class="emoji">🔍</span>Phần 4: Phát Hiện Chi Phí Bất Thường & Biểu Đồ Thác</h2>
+                <h2 class="section-title"><span class="emoji">🔍</span>Phát Hiện Bất Thường</h2>
 
                 <div class="text-content">
                     <h3>Phân Tích Độ Biến Động Chi Phí:</h3>
@@ -695,7 +904,7 @@
 
             <!-- Phần 5: Khuyến Nghị -->
             <div id="section5" class="section">
-                <h2 class="section-title"><span class="emoji">💡</span>Phần 5: Khuyến Nghị Chiến Lược</h2>
+                <h2 class="section-title"><span class="emoji">💡</span>Khuyến Nghị</h2>
 
                 <div class="recommendations">
                     <h3>🏢 SAN - CẦN CHÚ Ý NGAY LẬP TỨC</h3>
@@ -830,9 +1039,34 @@
 
         <!-- Chân Trang -->
         <div class="footer">
-            <p>📊 Báo Cáo Phân Tích Tài Chính | Tạo ngày 25/11/2025 lúc 21:59</p>
+            <p>📊 Báo Cáo Phân Tích Tài Chính | Tạo ngày 25/11/2025 lúc 20:48</p>
             <p style="margin-top: 10px; opacity: 0.8;">Được chuẩn bị bởi Chuyên Gia Tài Chính & Phân Tích Dữ Liệu | Được hỗ trợ bởi Claude Code</p>
         </div>
     </div>
+
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const sections = document.querySelectorAll('.section');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+
+                    // Remove active class from all buttons and sections
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    sections.forEach(section => section.classList.remove('active'));
+
+                    // Add active class to clicked button and corresponding section
+                    this.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+
+                    // Scroll to top of content
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
