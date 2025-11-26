@@ -601,11 +601,9 @@ html_content = f"""
         </div>
 
         <!-- Phân tích -->
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                📊 Phân tích <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
-            </div>
-            <div class="accordion-content open" id="quarterly-analysis-overview">
+        <div class="card">
+            <div class="card-title">Phân tích</div>
+            <div id="quarterly-analysis-overview" style="font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted);">
                 ...
             </div>
         </div>
@@ -615,9 +613,9 @@ html_content = f"""
     <div id="tab-company" class="tab-content">
         <!-- Company Switcher -->
         <div class="segmented-control">
-            <button class="segment-btn active" onclick="switchCompany('SAN')">S</button>
-            <button class="segment-btn" onclick="switchCompany('TEENNIE')">T</button>
-            <button class="segment-btn" onclick="switchCompany('TGIL')">I</button>
+            <button class="segment-btn active" onclick="switchCompany('SAN')" data-company="SAN">S</button>
+            <button class="segment-btn" onclick="switchCompany('TEENNIE')" data-company="TEENNIE">T</button>
+            <button class="segment-btn" onclick="switchCompany('TGIL')" data-company="TGIL">I</button>
         </div>
 
         <!-- KPI Grid Dynamic -->
@@ -856,13 +854,14 @@ html_content = f"""
             // Update active state of buttons
             document.querySelectorAll('#tab-company .segment-btn').forEach(btn => {{
                 btn.classList.remove('active');
-                if(btn.textContent === (compId === 'SAN' ? 'S' : compId === 'TEENNIE' ? 'T' : 'I')) 
+                if(btn.getAttribute('data-company') === compId) 
                     btn.classList.add('active');
             }});
             
             // Resize biểu đồ sau khi chuyển công ty
             setTimeout(() => {{
                 Plotly.Plots.resize('chart-company');
+                Plotly.Plots.resize('chart-company-quarterly-comparison');
             }}, 100);
         }}
 
@@ -1008,11 +1007,11 @@ html_content = f"""
             
             Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
             
-            // Render quarterly comparison chart
-            renderQuarterlyComparisonChart();
+            // Render company quarterly comparison chart
+            renderCompanyQuarterlyComparisonChart(compId);
             
-            // Update analysis section
-            updateQuarterlyAnalysis();
+            // Update company analysis section
+            updateCompanyQuarterlyAnalysis(compId);
         }}
 
         // Render quarterly comparison chart for Overview tab (2024 vs 2025 - Total)
@@ -1022,6 +1021,20 @@ html_content = f"""
             const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
             const revenue2024 = quarters.map(q => quarterlyComparison['2024'].revenue[q]);
             const revenue2025 = quarters.map(q => quarterlyComparison['2025'].revenue[q]);
+            
+            // Tính toán tickvals và ticktext cho yaxis
+            const maxValue = Math.max(...revenue2024, ...revenue2025);
+            const minValue = Math.min(...revenue2024, ...revenue2025);
+            const range = maxValue - minValue;
+            const tickStep = range > 100000 ? 40000 : range > 50000 ? 20000 : 10000;
+            const startTick = Math.floor(minValue / tickStep) * tickStep;
+            const endTick = Math.ceil(maxValue / tickStep) * tickStep;
+            const tickvals = [];
+            const ticktext = [];
+            for (let i = startTick; i <= endTick; i += tickStep) {{
+                tickvals.push(i);
+                ticktext.push(i.toLocaleString('vi-VN') + ' M');
+            }}
             
             // Trace 1: Doanh thu 2024
             const trace2024 = {{
@@ -1073,7 +1086,10 @@ html_content = f"""
                     titlefont: {{ size: 11 }},
                     tickfont: {{ size: 10 }},
                     showgrid: true,
-                    gridcolor: '#E1E4EB'
+                    gridcolor: '#E1E4EB',
+                    tickmode: 'array',
+                    tickvals: tickvals,
+                    ticktext: ticktext
                 }},
                 showlegend: true,
                 legend: {{
@@ -1099,6 +1115,20 @@ html_content = f"""
             const revenue2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].revenue[q]);
             const revenue2025 = quarters.map(q => quarterlyCompanyComparison[compId]['2025'].revenue[q]);
             
+            // Tính toán tickvals và ticktext cho yaxis
+            const maxValue = Math.max(...revenue2024, ...revenue2025);
+            const minValue = Math.min(...revenue2024, ...revenue2025);
+            const range = maxValue - minValue;
+            const tickStep = range > 100000 ? 40000 : range > 50000 ? 20000 : 10000;
+            const startTick = Math.floor(minValue / tickStep) * tickStep;
+            const endTick = Math.ceil(maxValue / tickStep) * tickStep;
+            const tickvals = [];
+            const ticktext = [];
+            for (let i = startTick; i <= endTick; i += tickStep) {{
+                tickvals.push(i);
+                ticktext.push(i.toLocaleString('vi-VN') + ' M');
+            }}
+            
             // Trace 1: Doanh thu 2024
             const trace2024 = {{
                 x: quarters,
@@ -1149,7 +1179,10 @@ html_content = f"""
                     titlefont: {{ size: 11 }},
                     tickfont: {{ size: 10 }},
                     showgrid: true,
-                    gridcolor: '#E1E4EB'
+                    gridcolor: '#E1E4EB',
+                    tickmode: 'array',
+                    tickvals: tickvals,
+                    ticktext: ticktext
                 }},
                 showlegend: true,
                 legend: {{
@@ -1635,6 +1668,20 @@ html_content = f"""
             const maxRevenueValue = revenueData[maxRevenueIndex];
             const minRevenueValue = revenueData[minRevenueIndex];
             
+            // Tính toán tickvals và ticktext cho yaxis
+            const maxValue = Math.max(...revenueData, ...pbtData);
+            const minValue = Math.min(...revenueData, ...pbtData);
+            const range = maxValue - minValue;
+            const tickStep = range > 50000 ? 20000 : range > 20000 ? 10000 : 5000;
+            const startTick = Math.floor(minValue / tickStep) * tickStep;
+            const endTick = Math.ceil(maxValue / tickStep) * tickStep;
+            const tickvals = [];
+            const ticktext = [];
+            for (let i = startTick; i <= endTick; i += tickStep) {{
+                tickvals.push(i);
+                ticktext.push(i.toLocaleString('vi-VN') + ' M');
+            }}
+            
             // Trace 1: Doanh thu (Đường - màu cam đậm, mượt, mỏng)
             const traceRevenue = {{
                 x: months,
@@ -1725,7 +1772,10 @@ html_content = f"""
                     side: 'left',
                     showgrid: true,
                     gridcolor: '#E1E4EB',
-                    tickfont: {{ size: 10 }}
+                    tickfont: {{ size: 10 }},
+                    tickmode: 'array',
+                    tickvals: tickvals,
+                    ticktext: ticktext
                 }},
                 showlegend: true,
                 legend: {{
