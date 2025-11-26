@@ -419,7 +419,7 @@ html_content = f"""
 
         <!-- Ranking -->
         <div class="card">
-            <div class="card-title">Bảng xếp hạng công ty</div>
+            <div class="card-title">Xem xét tổng quan</div>
             {"".join([f'''
             <div class="ranking-item">
                 <div class="ranking-icon {c['status_class']}">
@@ -428,7 +428,7 @@ html_content = f"""
                 <div class="ranking-info">
                     <div class="ranking-name">{c['name']}</div>
                     <div class="ranking-detail">
-                        {format_number(c['revenue'])} DT • {format_number(c['pbt'])} LNTT • {c['margin']:.1f}%
+                        Doanh thu: {format_number(c['revenue'])} • Lợi nhuận trước thuế: {format_number(c['pbt'])} ({c['margin']:.1f}%)
                     </div>
                 </div>
                 <div class="ranking-badge bg-{c['status_class']}-light text-{c['status_class']}">{c['status_short']}</div>
@@ -439,11 +439,8 @@ html_content = f"""
 
         <!-- Chart -->
         <div class="card">
-            <div class="card-title">Doanh thu theo quý</div>
-            <div id="chart-overview" style="height: 200px;"></div>
-            <div style="font-size: 11px; color: #666; margin-top: 8px; text-align: center;">
-                Quý 2 đạt đỉnh ({format_number(revenue_quarterly.loc['Q2', 'Total'])}) sau đó giảm nhẹ ở Quý 3.
-            </div>
+            <div class="card-title">Doanh thu và lợi nhuận theo tháng</div>
+            <div id="chart-overview" style="height: 250px;"></div>
         </div>
 
         <!-- Accordion Insight -->
@@ -855,27 +852,66 @@ html_content = f"""
 
         // --- HELPERS ---
         function renderOverviewChart() {{
-            const q1 = {revenue_quarterly.loc['Q1', 'Total']};
-            const q2 = {revenue_quarterly.loc['Q2', 'Total']};
-            const q3 = {revenue_quarterly.loc['Q3', 'Total']};
+            // Dữ liệu doanh thu và lợi nhuận theo tháng
+            const months = {json.dumps(['T01', 'T02', 'T03', 'T04', 'T05', 'T06', 'T07', 'T08', 'T09', 'T10'])};
+            const revenueData = {json.dumps([revenue_df.loc[month, 'Total'] for month in months])};
+            const pbtData = {json.dumps([pbt_df.loc[month, 'Total'] for month in months])};
             
-            const trace = {{
-                x: ['Quý 1', 'Quý 2', 'Quý 3'],
-                y: [q1, q2, q3],
+            // Trace 1: Doanh thu (Cột)
+            const traceRevenue = {{
+                x: months,
+                y: revenueData,
+                type: 'bar',
+                name: 'Doanh thu',
+                marker: {{ color: '#3A464E', opacity: 0.8 }},
+                text: revenueData.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ size: 10 }},
+                yaxis: 'y'
+            }};
+            
+            // Trace 2: Lợi nhuận (Đường)
+            const tracePBT = {{
+                x: months,
+                y: pbtData,
                 type: 'scatter',
                 mode: 'lines+markers',
-                line: {{ color: '#3A464E', width: 3 }},
-                marker: {{ size: 8, color: '#3A464E' }}
+                name: 'Lợi nhuận trước thuế',
+                line: {{ color: '#FE3A45', width: 3 }},
+                marker: {{ size: 8, color: '#FE3A45' }},
+                yaxis: 'y2'
             }};
             
             const layout = {{
-                margin: {{ t: 10, b: 20, l: 40, r: 20 }},
-                yaxis: {{ title: '', showticklabels: false, showgrid: false }},
-                xaxis: {{ showgrid: false }},
-                height: 200
+                margin: {{ t: 20, b: 40, l: 50, r: 50 }},
+                xaxis: {{ 
+                    title: 'Tháng',
+                    tickangle: -45
+                }},
+                yaxis: {{
+                    title: 'Doanh thu (Triệu)',
+                    side: 'left',
+                    titlefont: {{ color: '#3A464E' }},
+                    tickfont: {{ color: '#3A464E' }}
+                }},
+                yaxis2: {{
+                    title: 'Lợi nhuận (Triệu)',
+                    side: 'right',
+                    overlaying: 'y',
+                    titlefont: {{ color: '#FE3A45' }},
+                    tickfont: {{ color: '#FE3A45' }}
+                }},
+                legend: {{
+                    orientation: 'h',
+                    y: -0.2,
+                    x: 0.5,
+                    xanchor: 'center'
+                }},
+                height: 250,
+                barmode: 'group'
             }};
             
-            Plotly.newPlot('chart-overview', [trace], layout, {{staticPlot: true, responsive: true}});
+            Plotly.newPlot('chart-overview', [traceRevenue, tracePBT], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
         }}
 
         function formatNumber(num) {{

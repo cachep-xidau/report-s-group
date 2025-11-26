@@ -163,7 +163,7 @@
 
         <!-- Ranking -->
         <div class="card">
-            <div class="card-title">Bảng xếp hạng công ty</div>
+            <div class="card-title">Xem xét tổng quan</div>
             
             <div class="ranking-item">
                 <div class="ranking-icon critical">
@@ -172,7 +172,7 @@
                 <div class="ranking-info">
                     <div class="ranking-name">S</div>
                     <div class="ranking-detail">
-                        17.162 M DT • -1.159 M LNTT • -6.8%
+                        Doanh thu: 17.162 M • Lợi nhuận trước thuế: -1.159 M (-6.8%)
                     </div>
                 </div>
                 <div class="ranking-badge bg-critical-light text-critical">NGHIÊM TRỌNG</div>
@@ -185,7 +185,7 @@
                 <div class="ranking-info">
                     <div class="ranking-name">T</div>
                     <div class="ranking-detail">
-                        27.733 M DT • 6.861 M LNTT • 24.7%
+                        Doanh thu: 27.733 M • Lợi nhuận trước thuế: 6.861 M (24.7%)
                     </div>
                 </div>
                 <div class="ranking-badge bg-excellent-light text-excellent">XUẤT SẮC</div>
@@ -198,7 +198,7 @@
                 <div class="ranking-info">
                     <div class="ranking-name">I</div>
                     <div class="ranking-detail">
-                        21.489 M DT • 3.382 M LNTT • 15.7%
+                        Doanh thu: 21.489 M • Lợi nhuận trước thuế: 3.382 M (15.7%)
                     </div>
                 </div>
                 <div class="ranking-badge bg-average-light text-average">TRUNG BÌNH</div>
@@ -209,11 +209,8 @@
 
         <!-- Chart -->
         <div class="card">
-            <div class="card-title">Doanh thu theo quý</div>
-            <div id="chart-overview" style="height: 200px;"></div>
-            <div style="font-size: 11px; color: #666; margin-top: 8px; text-align: center;">
-                Quý 2 đạt đỉnh (20.516 M) sau đó giảm nhẹ ở Quý 3.
-            </div>
+            <div class="card-title">Doanh thu và lợi nhuận theo tháng</div>
+            <div id="chart-overview" style="height: 250px;"></div>
         </div>
 
         <!-- Accordion Insight -->
@@ -625,27 +622,66 @@
 
         // --- HELPERS ---
         function renderOverviewChart() {
-            const q1 = 18686.03;
-            const q2 = 20516.35;
-            const q3 = 19408.97;
+            // Dữ liệu doanh thu và lợi nhuận theo tháng
+            const months = ["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08", "T09", "T10"];
+            const revenueData = [6319.87, 4673.24, 7692.92, 6174.64, 6839.96, 7501.75, 7069.47, 5723.05, 6616.45, 7771.72];
+            const pbtData = [930.44, 195.87, 1569.68, 628.51, 752.22, 1264.85, 1145.53, 1161.45, 629.5, 806.31];
             
-            const trace = {
-                x: ['Quý 1', 'Quý 2', 'Quý 3'],
-                y: [q1, q2, q3],
+            // Trace 1: Doanh thu (Cột)
+            const traceRevenue = {
+                x: months,
+                y: revenueData,
+                type: 'bar',
+                name: 'Doanh thu',
+                marker: { color: '#3A464E', opacity: 0.8 },
+                text: revenueData.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: { size: 10 },
+                yaxis: 'y'
+            };
+            
+            // Trace 2: Lợi nhuận (Đường)
+            const tracePBT = {
+                x: months,
+                y: pbtData,
                 type: 'scatter',
                 mode: 'lines+markers',
-                line: { color: '#3A464E', width: 3 },
-                marker: { size: 8, color: '#3A464E' }
+                name: 'Lợi nhuận trước thuế',
+                line: { color: '#FE3A45', width: 3 },
+                marker: { size: 8, color: '#FE3A45' },
+                yaxis: 'y2'
             };
             
             const layout = {
-                margin: { t: 10, b: 20, l: 40, r: 20 },
-                yaxis: { title: '', showticklabels: false, showgrid: false },
-                xaxis: { showgrid: false },
-                height: 200
+                margin: { t: 20, b: 40, l: 50, r: 50 },
+                xaxis: { 
+                    title: 'Tháng',
+                    tickangle: -45
+                },
+                yaxis: {
+                    title: 'Doanh thu (Triệu)',
+                    side: 'left',
+                    titlefont: { color: '#3A464E' },
+                    tickfont: { color: '#3A464E' }
+                },
+                yaxis2: {
+                    title: 'Lợi nhuận (Triệu)',
+                    side: 'right',
+                    overlaying: 'y',
+                    titlefont: { color: '#FE3A45' },
+                    tickfont: { color: '#FE3A45' }
+                },
+                legend: {
+                    orientation: 'h',
+                    y: -0.2,
+                    x: 0.5,
+                    xanchor: 'center'
+                },
+                height: 250,
+                barmode: 'group'
             };
             
-            Plotly.newPlot('chart-overview', [trace], layout, {staticPlot: true, responsive: true});
+            Plotly.newPlot('chart-overview', [traceRevenue, tracePBT], layout, {staticPlot: false, responsive: true, displayModeBar: false});
         }
 
         function formatNumber(num) {
