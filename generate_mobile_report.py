@@ -177,6 +177,20 @@ for company in companies:
         cum_sum += pbt_val
         cumulative_pbt.append(cum_sum)
     
+    # Quarterly data for Waterfall Charts (Tab 3)
+    quarterly_data = []
+    for q_idx, q_name in enumerate(['Q1', 'Q2', 'Q3'], 1):
+        q_data = {
+            'quarter': q_name,
+            'revenue': revenue_quarterly.loc[q_name, company],
+            'cogs': cogs_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
+            'selling_exp': selling_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
+            'admin_exp': admin_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
+            'other_exp': other_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
+            'pbt': pbt_quarterly.loc[q_name, company]
+        }
+        quarterly_data.append(q_data)
+    
     # Insights for Tab 2 Accordion
     if company == 'SAN':
         insight = f"- LN/DT {margin:.2f}%, không đạt kế hoạch doanh thu ({avg_achieve:.1f}%).<br>- Cơ cấu chi phí bán hàng, quản lý cao, ảnh hưởng mạnh đến lợi nhuận."
@@ -201,6 +215,7 @@ for company in companies:
         'cv_data': cv_data,
         'monthly_pbt': monthly_pbt,
         'cumulative_pbt': cumulative_pbt,
+        'quarterly_data': quarterly_data,
         'insight': insight
     })
 
@@ -539,6 +554,22 @@ html_content = f"""
                 <button class="segment-btn" onclick="switchExpenseCompany('TGIL')">I</button>
             </div>
             
+            <!-- Waterfall Charts -->
+            <div class="card">
+                <div class="card-title">Cấu trúc chi phí - Quý 1</div>
+                <div id="chart-waterfall-q1" style="height: 280px;"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Cấu trúc chi phí - Quý 2</div>
+                <div id="chart-waterfall-q2" style="height: 280px;"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Cấu trúc chi phí - Quý 3</div>
+                <div id="chart-waterfall-q3" style="height: 280px;"></div>
+            </div>
+            
             <div class="card">
                 <div class="card-title">Cơ cấu chi phí (% Doanh thu)</div>
                 <div id="chart-expense-ratio" style="height: 220px;"></div>
@@ -630,6 +661,7 @@ html_content = f"""
         document.addEventListener('DOMContentLoaded', () => {{
             renderOverviewChart();
             updateExpenseRatioChart('SAN');
+            renderWaterfallCharts('SAN');
             renderCVChart();
             renderActions('0-30');
             
@@ -808,6 +840,12 @@ html_content = f"""
                 bg.style.transform = 'translateX(0)';
                 btns[0].classList.add('active');
                 btns[1].classList.remove('active');
+                // Resize waterfall charts when showing ratio view
+                setTimeout(() => {{
+                    Plotly.Plots.resize('chart-waterfall-q1');
+                    Plotly.Plots.resize('chart-waterfall-q2');
+                    Plotly.Plots.resize('chart-waterfall-q3');
+                }}, 100);
             }} else {{
                 document.getElementById('view-ratio').style.display = 'none';
                 document.getElementById('view-cv').style.display = 'block';
@@ -821,12 +859,82 @@ html_content = f"""
         function switchExpenseCompany(compId) {{
             currentExpenseCompanyId = compId;
             updateExpenseRatioChart(compId);
+            renderWaterfallCharts(compId);
             
             // Update buttons
             document.querySelectorAll('#view-ratio .segment-btn').forEach(btn => {{
                 btn.classList.remove('active');
                 if(btn.textContent === (compId === 'SAN' ? 'S' : compId === 'TEENNIE' ? 'T' : 'I')) 
                     btn.classList.add('active');
+            }});
+        }}
+        
+        function renderWaterfallCharts(compId) {{
+            const data = companyData.find(c => c.id === compId);
+            const quarterly = data.quarterly_data;
+            const companyName = data.name;
+            
+            // Render 3 waterfall charts (Q1, Q2, Q3)
+            ['Q1', 'Q2', 'Q3'].forEach((qName, idx) => {{
+                const qData = quarterly[idx];
+                const chartId = `chart-waterfall-${{qName.toLowerCase()}}`;
+                
+                // Calculate values
+                const revenue = qData.revenue;
+                const cogs = qData.cogs;
+                const gross_profit = revenue - cogs;
+                const selling_exp = qData.selling_exp;
+                const admin_exp = qData.admin_exp;
+                const other_exp = qData.other_exp;
+                const pbt = qData.pbt;
+                
+                // Waterfall data
+                const waterfall_data = {{
+                    'Doanh Thu': revenue,
+                    'Giá Vốn': -cogs,
+                    'Lãi Gộp': gross_profit,
+                    'CP Bán Hàng': -selling_exp,
+                    'CP Quản Lý': -admin_exp,
+                    'CP Khác': -other_exp,
+                    'LN Trước Thuế': pbt,
+                }};
+                
+                // Format text
+                const text_values = [];
+                for (const val of Object.values(waterfall_data)) {{
+                    const formatted = val > 0 ? formatNumber(val) : formatNumber(Math.abs(val));
+                    text_values.push(formatted);
+                }}
+                
+                // Create waterfall chart
+                const fig = {{
+                    data: [{{
+                        type: 'waterfall',
+                        name: 'Luồng P&L',
+                        orientation: 'v',
+                        measure: ['absolute', 'relative', 'total', 'relative', 'relative', 'relative', 'total'],
+                        x: Object.keys(waterfall_data),
+                        text: text_values,
+                        textposition: 'inside',
+                        textfont: {{ size: 11, color: 'white', family: 'Arial Black' }},
+                        y: Object.values(waterfall_data),
+                        connector: {{ line: {{ color: '#3A464E', width: 2 }} }},
+                        decreasing: {{ marker: {{ color: '#FE3A45', line: {{ color: '#FE3A45', width: 2 }} }} }},
+                        increasing: {{ marker: {{ color: '#3A464E', line: {{ color: '#3A464E', width: 2 }} }} }},
+                        totals: {{ marker: {{ color: '#3A464E', line: {{ color: '#3A464E', width: 2 }} }} }}
+                    }}],
+                    layout: {{
+                        title: `${{companyName}} - ${{qName}}`,
+                        showlegend: false,
+                        height: 280,
+                        margin: {{ t: 50, b: 40, l: 50, r: 20 }},
+                        yaxis: {{ title: 'Số Tiền (M)' }},
+                        font: {{ size: 11 }},
+                        template: 'plotly_white'
+                    }}
+                }};
+                
+                Plotly.newPlot(chartId, fig.data, fig.layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
             }});
         }}
 
