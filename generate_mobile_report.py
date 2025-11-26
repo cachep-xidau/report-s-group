@@ -169,8 +169,13 @@ for company in companies:
         'Other': calc_cv(other_exp_df[company])
     }
 
-    # Quarterly PBT for Tab 2 Mini-chart
-    q_pbt = [pbt_quarterly.loc[q, company] for q in ['Q1', 'Q2', 'Q3']]
+    # Monthly PBT data for Tab 2 Chart
+    monthly_pbt = [pbt_df.loc[month, company] for month in months]
+    cumulative_pbt = []
+    cum_sum = 0
+    for pbt_val in monthly_pbt:
+        cum_sum += pbt_val
+        cumulative_pbt.append(cum_sum)
     
     # Insights for Tab 2 Accordion
     if company == 'SAN':
@@ -194,7 +199,8 @@ for company in companies:
         'icon': icon,
         'expense_ratios': expense_ratios,
         'cv_data': cv_data,
-        'quarterly_pbt': q_pbt,
+        'monthly_pbt': monthly_pbt,
+        'cumulative_pbt': cumulative_pbt,
         'insight': insight
     })
 
@@ -496,8 +502,8 @@ html_content = f"""
 
         <!-- Mini Chart -->
         <div class="card">
-            <div class="card-title">Hiệu suất LNTT theo quý</div>
-            <div id="chart-company" style="height: 180px;"></div>
+            <div class="card-title">Lợi nhuận luỹ kế</div>
+            <div id="chart-company" style="height: 250px;"></div>
         </div>
 
         <!-- Current Situation -->
@@ -691,19 +697,69 @@ html_content = f"""
             // Insight
             document.getElementById('comp-insight').textContent = data.insight;
 
-            // Chart
-            const trace = {{
-                x: ['Q1', 'Q2', 'Q3'],
-                y: data.quarterly_pbt,
+            // Chart: Lợi nhuận luỹ kế của 3 công ty
+            const months = {json.dumps(months)};
+            const allCompanies = companyData;
+            
+            // Tạo traces cho lợi nhuận luỹ kế (area chart) của 3 công ty
+            const colors = ['#FE3A45', '#27ae60', '#f39c12']; // S=Red, T=Green, I=Orange
+            const traces = [];
+            
+            // Area charts cho lợi nhuận luỹ kế (đường/miền)
+            allCompanies.forEach((comp, idx) => {{
+                traces.push({{
+                    x: months,
+                    y: comp.cumulative_pbt,
+                    type: 'scatter',
+                    mode: 'lines',
+                    fill: 'tozeroy',
+                    name: comp.name + ' (luỹ kế)',
+                    line: {{ color: colors[idx], width: 2.5 }},
+                    fillcolor: colors[idx] + '30', // 30 = ~19% opacity
+                    yaxis: 'y'
+                }});
+            }});
+            
+            // Cột lợi nhuận hàng tháng (của công ty đang chọn)
+            traces.push({{
+                x: months,
+                y: data.monthly_pbt,
                 type: 'bar',
-                marker: {{ color: data.status_class === 'critical' ? '#FE3A45' : data.status_class === 'excellent' ? '#27ae60' : '#f39c12' }}
-            }};
+                name: data.name + ' (hàng tháng)',
+                marker: {{ 
+                    color: data.status_class === 'critical' ? '#FE3A45' : data.status_class === 'excellent' ? '#27ae60' : '#f39c12',
+                    opacity: 0.7,
+                    line: {{ color: 'white', width: 1 }}
+                }},
+                yaxis: 'y'
+            }});
+            
             const layout = {{
-                margin: {{ t: 10, b: 30, l: 40, r: 20 }},
-                yaxis: {{ title: 'LNTT (Triệu)' }},
-                height: 180
+                margin: {{ t: 20, b: 50, l: 50, r: 20 }},
+                xaxis: {{ 
+                    title: '',
+                    tickangle: -45
+                }},
+                yaxis: {{
+                    title: 'Lợi nhuận (M)',
+                    titlefont: {{ size: 11 }},
+                    tickfont: {{ size: 10 }},
+                    zeroline: true,
+                    zerolinecolor: '#666',
+                    zerolinewidth: 1
+                }},
+                legend: {{
+                    orientation: 'h',
+                    y: -0.3,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: {{ size: 10 }}
+                }},
+                height: 250,
+                hovermode: 'x unified'
             }};
-            Plotly.newPlot('chart-company', [trace], layout, {{staticPlot: true, responsive: true}});
+            
+            Plotly.newPlot('chart-company', traces, layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
         }}
 
         // --- TAB 3: EXPENSE ---
