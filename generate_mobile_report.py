@@ -500,9 +500,9 @@ html_content = f"""
         </div>
 
         <!-- Mini Chart -->
-        <div class="card" style="overflow: hidden;">
+        <div class="card" style="overflow: hidden; width: 100%;">
             <div class="card-title">Lợi nhuận luỹ kế</div>
-            <div id="chart-company" style="height: 220px; width: 100%; max-width: 100%;"></div>
+            <div id="chart-company" style="height: 220px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
 
         <!-- Current Situation -->
@@ -627,31 +627,17 @@ html_content = f"""
 
         // --- INIT ---
         // Khởi tạo khi DOM ready
-        function initCharts() {{
+        document.addEventListener('DOMContentLoaded', () => {{
             renderOverviewChart();
             updateExpenseRatioChart('SAN');
             renderCVChart();
             renderActions('0-30');
             
-            // Đợi window load để đảm bảo layout đã hoàn toàn render
-            if (document.readyState === 'complete') {{
-                setTimeout(() => {{
-                    updateCompanyTab('SAN');
-                }}, 200);
-            }} else {{
-                window.addEventListener('load', () => {{
-                    setTimeout(() => {{
-                        updateCompanyTab('SAN');
-                    }}, 200);
-                }});
-            }}
-        }}
-        
-        if (document.readyState === 'loading') {{
-            document.addEventListener('DOMContentLoaded', initCharts);
-        }} else {{
-            initCharts();
-        }}
+            // Đợi một chút để đảm bảo layout đã render xong
+            setTimeout(() => {{
+                updateCompanyTab('SAN');
+            }}, 150);
+        }});
 
         // --- NAVIGATION ---
         function switchTab(tabId) {{
@@ -662,11 +648,11 @@ html_content = f"""
             event.currentTarget.classList.add('active');
             window.scrollTo({{ top: 0, behavior: 'smooth' }});
             
-            // Nếu chuyển sang tab company, resize biểu đồ
+            // Nếu chuyển sang tab company, resize biểu đồ sau khi tab được hiển thị
             if (tabId === 'tab-company') {{
                 setTimeout(() => {{
                     Plotly.Plots.resize('chart-company');
-                }}, 100);
+                }}, 200);
             }}
         }}
 
@@ -698,7 +684,7 @@ html_content = f"""
             // Resize biểu đồ sau khi chuyển công ty
             setTimeout(() => {{
                 Plotly.Plots.resize('chart-company');
-            }}, 50);
+            }}, 100);
         }}
 
         function updateCompanyTab(compId) {{
@@ -756,8 +742,7 @@ html_content = f"""
                     color: chartColor,
                     opacity: 0.7,
                     line: {{ color: 'white', width: 0.5 }}
-                }},
-                yaxis: 'y'
+                }}
             }};
             
             // Trace 2: Đường lợi nhuận luỹ kế
@@ -774,31 +759,8 @@ html_content = f"""
                 marker: {{
                     size: 6,
                     color: chartColor
-                }},
-                yaxis: 'y'
-            }};
-            
-            // Lấy width của container - đảm bảo tính toán đúng
-            const container = document.getElementById('chart-company');
-            let containerWidth = container.offsetWidth;
-            
-            // Nếu chưa có width, tính từ parent hoặc window
-            if (!containerWidth || containerWidth === 0) {{
-                const parent = container.parentElement;
-                if (parent) {{
-                    containerWidth = parent.offsetWidth - 32; // Trừ padding card (16px mỗi bên)
-                }} else {{
-                    containerWidth = window.innerWidth - 32;
                 }}
-            }}
-            
-            // Nếu vẫn chưa có, dùng window width trừ padding
-            if (!containerWidth || containerWidth === 0) {{
-                containerWidth = window.innerWidth - 32;
-            }}
-            
-            // Đảm bảo width không vượt quá màn hình và có giá trị hợp lý
-            containerWidth = Math.max(280, Math.min(containerWidth, window.innerWidth - 32));
+            }};
             
             const layout = {{
                 margin: {{ t: 10, b: 40, l: 45, r: 10 }},
@@ -826,15 +788,11 @@ html_content = f"""
                     font: {{ size: 9 }}
                 }},
                 height: 220,
-                width: containerWidth,
                 hovermode: 'x unified',
-                autosize: false
+                autosize: true
             }};
             
-            Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {{staticPlot: false, responsive: false, displayModeBar: false}}).then(() => {{
-                // Force resize sau khi render
-                Plotly.Plots.resize('chart-company');
-            }});
+            Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
         }}
 
         // --- TAB 3: EXPENSE ---
