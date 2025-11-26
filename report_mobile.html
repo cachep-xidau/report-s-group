@@ -69,8 +69,8 @@
         
         /* KPI Grid */
         .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .kpi-card { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: center; }
-        .kpi-label { font-size: 11px; color: var(--text-light); margin-bottom: 4px; font-weight: 500; }
+        .kpi-card { background: white; border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; }
+        .kpi-label { font-size: 11px; color: var(--text-light); margin-bottom: 4px; font-weight: 500; text-align: left; padding: 0; }
         .kpi-value { font-size: 20px; font-weight: 700; color: var(--primary); line-height: 1.2; margin-bottom: 2px; }
         .kpi-sub { font-size: 10px; color: var(--text-light); }
 
@@ -245,12 +245,12 @@
                 <div class="kpi-value" id="comp-revenue">...</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">LNTT</div>
-                <div class="kpi-value" id="comp-pbt">...</div>
+                <div class="kpi-label">LN lũy kế</div>
+                <div class="kpi-value" id="comp-cumulative">...</div>
                 <div class="kpi-sub" id="comp-margin">...</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">Hoàn thành KH</div>
+                <div class="kpi-label">%KPI</div>
                 <div class="kpi-value" id="comp-plan">...</div>
                 <div class="kpi-sub" id="comp-plan-sub">...</div>
             </div>
@@ -454,7 +454,9 @@
 
             // KPI
             document.getElementById('comp-revenue').textContent = formatNumber(data.revenue);
-            document.getElementById('comp-pbt').textContent = formatNumber(data.pbt);
+            // Lợi nhuận luỹ kế (tháng 10, index 9)
+            const cumulativeValue = data.cumulative_pbt[9];
+            document.getElementById('comp-cumulative').textContent = formatNumber(cumulativeValue);
             document.getElementById('comp-margin').textContent = `LN/DT: ${data.margin.toFixed(2)}%`;
             
             document.getElementById('comp-plan').textContent = `${data.avg_achieve.toFixed(1)}%`;
