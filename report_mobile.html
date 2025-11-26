@@ -262,9 +262,9 @@
         </div>
 
         <!-- Mini Chart -->
-        <div class="card">
+        <div class="card" style="overflow-x: auto;">
             <div class="card-title">Lợi nhuận luỹ kế</div>
-            <div id="chart-company" style="height: 250px;"></div>
+            <div id="chart-company" style="height: 220px; width: 100%; min-width: 100%;"></div>
         </div>
 
         <!-- Current Situation -->
@@ -458,69 +458,70 @@
             // Insight
             document.getElementById('comp-insight').textContent = data.insight;
 
-            // Chart: Lợi nhuận luỹ kế của 3 công ty
+            // Chart: Lợi nhuận luỹ kế của công ty đang chọn
             const months = ["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08", "T09", "T10"];
-            const allCompanies = companyData;
+            const chartColor = data.status_class === 'critical' ? '#FE3A45' : data.status_class === 'excellent' ? '#27ae60' : '#f39c12';
             
-            // Tạo traces cho lợi nhuận luỹ kế (area chart) của 3 công ty
-            const colors = ['#FE3A45', '#27ae60', '#f39c12']; // S=Red, T=Green, I=Orange
-            const traces = [];
-            
-            // Area charts cho lợi nhuận luỹ kế (đường/miền)
-            allCompanies.forEach((comp, idx) => {
-                traces.push({
-                    x: months,
-                    y: comp.cumulative_pbt,
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'tozeroy',
-                    name: comp.name + ' (luỹ kế)',
-                    line: { color: colors[idx], width: 2.5 },
-                    fillcolor: colors[idx] + '30', // 30 = ~19% opacity
-                    yaxis: 'y'
-                });
-            });
-            
-            // Cột lợi nhuận hàng tháng (của công ty đang chọn)
-            traces.push({
+            // Trace 1: Cột lợi nhuận hàng tháng
+            const traceBar = {
                 x: months,
                 y: data.monthly_pbt,
                 type: 'bar',
-                name: data.name + ' (hàng tháng)',
+                name: 'Lợi nhuận hàng tháng',
                 marker: { 
-                    color: data.status_class === 'critical' ? '#FE3A45' : data.status_class === 'excellent' ? '#27ae60' : '#f39c12',
+                    color: chartColor,
                     opacity: 0.7,
-                    line: { color: 'white', width: 1 }
+                    line: { color: 'white', width: 0.5 }
                 },
                 yaxis: 'y'
-            });
+            };
+            
+            // Trace 2: Đường lợi nhuận luỹ kế
+            const traceLine = {
+                x: months,
+                y: data.cumulative_pbt,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Lợi nhuận luỹ kế',
+                line: { 
+                    color: chartColor,
+                    width: 3
+                },
+                marker: {
+                    size: 6,
+                    color: chartColor
+                },
+                yaxis: 'y'
+            };
             
             const layout = {
-                margin: { t: 20, b: 50, l: 50, r: 20 },
+                margin: { t: 10, b: 40, l: 45, r: 10 },
                 xaxis: { 
                     title: '',
-                    tickangle: -45
+                    tickangle: -45,
+                    tickfont: { size: 9 }
                 },
                 yaxis: {
                     title: 'Lợi nhuận (M)',
-                    titlefont: { size: 11 },
-                    tickfont: { size: 10 },
+                    titlefont: { size: 10 },
+                    tickfont: { size: 9 },
                     zeroline: true,
-                    zerolinecolor: '#666',
+                    zerolinecolor: '#999',
                     zerolinewidth: 1
                 },
                 legend: {
                     orientation: 'h',
-                    y: -0.3,
+                    y: -0.2,
                     x: 0.5,
                     xanchor: 'center',
-                    font: { size: 10 }
+                    font: { size: 9 }
                 },
-                height: 250,
-                hovermode: 'x unified'
+                height: 220,
+                hovermode: 'x unified',
+                autosize: true
             };
             
-            Plotly.newPlot('chart-company', traces, layout, {staticPlot: false, responsive: true, displayModeBar: false});
+            Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {staticPlot: false, responsive: true, displayModeBar: false});
         }
 
         // --- TAB 3: EXPENSE ---
