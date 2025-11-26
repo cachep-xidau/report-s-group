@@ -645,11 +645,28 @@
                     'LN Trước Thuế': pbt,
                 };
                 
-                // Format text
+                // Format text with value and percentage
                 const text_values = [];
-                for (const val of Object.values(waterfall_data)) {
-                    const formatted = val > 0 ? formatNumber(val) : formatNumber(Math.abs(val));
-                    text_values.push(formatted);
+                const keys = Object.keys(waterfall_data);
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    const val = Object.values(waterfall_data)[i];
+                    const absVal = Math.abs(val);
+                    const formatted = formatNumber(absVal);
+                    
+                    // Calculate percentage relative to revenue
+                    let percentage = '';
+                    if (key === 'Doanh Thu') {
+                        percentage = '100%';
+                    } else if (key === 'Lãi Gộp' || key === 'LN Trước Thuế') {
+                        // For totals, show as % of revenue
+                        percentage = ((absVal / revenue) * 100).toFixed(1) + '%';
+                    } else {
+                        // For expenses, show as % of revenue
+                        percentage = ((absVal / revenue) * 100).toFixed(1) + '%';
+                    }
+                    
+                    text_values.push(formatted + ' ' + percentage);
                 }
                 
                 // Create waterfall chart
@@ -662,7 +679,7 @@
                         x: Object.keys(waterfall_data),
                         text: text_values,
                         textposition: 'inside',
-                        textfont: { size: 11, color: 'white', family: 'Arial Black' },
+                        textfont: { size: 9, color: 'white', family: 'Arial' },
                         y: Object.values(waterfall_data),
                         connector: { line: { color: '#3A464E', width: 2 } },
                         decreasing: { marker: { color: '#FE3A45', line: { color: '#FE3A45', width: 2 } } },
@@ -673,9 +690,14 @@
                         title: companyName + ' - ' + qName,
                         showlegend: false,
                         height: 280,
-                        margin: { t: 50, b: 40, l: 50, r: 20 },
+                        margin: { t: 50, b: 60, l: 30, r: 10 },
                         yaxis: { title: 'Số Tiền (M)' },
-                        font: { size: 11 },
+                        xaxis: {
+                            tickangle: -45,
+                            tickfont: { size: 9 },
+                            type: 'category'
+                        },
+                        font: { size: 9 },
                         template: 'plotly_white'
                     }
                 };
