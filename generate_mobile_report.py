@@ -1029,9 +1029,19 @@ html_content = f"""
             renderCVChart();
             renderActions('0-30');
             
-            // Đợi một chút để đảm bảo layout đã render xong
+            // Đợi một chút để đảm bảo layout đã render xong, sau đó cập nhật tab company
             setTimeout(() => {{
+                // Đảm bảo tab company được hiển thị tạm thời để render biểu đồ
+                const companyTab = document.getElementById('tab-company');
+                const wasVisible = companyTab.classList.contains('active');
+                if (!wasVisible) {{
+                    companyTab.classList.add('active');
+                }}
                 updateCompanyTab('SAN');
+                if (!wasVisible) {{
+                    companyTab.classList.remove('active');
+                    document.getElementById('tab-overview').classList.add('active');
+                }}
             }}, 150);
         }});
 
@@ -1044,9 +1054,10 @@ html_content = f"""
             event.currentTarget.classList.add('active');
             window.scrollTo({{ top: 0, behavior: 'smooth' }});
             
-            // Nếu chuyển sang tab company, resize biểu đồ sau khi tab được hiển thị
+            // Nếu chuyển sang tab company, cập nhật lại dữ liệu và resize biểu đồ sau khi tab được hiển thị
             if (tabId === 'tab-company') {{
                 setTimeout(() => {{
+                    updateCompanyTab(currentCompanyId);
                     Plotly.Plots.resize('chart-company');
                     Plotly.Plots.resize('chart-company-quarterly-comparison');
                     Plotly.Plots.resize('chart-company-quarterly-pbt-comparison');
