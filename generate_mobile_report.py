@@ -158,18 +158,18 @@ for company in companies:
     
     # Status logic
     if margin < 0:
-        status = "CẦN CHÚ Ý NGAY"
-        status_short = "NGHIÊM TRỌNG"
+        status = "cần chú ý ngay"
+        status_short = "nghiêm trọng"
         status_class = "critical"
         icon = "🚨"
     elif margin > 20:
-        status = "HOẠT ĐỘNG XUẤT SẮC"
-        status_short = "XUẤT SẮC"
+        status = "hoạt động xuất sắc"
+        status_short = "xuất sắc"
         status_class = "excellent"
         icon = "✅"
     else:
-        status = "CẦN ỔN ĐỊNH"
-        status_short = "TRUNG BÌNH"
+        status = "cần ổn định"
+        status_short = "trung bình"
         status_class = "average" # renamed from warning for CSS consistency
         icon = "⚠️"
         
@@ -588,7 +588,7 @@ html_content = f"""
             </div>
             <div class="kpi-card" id="comp-status-card">
                 <div class="kpi-label">Trạng thái</div>
-                <div class="kpi-value" style="font-size: 18px; font-weight: 700; line-height: 1.25;" id="comp-status">...</div>
+                <div class="kpi-value" style="font-size: 17px; font-weight: 700; line-height: 1.25;" id="comp-status">...</div>
             </div>
         </div>
 
@@ -852,10 +852,16 @@ html_content = f"""
                     color: chartColor,
                     opacity: 0.7,
                     line: {{ color: 'white', width: 0.5 }}
+                }},
+                text: data.monthly_pbt.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 9, 
+                    color: chartColor
                 }}
             }};
             
-            // Trace 2: Đường lợi nhuận luỹ kế
+            // Trace 2: Đường lợi nhuận luỹ kế (mượt và mỏng hơn)
             const traceLine = {{
                 x: months,
                 y: data.cumulative_pbt,
@@ -864,7 +870,9 @@ html_content = f"""
                 name: 'Lợi nhuận luỹ kế',
                 line: {{ 
                     color: chartColor,
-                    width: 3
+                    width: 2, // Giảm độ dày từ 3 xuống 2
+                    shape: 'spline', // Làm mượt
+                    smoothing: 1.3
                 }},
                 marker: {{
                     size: 6,
@@ -872,8 +880,32 @@ html_content = f"""
                 }}
             }};
             
+            // Annotation cho tháng cuối cùng (tháng 10, index 9)
+            const lastMonthIndex = months.length - 1;
+            const lastMonth = months[lastMonthIndex];
+            const lastCumulativeValue = data.cumulative_pbt[lastMonthIndex];
+            
+            const annotations = [
+                {{
+                    x: lastMonth,
+                    y: lastCumulativeValue,
+                    text: formatNumber(lastCumulativeValue),
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: chartColor,
+                    ax: 0,
+                    ay: -30,
+                    font: {{ color: chartColor, size: 10 }},
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: chartColor,
+                    borderwidth: 1
+                }}
+            ];
+            
             const layout = {{
-                margin: {{ t: 10, b: 40, l: 45, r: 10 }},
+                margin: {{ t: 30, b: 40, l: 45, r: 10 }}, // Tăng margin top để có chỗ cho text
                 xaxis: {{ 
                     title: '',
                     tickangle: -45,
@@ -899,7 +931,8 @@ html_content = f"""
                 }},
                 height: 220,
                 hovermode: 'x unified',
-                autosize: true
+                autosize: true,
+                annotations: annotations
             }};
             
             Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
