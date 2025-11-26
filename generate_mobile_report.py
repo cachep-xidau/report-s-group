@@ -1216,6 +1216,7 @@ html_content = f"""
                 }},
                 height: 264,
                 hovermode: 'x unified',
+                dragmode: false,
                 autosize: true,
                 annotations: annotations
             }};
@@ -1394,7 +1395,8 @@ html_content = f"""
                 xaxis: {{ 
                     title: '',
                     tickfont: {{ size: 11 }},
-                    showgrid: false
+                    showgrid: false,
+                    fixedrange: true
                 }},
                 yaxis: {{
                     title: '',
@@ -1406,7 +1408,8 @@ html_content = f"""
                     tickvals: tickvals,
                     ticktext: ticktext,
                     showticklabels: false,
-                    range: [startTick, endTickWithPadding]
+                    range: [startTick, endTickWithPadding],
+                    fixedrange: true
                 }},
                 showlegend: true,
                 legend: {{
@@ -1418,7 +1421,8 @@ html_content = f"""
                 }},
                 height: 300,
                 barmode: 'group',
-                hovermode: 'x unified'
+                hovermode: 'x unified',
+                dragmode: false
             }};
             
             Plotly.newPlot('chart-company-quarterly-comparison', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
@@ -1738,16 +1742,19 @@ html_content = f"""
                     margin: {{ t: 70, b: 60, l: 30, r: 10 }},
                     yaxis: {{ 
                         title: 'Số Tiền (M)',
-                        titlefont: {{ size: 10 }}
+                        titlefont: {{ size: 10 }},
+                        fixedrange: true
                     }},
                     xaxis: {{
                         tickangle: -45,
                         tickfont: {{ size: 9 }},
-                        type: 'category'
+                        type: 'category',
+                        fixedrange: true
                     }},
                     font: {{ size: 9 }},
                     template: 'plotly_white',
                     autosize: true,
+                    dragmode: false,
                     annotations: annotations
                 }};
                 
@@ -1782,8 +1789,10 @@ html_content = f"""
 
             const layout = {{
                 margin: {{ t: 10, b: 20, l: 80, r: 20 }},
-                xaxis: {{ range: [0, 100], title: '% Doanh thu' }},
-                height: 220
+                xaxis: {{ range: [0, 100], title: '% Doanh thu', fixedrange: true }},
+                yaxis: {{ fixedrange: true }},
+                height: 220,
+                dragmode: false
             }};
             
             Plotly.newPlot('chart-expense-ratio', [trace], layout, {{staticPlot: true, responsive: true}});
@@ -1819,9 +1828,11 @@ html_content = f"""
             const layout = {{
                 barmode: 'group',
                 margin: {{ t: 10, b: 40, l: 40, r: 10 }},
-                yaxis: {{ title: 'CV % (Biến động)' }},
+                xaxis: {{ fixedrange: true }},
+                yaxis: {{ title: 'CV % (Biến động)', fixedrange: true }},
                 legend: {{ orientation: 'h', y: -0.2 }},
-                height: 300
+                height: 300,
+                dragmode: false
             }};
 
             Plotly.newPlot('chart-cv', traces, layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
