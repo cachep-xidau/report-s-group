@@ -32,9 +32,15 @@ def format_number(value):
     return f"{value:,.0f} M".replace(',', '.')
 
 # Tải dữ liệu
+# File cho Tab tổng quan (10 tháng - 2025)
 file_path = '/Users/lucasbraci/Documents/Lucas/Phan tich CSV.csv'
 df_raw = pd.read_csv(file_path)
 df_raw.columns = df_raw.columns.str.strip()
+
+# File cho Tab doanh thu - so sánh cùng kỳ 2024
+file_path_2024 = '/Users/lucasbraci/Desktop/S Group/Phan tich 2024.csv'
+df_raw_2024 = pd.read_csv(file_path_2024)
+df_raw_2024.columns = df_raw_2024.columns.str.strip()
 
 months = ['T01', 'T02', 'T03', 'T04', 'T05', 'T06', 'T07', 'T08', 'T09', 'T10']
 companies = ['SAN', 'TEENNIE', 'TGIL']
@@ -80,6 +86,22 @@ def create_quarterly_data(df):
 
 revenue_quarterly = create_quarterly_data(revenue_df)
 pbt_quarterly = create_quarterly_data(pbt_df)
+
+# Trích xuất dữ liệu từ file 2024 để so sánh
+revenue_df_2024 = extract_company_data(df_raw_2024, metrics_rows['Revenue'], 'Revenue')
+pbt_df_2024 = extract_company_data(df_raw_2024, metrics_rows['Profit Before Tax'], 'Profit Before Tax')
+
+# Tạo dữ liệu quý từ file 2024 (12 tháng)
+def create_quarterly_data_2024(df):
+    """Tổng hợp dữ liệu hàng tháng thành quý cho năm 2024 (12 tháng)"""
+    q1 = df.iloc[0:3].sum()
+    q2 = df.iloc[3:6].sum()
+    q3 = df.iloc[6:9].sum()
+    q4 = df.iloc[9:12].sum()  # Q4 có 3 tháng (T10, T11, T12)
+    return pd.DataFrame([q1, q2, q3, q4], index=['Q1', 'Q2', 'Q3', 'Q4'])
+
+revenue_quarterly_2024 = create_quarterly_data_2024(revenue_df_2024)
+pbt_quarterly_2024 = create_quarterly_data_2024(pbt_df_2024)
 
 # Đọc % đạt kế hoạch
 def extract_achievement_rate(df, row_idx):
@@ -271,8 +293,41 @@ action_plans = {
 }
 
 # Prepare JSON for JS
+# Dữ liệu so sánh quý 2024 vs 2025
+quarterly_comparison_data = {
+    '2024': {
+        'revenue': {
+            'Q1': float(revenue_quarterly_2024.loc['Q1', 'Total']),
+            'Q2': float(revenue_quarterly_2024.loc['Q2', 'Total']),
+            'Q3': float(revenue_quarterly_2024.loc['Q3', 'Total']),
+            'Q4': float(revenue_quarterly_2024.loc['Q4', 'Total'])
+        },
+        'pbt': {
+            'Q1': float(pbt_quarterly_2024.loc['Q1', 'Total']),
+            'Q2': float(pbt_quarterly_2024.loc['Q2', 'Total']),
+            'Q3': float(pbt_quarterly_2024.loc['Q3', 'Total']),
+            'Q4': float(pbt_quarterly_2024.loc['Q4', 'Total'])
+        }
+    },
+    '2025': {
+        'revenue': {
+            'Q1': float(revenue_quarterly.loc['Q1', 'Total']),
+            'Q2': float(revenue_quarterly.loc['Q2', 'Total']),
+            'Q3': float(revenue_quarterly.loc['Q3', 'Total']),
+            'Q4': float(revenue_quarterly.loc['Q4', 'Total'])
+        },
+        'pbt': {
+            'Q1': float(pbt_quarterly.loc['Q1', 'Total']),
+            'Q2': float(pbt_quarterly.loc['Q2', 'Total']),
+            'Q3': float(pbt_quarterly.loc['Q3', 'Total']),
+            'Q4': float(pbt_quarterly.loc['Q4', 'Total'])
+        }
+    }
+}
+
 js_company_data = json.dumps(company_data)
 js_action_plans = json.dumps(action_plans)
+js_quarterly_comparison = json.dumps(quarterly_comparison_data)
 
 # ============================================================================
 # TẠO HTML MOBILE
@@ -525,7 +580,7 @@ html_content = f"""
         <!-- KPI Grid Dynamic -->
         <div class="kpi-grid">
             <div class="kpi-card">
-                <div class="kpi-label">Doanh Thu (10T)</div>
+                <div class="kpi-label">Doanh thu 2025 YTD</div>
                 <div class="kpi-value" id="comp-revenue">...</div>
             </div>
             <div class="kpi-card">
@@ -546,18 +601,14 @@ html_content = f"""
 
         <!-- Mini Chart -->
         <div class="card" style="overflow: hidden; width: 100%;">
-            <div class="card-title">Lợi nhuận luỹ kế</div>
+            <div class="card-title">Lợi nhuận luỹ kế <span id="cumulative-final-label" style="font-size: 12px; font-weight: 400; color: var(--color-text-muted);"></span></div>
             <div id="chart-company" style="height: 220px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
 
-        <!-- Current Situation -->
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                📌 Tình hình hiện tại <span style="font-size: 12px; font-weight: 400; line-height: 1.5;">▼</span>
-            </div>
-            <div class="accordion-content open" id="comp-insight">
-                ...
-            </div>
+        <!-- Quarterly Comparison Chart -->
+        <div class="card">
+            <div class="card-title">So sánh cùng kỳ 2024</div>
+            <div id="chart-quarterly-comparison" style="height: 250px;"></div>
         </div>
 
         <!-- Action Buttons -->
@@ -682,6 +733,7 @@ html_content = f"""
     <script>
         const companyData = {js_company_data};
         const actionPlans = {js_action_plans};
+        const quarterlyComparison = {js_quarterly_comparison};
         let currentCompanyId = 'SAN';
         let currentExpenseCompanyId = 'SAN';
         let currentTimeframe = '0-30';
@@ -714,6 +766,7 @@ html_content = f"""
             if (tabId === 'tab-company') {{
                 setTimeout(() => {{
                     Plotly.Plots.resize('chart-company');
+                    Plotly.Plots.resize('chart-quarterly-comparison');
                 }}, 200);
             }}
         }}
@@ -760,6 +813,9 @@ html_content = f"""
             document.getElementById('comp-cumulative').textContent = formatNumber(cumulativeValue);
             document.getElementById('comp-margin').textContent = `LN/DT: ${{data.margin.toFixed(2)}}%`;
             
+            // Bổ sung label LN lũy kế cuối cùng
+            document.getElementById('cumulative-final-label').textContent = `(${{formatNumber(cumulativeValue)}})`;
+            
             document.getElementById('comp-plan').textContent = `${{data.avg_achieve.toFixed(1)}}%`;
             document.getElementById('comp-plan-sub').textContent = data.avg_achieve >= 100 ? '✅ Vượt mục tiêu' : data.avg_achieve < 90 ? '⚠️ Dưới mục tiêu' : '➡️ Đạt mục tiêu';
             
@@ -772,9 +828,6 @@ html_content = f"""
             if (data.status_class === 'critical') statusCard.classList.add('bg-danger-light', 'text-danger');
             else if (data.status_class === 'excellent') statusCard.classList.add('bg-success-light', 'text-success');
             else statusCard.classList.add('bg-warning-light', 'text-warning');
-
-            // Insight (dùng innerHTML để hiển thị <br>)
-            document.getElementById('comp-insight').innerHTML = data.insight;
 
             // Chart: Lợi nhuận luỹ kế của công ty đang chọn
             const months = {json.dumps(months)};
@@ -857,6 +910,85 @@ html_content = f"""
             }};
             
             Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
+            
+            // Render quarterly comparison chart
+            renderQuarterlyComparisonChart();
+        }}
+
+        // Render quarterly comparison chart (2024 vs 2025)
+        function renderQuarterlyComparisonChart() {{
+            if (!quarterlyComparison || !quarterlyComparison['2024'] || !quarterlyComparison['2025']) return;
+            
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const revenue2024 = quarters.map(q => quarterlyComparison['2024'].revenue[q]);
+            const revenue2025 = quarters.map(q => quarterlyComparison['2025'].revenue[q]);
+            
+            // Trace 1: Doanh thu 2024
+            const trace2024 = {{
+                x: quarters,
+                y: revenue2024,
+                type: 'bar',
+                name: '2024',
+                marker: {{ 
+                    color: '#94A3B8',
+                    opacity: 0.7
+                }},
+                text: revenue2024.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#94A3B8'
+                }},
+                yaxis: 'y'
+            }};
+            
+            // Trace 2: Doanh thu 2025
+            const trace2025 = {{
+                x: quarters,
+                y: revenue2025,
+                type: 'bar',
+                name: '2025',
+                marker: {{ 
+                    color: '#1F6FEB',
+                    opacity: 0.8
+                }},
+                text: revenue2025.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#1F6FEB'
+                }},
+                yaxis: 'y'
+            }};
+            
+            const layout = {{
+                margin: {{ t: 10, b: 50, l: 50, r: 20 }},
+                xaxis: {{ 
+                    title: '',
+                    tickfont: {{ size: 11 }},
+                    showgrid: false
+                }},
+                yaxis: {{
+                    title: 'Doanh thu (M)',
+                    titlefont: {{ size: 11 }},
+                    tickfont: {{ size: 10 }},
+                    showgrid: true,
+                    gridcolor: '#E1E4EB'
+                }},
+                showlegend: true,
+                legend: {{
+                    orientation: 'h',
+                    y: -0.25,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: {{ size: 11 }}
+                }},
+                height: 250,
+                barmode: 'group',
+                hovermode: 'x unified'
+            }};
+            
+            Plotly.newPlot('chart-quarterly-comparison', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
         }}
 
         // --- TAB 3: EXPENSE ---

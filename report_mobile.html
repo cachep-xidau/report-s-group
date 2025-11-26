@@ -44,7 +44,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             font-size: 14px;
             font-weight: 400;
-            line-height: 1.25;
+            line-height: 1.5;
             background: var(--bg);
             color: var(--text);
             padding-bottom: 80px; /* Space for bottom nav */
@@ -52,10 +52,10 @@
         }
         
         /* Typography Scale */
-        h1 { font-size: 18px; font-weight: 700; line-height: 1.25; }
-        h2 { font-size: 15px; font-weight: 600; line-height: 1.25; }
-        h3 { font-size: 13px; font-weight: 600; line-height: 1.25; }
-        p, div, span { line-height: 1.25; }
+        h1 { font-size: 20px; font-weight: 700; line-height: 1.4; }
+        h2 { font-size: 17px; font-weight: 600; line-height: 1.4; }
+        h3 { font-size: 15px; font-weight: 600; line-height: 1.4; }
+        p, div, span { line-height: 1.5; }
 
         /* Utility Classes */
         .text-success { color: var(--success); }
@@ -76,7 +76,8 @@
             top: 0;
             z-index: 100;
         }
-        .header h1 { font-size: 18px; font-weight: 700; line-height: 1.25; margin-bottom: 0; }
+        .header h1 { font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }
+        .header p { font-size: 12px; font-weight: 400; line-height: 1.5; opacity: 0.9; }
 
         /* Tab System */
         .tab-content { display: none; padding: 16px; animation: fadeIn 0.3s; }
@@ -91,14 +92,14 @@
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        .card-title { font-size: 15px; font-weight: 600; line-height: 1.25; margin-bottom: 12px; color: var(--color-primary); display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 17px; font-weight: 600; line-height: 1.4; margin-bottom: 12px; color: var(--color-primary); display: flex; justify-content: space-between; align-items: center; }
         
         /* KPI Grid */
         .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .kpi-card { background: var(--color-surface); border-radius: 16px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--color-border); }
-        .kpi-label { font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); margin-bottom: 4px; text-align: left; padding: 0; }
-        .kpi-value { font-size: 18px; font-weight: 700; line-height: 1.25; color: var(--color-primary); margin-bottom: 2px; }
-        .kpi-sub { font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); }
+        .kpi-card { background: var(--color-surface); border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--color-border); }
+        .kpi-label { font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); margin-bottom: 4px; text-align: left; padding: 0; }
+        .kpi-value { font-size: 22px; font-weight: 700; line-height: 1.4; color: var(--color-primary); margin-bottom: 2px; }
+        .kpi-sub { font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); }
 
         /* Ranking List */
         .ranking-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-divider); }
@@ -108,37 +109,37 @@
         .ranking-icon.excellent { background: var(--color-primary-soft); color: var(--color-success); }
         .ranking-icon.average { background: var(--color-primary-soft); color: var(--color-warning); }
         .ranking-info { flex: 1; }
-        .ranking-name { font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--color-text-main); }
-        .ranking-detail { font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); margin-top: 2px; }
-        .ranking-badge { font-size: 12px; font-weight: 400; line-height: 1.25; padding: 4px 8px; border-radius: 12px; white-space: nowrap; }
+        .ranking-name { font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--color-text-main); }
+        .ranking-detail { font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); margin-top: 2px; }
+        .ranking-badge { font-size: 12px; font-weight: 400; line-height: 1.5; padding: 4px 8px; border-radius: 12px; white-space: nowrap; }
 
         /* Accordion */
         .accordion { background: var(--color-surface); border-radius: 12px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid var(--color-border); }
-        .accordion-header { padding: 16px; font-size: 15px; font-weight: 600; line-height: 1.25; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--color-surface); color: var(--color-text-main); }
-        .accordion-content { padding: 0 16px 16px; display: none; font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); border-top: 1px solid var(--color-divider); }
+        .accordion-header { padding: 16px; font-size: 15px; font-weight: 600; line-height: 1.4; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--color-surface); color: var(--color-text-main); }
+        .accordion-content { padding: 0 16px 16px; display: none; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); border-top: 1px solid var(--color-divider); }
         .accordion-content.open { display: block; }
         .accordion-content ul { padding-left: 20px; margin-top: 8px; }
         .accordion-content li { margin-bottom: 6px; }
 
         /* Segmented Control */
         .segmented-control { display: flex; background: var(--color-border); padding: 4px; border-radius: 8px; margin-bottom: 16px; }
-        .segment-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); cursor: pointer; transition: all 0.2s; }
+        .segment-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); cursor: pointer; transition: all 0.2s; }
         .segment-btn.active { background: var(--color-surface); color: var(--color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         /* Toggle Switch */
         .toggle-container { display: flex; justify-content: center; margin-bottom: 16px; }
         .toggle-wrapper { display: flex; background: var(--color-border); border-radius: 20px; padding: 3px; position: relative; }
-        .toggle-btn { padding: 6px 20px; border-radius: 18px; border: none; background: transparent; font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); z-index: 1; position: relative; cursor: pointer; transition: color 0.2s; }
+        .toggle-btn { padding: 6px 20px; border-radius: 18px; border: none; background: transparent; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); z-index: 1; position: relative; cursor: pointer; transition: color 0.2s; }
         .toggle-btn.active { color: var(--color-primary); }
         .toggle-bg { position: absolute; top: 3px; bottom: 3px; left: 3px; width: 50%; background: var(--color-surface); border-radius: 18px; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         /* Chips */
         .chips-container { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
-        .chip { padding: 8px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+        .chip { padding: 8px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); white-space: nowrap; cursor: pointer; transition: all 0.2s; }
         .chip.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
 
         /* Buttons */
-        .btn { display: block; width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 400; line-height: 1.25; text-align: center; border: none; cursor: pointer; margin-bottom: 12px; transition: opacity 0.2s; }
+        .btn { display: block; width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 400; line-height: 1.5; text-align: center; border: none; cursor: pointer; margin-bottom: 12px; transition: opacity 0.2s; }
         .btn-primary { background: var(--color-primary); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-primary); }
         .btn:active { opacity: 0.8; }
@@ -152,15 +153,16 @@
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--color-surface); border-top: 1px solid var(--color-border); display: flex; justify-content: space-around; padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 4px; cursor: pointer; color: var(--color-text-muted); transition: color 0.2s; }
         .nav-item.active { color: var(--color-primary); }
-        .nav-icon { font-size: 22px; margin-bottom: 2px; line-height: 1.25; }
-        .nav-label { font-size: 12px; font-weight: 400; line-height: 1.25; }
+        .nav-icon { font-size: 22px; margin-bottom: 2px; line-height: 1.4; }
+        .nav-label { font-size: 12px; font-weight: 400; line-height: 1.5; }
 
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>Báo cáo P&L S T I</h1>
+        <h1>📊 Báo Cáo Tài Chính</h1>
+        <p>Tháng 1-10 2024 • S, T, I Group</p>
     </div>
 
     <!-- TAB 1: TỔNG QUAN -->
@@ -169,38 +171,91 @@
         <div class="kpi-grid">
             <div class="kpi-card">
                 <div class="kpi-label">Tổng Doanh Thu</div>
-                <div class="kpi-value" id="kpi-total-revenue">66.383 M</div>
+                <div class="kpi-value">66.383 M</div>
                 <div class="kpi-sub">~6.638 M/tháng</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">Tổng LN</div>
-                <div class="kpi-value" id="kpi-total-pbt">9.084 M</div>
-                <div class="kpi-sub" id="kpi-margin">Biên LN/DT: 13.68%</div>
+                <div class="kpi-label">Tổng LNTT</div>
+                <div class="kpi-value">9.084 M</div>
+                <div class="kpi-sub">LN/DT: 13.68%</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-label">%KPI DT</div>
-                <div class="kpi-value" id="kpi-revenue-achieve" style="font-size: 18px; font-weight: 700; line-height: 1.25;">...</div>
-                <div class="kpi-sub" id="kpi-revenue-achieve-sub">...</div>
+            <div class="kpi-card bg-success-light" style="box-shadow: none; border: 1px solid var(--color-success);">
+                <div class="kpi-label text-success">Hoạt động tốt nhất</div>
+                <div class="kpi-value text-success" style="font-size: 22px; font-weight: 700; line-height: 1.4;">T</div>
+                <div class="kpi-sub text-success">LN/DT 24.7% ✅</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-label">Sức khỏe tập đoàn</div>
-                <div class="kpi-value" id="kpi-health-status" style="font-size: 18px; font-weight: 700; line-height: 1.25;">TRUNG BÌNH</div>
+            <div class="kpi-card bg-warning-light" style="box-shadow: none; border: 1px solid var(--color-warning);">
+                <div class="kpi-label text-warning">Sức khỏe tập đoàn</div>
+                <div class="kpi-value text-warning" style="font-size: 22px; font-weight: 700; line-height: 1.4;">⚠️ TRUNG BÌNH</div>
+                <div class="kpi-sub text-warning">SAN âm, TGIL biến động</div>
             </div>
         </div>
 
         <!-- Ranking -->
         <div class="card">
-            <div class="card-title">Tổng quan</div>
-            <div id="overview-companies">
-                <!-- Injected by JS -->
+            <div class="card-title">Xem xét tổng quan</div>
+            
+            <div class="ranking-item">
+                <div class="ranking-icon critical">
+                    🚨
+                </div>
+                <div class="ranking-info">
+                    <div class="ranking-name">S</div>
+                    <div class="ranking-detail">
+                        Doanh thu: 17.162 M • Lợi nhuận trước thuế: -243 M (-6.8%)
+                    </div>
+                </div>
+                <div class="ranking-badge bg-critical-light text-critical">NGHIÊM TRỌNG</div>
             </div>
+            
+            <div class="ranking-item">
+                <div class="ranking-icon excellent">
+                    ✅
+                </div>
+                <div class="ranking-info">
+                    <div class="ranking-name">T</div>
+                    <div class="ranking-detail">
+                        Doanh thu: 27.733 M • Lợi nhuận trước thuế: 434 M (24.7%)
+                    </div>
+                </div>
+                <div class="ranking-badge bg-excellent-light text-excellent">XUẤT SẮC</div>
+            </div>
+            
+            <div class="ranking-item">
+                <div class="ranking-icon average">
+                    ⚠️
+                </div>
+                <div class="ranking-info">
+                    <div class="ranking-name">I</div>
+                    <div class="ranking-detail">
+                        Doanh thu: 21.489 M • Lợi nhuận trước thuế: 615 M (15.7%)
+                    </div>
+                </div>
+                <div class="ranking-badge bg-average-light text-average">TRUNG BÌNH</div>
+            </div>
+            
             <button class="btn btn-outline" onclick="switchTab('tab-company')" style="margin-top: 12px;">Xem chi tiết theo công ty →</button>
         </div>
 
         <!-- Chart -->
         <div class="card">
-            <div class="card-title">Doanh thu và lợi nhuận</div>
+            <div class="card-title">Doanh thu và lợi nhuận theo tháng</div>
             <div id="chart-overview" style="height: 250px;"></div>
+        </div>
+
+        <!-- Accordion Insight -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                💡 Nhận xét <span style="font-size: 12px; font-weight: 400; line-height: 1.5;">▼</span>
+            </div>
+            <div class="accordion-content open">
+                <ul>
+                    <li><strong>T</strong> dẫn đầu về doanh thu (27.733 M) & tỷ suất lợi nhuận (24.74%).</li>
+                    <li><strong>S</strong> lỗ 243 M, không đạt kế hoạch (69.7%), LN/DT -6.75%.</li>
+                    <li><strong>I</strong> biên lợi nhuận 15.74% nhưng chi phí biến động.</li>
+                    <li>Tỷ suất lãi gộp toàn tập đoàn 82.54%, tổng doanh thu 66.383 M, tổng lợi nhuận 9.084 M.</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -216,7 +271,7 @@
         <!-- KPI Grid Dynamic -->
         <div class="kpi-grid">
             <div class="kpi-card">
-                <div class="kpi-label">Doanh Thu (10T)</div>
+                <div class="kpi-label">Doanh thu 2025 YTD</div>
                 <div class="kpi-value" id="comp-revenue">...</div>
             </div>
             <div class="kpi-card">
@@ -231,24 +286,20 @@
             </div>
             <div class="kpi-card" id="comp-status-card">
                 <div class="kpi-label">Trạng thái</div>
-                <div class="kpi-value" style="font-size: 18px; font-weight: 700; line-height: 1.25;" id="comp-status">...</div>
+                <div class="kpi-value" style="font-size: 22px; font-weight: 700; line-height: 1.4;" id="comp-status">...</div>
             </div>
         </div>
 
         <!-- Mini Chart -->
         <div class="card" style="overflow: hidden; width: 100%;">
-            <div class="card-title">Lợi nhuận luỹ kế</div>
+            <div class="card-title">Lợi nhuận luỹ kế <span id="cumulative-final-label" style="font-size: 12px; font-weight: 400; color: var(--color-text-muted);"></span></div>
             <div id="chart-company" style="height: 220px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
 
-        <!-- Current Situation -->
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                📌 Tình hình hiện tại <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
-            </div>
-            <div class="accordion-content open" id="comp-insight">
-                ...
-            </div>
+        <!-- Quarterly Comparison Chart -->
+        <div class="card">
+            <div class="card-title">So sánh cùng kỳ 2024</div>
+            <div id="chart-quarterly-comparison" style="height: 250px;"></div>
         </div>
 
         <!-- Action Buttons -->
@@ -297,8 +348,8 @@
             </div>
 
             <div class="card bg-warning-light" style="border: 1px solid var(--color-warning); box-shadow: none;">
-                <div class="card-title text-warning" style="font-size: 15px; font-weight: 600; line-height: 1.25;">⚠️ Đánh giá</div>
-                <div style="font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted);" id="expense-insight">
+                <div class="card-title text-warning" style="font-size: 17px; font-weight: 600; line-height: 1.4;">⚠️ Đánh giá</div>
+                <div style="font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted);" id="expense-insight">
                     ...
                 </div>
             </div>
@@ -316,7 +367,7 @@
             
             <div class="card">
                 <div class="card-title">Phát hiện bất thường</div>
-                <ul style="font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); padding-left: 20px;">
+                <ul style="font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); padding-left: 20px;">
                     <li><strong>I:</strong> Biến động giá vốn thấp nhất (ổn định).</li>
                     <li><strong>S & T:</strong> Chi phí khác biến động rất mạnh (>69%), cần kiểm soát các khoản chi bất thường.</li>
                     <li><strong>S:</strong> Chi phí bán hàng biến động cao (22.8%), cho thấy chi tiêu marketing chưa đều đặn.</li>
@@ -334,7 +385,7 @@
             <div class="chip" onclick="filterAction('60-90', this)">60-90 ngày</div>
         </div>
 
-        <div style="margin-bottom: 16px; font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); font-style: italic;" id="action-subtitle">
+        <div style="margin-bottom: 16px; font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); font-style: italic;" id="action-subtitle">
             Ưu tiên khẩn cấp: Cắt giảm chi phí & Ổn định
         </div>
 
@@ -373,6 +424,7 @@
     <script>
         const companyData = [{"id": "SAN", "name": "S", "full_name": "SAN", "revenue": 17161.7, "pbt": -242.68, "margin": -6.75410944137236, "avg_achieve": 69.68333333333332, "status": "C\u1ea6N CH\u00da \u00dd NGAY", "status_short": "NGHI\u00caM TR\u1eccNG", "status_class": "critical", "icon": "\ud83d\udea8", "expense_ratios": {"COGS": 30.53910743108201, "Selling": 29.578072102414097, "Admin": 42.54741663121952, "Other": 4.08951327665674}, "cv_data": {"COGS": 20.392026824010458, "Selling": 22.831682376052665, "Admin": 7.314908764061695, "Other": 73.23125047246401}, "monthly_pbt": [464.66, -236.48, -24.76, -140.9, -145.56, -188.0, -37.9, -303.73, -303.77, -242.68], "cumulative_pbt": [464.66, 228.18000000000004, 203.42000000000004, 62.52000000000004, -83.03999999999996, -271.03999999999996, -308.93999999999994, -612.67, -916.4399999999999, -1159.12], "quarterly_data": [{"quarter": "Q1", "revenue": 5770.39, "cogs": 1657.87, "selling_exp": 1571.6000000000001, "admin_exp": 2047.49, "other_exp": 290.01, "pbt": 203.42000000000004}, {"quarter": "Q2", "revenue": 5168.43, "cogs": 1715.6499999999999, "selling_exp": 1521.8500000000001, "admin_exp": 2194.99, "other_exp": 210.39000000000001, "pbt": -474.46000000000004}, {"quarter": "Q3", "revenue": 4414.83, "cogs": 1336.52, "selling_exp": 1393.1, "admin_exp": 2229.1899999999996, "other_exp": 101.43, "pbt": -645.4}], "insight": "- LN/DT -6.75%, kh\u00f4ng \u0111\u1ea1t k\u1ebf ho\u1ea1ch doanh thu (69.7%).<br>- C\u01a1 c\u1ea5u chi ph\u00ed b\u00e1n h\u00e0ng, qu\u1ea3n l\u00fd cao, \u1ea3nh h\u01b0\u1edfng m\u1ea1nh \u0111\u1ebfn l\u1ee3i nhu\u1eadn."}, {"id": "TEENNIE", "name": "T", "full_name": "TEENNIE", "revenue": 27732.76, "pbt": 434.07, "margin": 24.74084800791555, "avg_achieve": 83.50666666666667, "status": "HO\u1ea0T \u0110\u1ed8NG XU\u1ea4T S\u1eaeC", "status_short": "XU\u1ea4T S\u1eaeC", "status_class": "excellent", "icon": "\u2705", "expense_ratios": {"COGS": 7.933577472995836, "Selling": 39.40812237945304, "Admin": 27.346538894794463, "Other": 2.98693674917318}, "cv_data": {"COGS": 34.31400073767651, "Selling": 27.438497870568884, "Admin": 7.343833221715429, "Other": 69.48280489043562}, "monthly_pbt": [435.78, 635.29, 714.36, 613.24, 500.33, 958.9, 1094.36, 648.33, 826.66, 434.07], "cumulative_pbt": [435.78, 1071.07, 1785.4299999999998, 2398.67, 2899.0, 3857.9, 4952.26, 5600.59, 6427.25, 6861.32], "quarterly_data": [{"quarter": "Q1", "revenue": 6996.0, "cogs": 403.84000000000003, "selling_exp": 2388.79, "admin_exp": 2198.15, "other_exp": 219.79, "pbt": 1785.4299999999998}, {"quarter": "Q2", "revenue": 8532.880000000001, "cogs": 772.9599999999999, "selling_exp": 3108.8500000000004, "admin_exp": 2204.2000000000003, "other_exp": 374.39, "pbt": 2072.47}, {"quarter": "Q3", "revenue": 9123.11, "cogs": 767.8, "selling_exp": 3951.96, "admin_exp": 2375.41, "other_exp": 128.63, "pbt": 2569.35}], "insight": "- LN/DT 24.74%, \u0111\u1ea1t 83.5% k\u1ebf ho\u1ea1ch.<br>- T\u1ef7 su\u1ea5t kh\u1ecfe, l\u00e0 \u0111\u1ea7u t\u00e0u l\u1ee3i nhu\u1eadn."}, {"id": "TGIL", "name": "I", "full_name": "TGIL", "revenue": 21488.640000000003, "pbt": 614.92, "margin": 15.739292947343337, "avg_achieve": 96.10000000000001, "status": "C\u1ea6N \u1ed4N \u0110\u1ecaNH", "status_short": "TRUNG B\u00ccNH", "status_class": "average", "icon": "\u26a0\ufe0f", "expense_ratios": {"COGS": 19.31201788479866, "Selling": 27.666711341434354, "Admin": 35.57340064331665, "Other": 5.273716717298069}, "cv_data": {"COGS": 26.666683386539404, "Selling": 24.45329033522549, "Admin": 6.827251830582928, "Other": 47.604052265115996}, "monthly_pbt": [30.0, -202.95, 880.08, 156.17, 397.46, 493.94, 89.07, 816.85, 106.62, 614.92], "cumulative_pbt": [30.0, -172.95, 707.1300000000001, 863.3000000000001, 1260.76, 1754.7, 1843.77, 2660.62, 2767.24, 3382.16], "quarterly_data": [{"quarter": "Q1", "revenue": 5919.66, "cogs": 1178.8, "selling_exp": 1574.94, "admin_exp": 2145.2799999999997, "other_exp": 313.5, "pbt": 707.1300000000001}, {"quarter": "Q2", "revenue": 6815.040000000001, "cogs": 1296.93, "selling_exp": 1688.6799999999998, "admin_exp": 2317.8500000000004, "other_exp": 463.99, "pbt": 1047.57}, {"quarter": "Q3", "revenue": 5871.039999999999, "cogs": 1172.76, "selling_exp": 1869.13, "admin_exp": 2332.5299999999997, "other_exp": 250.21, "pbt": 1012.5400000000001}], "insight": "- LN/DT 15.74%, nh\u01b0ng chi ph\u00ed bi\u1ebfn \u0111\u1ed9ng.<br>- C\u1ea7n \u1ed5n \u0111\u1ecbnh v\u1eadn h\u00e0nh v\u00e0 ki\u1ec3m so\u00e1t chi ph\u00ed."}];
         const actionPlans = {"0-30": {"SAN": ["Ki\u1ec3m to\u00e1n chi ph\u00ed to\u00e0n di\u1ec7n & c\u1eaft gi\u1ea3m kh\u1ea9n c\u1ea5p", "R\u00e0 so\u00e1t chi ph\u00ed lab & h\u1ee3p \u0111\u1ed3ng nh\u00e0 cung c\u1ea5p", "Ph\u00e2n t\u00edch ROI marketing & c\u1eaft k\u00eanh k\u00e9m hi\u1ec7u qu\u1ea3", "\u0110\u00e1nh gi\u00e1 n\u0103ng su\u1ea5t & si\u1ebft ki\u1ec3m so\u00e1t chi ph\u00ed v\u1eadn h\u00e0nh"], "TEENNIE": ["R\u00e0 so\u00e1t chi ph\u00ed t\u0103ng \u0111\u1ed9t bi\u1ebfn Qu\u00fd 2", "Chu\u1ea9n b\u1ecb k\u1ebf ho\u1ea1ch m\u1edf r\u1ed9ng"], "TGIL": ["Ph\u00e2n t\u00edch nguy\u00ean nh\u00e2n g\u1ed1c r\u1ec5 bi\u1ebfn \u0111\u1ed9ng chi ph\u00ed", "R\u00e0 so\u00e1t qu\u1ea3n tr\u1ecb t\u1ed3n kho & nh\u00e0 cung c\u1ea5p"], "GROUP": ["Th\u01b0\u01a1ng l\u01b0\u1ee3ng l\u1ea1i h\u1ee3p \u0111\u1ed3ng cung c\u1ea5p cho to\u00e0n t\u1eadp \u0111o\u00e0n", "Tri\u1ec3n khai b\u00e1o c\u00e1o qu\u1ea3n l\u00fd h\u00e0ng th\u00e1ng"]}, "30-60": {"SAN": ["Kh\u1edfi \u0111\u1ed9ng c\u00e1c s\u00e1ng ki\u1ebfn ph\u1ee5c h\u1ed3i doanh thu"], "TEENNIE": ["X\u00e2y d\u1ef1ng v\u00e0 ph\u00ea duy\u1ec7t k\u1ebf ho\u1ea1ch m\u1edf r\u1ed9ng"], "TGIL": ["Tri\u1ec3n khai quy tr\u00ecnh ph\u00ea duy\u1ec7t chi ph\u00ed", "T\u1eadp trung mua h\u00e0ng n\u1ebfu c\u00f3 th\u1ec3"], "GROUP": ["Tri\u1ec3n khai quy tr\u00ecnh ph\u00ea duy\u1ec7t chi ph\u00ed t\u1eadp \u0111o\u00e0n"]}, "60-90": {"SAN": ["\u0110\u00e1nh gi\u00e1 ti\u1ebfn \u0111\u1ed9 chuy\u1ec3n h\u01b0\u1edbng, \u0111\u01b0a ra quy\u1ebft \u0111\u1ecbnh chi\u1ebfn l\u01b0\u1ee3c"], "TEENNIE": ["Th\u1ef1c hi\u1ec7n \u0111\u1ea7u t\u01b0 t\u0103ng tr\u01b0\u1edfng"], "TGIL": ["Tri\u1ec3n khai c\u00e1c bi\u1ec7n ph\u00e1p \u1ed5n \u0111\u1ecbnh ho\u1ea1t \u0111\u1ed9ng"], "GROUP": ["R\u00e0 so\u00e1t v\u00e0 \u0111\u1eb7t l\u1ea1i m\u1ee5c ti\u00eau Qu\u00fd 4 d\u1ef1a tr\u00ean b\u00e0i h\u1ecdc kinh nghi\u1ec7m"]}};
+        const quarterlyComparison = {"2024": {"revenue": {"Q1": 16993.86, "Q2": 15543.41, "Q3": 20371.05, "Q4": 6224.66}, "pbt": {"Q1": 1175.29, "Q2": 212.89, "Q3": 1342.81, "Q4": -138.95}}, "2025": {"revenue": {"Q1": 18686.03, "Q2": 20516.35, "Q3": 19408.97, "Q4": 7771.72}, "pbt": {"Q1": 2695.99, "Q2": 2645.58, "Q3": 2936.48, "Q4": 806.31}}};
         let currentCompanyId = 'SAN';
         let currentExpenseCompanyId = 'SAN';
         let currentTimeframe = '0-30';
@@ -380,7 +432,6 @@
         // --- INIT ---
         // Khởi tạo khi DOM ready
         document.addEventListener('DOMContentLoaded', () => {
-            updateOverviewTab();
             renderOverviewChart();
             updateExpenseRatioChart('SAN');
             renderWaterfallCharts('SAN');
@@ -406,6 +457,7 @@
             if (tabId === 'tab-company') {
                 setTimeout(() => {
                     Plotly.Plots.resize('chart-company');
+                    Plotly.Plots.resize('chart-quarterly-comparison');
                 }, 200);
             }
         }
@@ -452,6 +504,9 @@
             document.getElementById('comp-cumulative').textContent = formatNumber(cumulativeValue);
             document.getElementById('comp-margin').textContent = `LN/DT: ${data.margin.toFixed(2)}%`;
             
+            // Bổ sung label LN lũy kế cuối cùng
+            document.getElementById('cumulative-final-label').textContent = `(${formatNumber(cumulativeValue)})`;
+            
             document.getElementById('comp-plan').textContent = `${data.avg_achieve.toFixed(1)}%`;
             document.getElementById('comp-plan-sub').textContent = data.avg_achieve >= 100 ? '✅ Vượt mục tiêu' : data.avg_achieve < 90 ? '⚠️ Dưới mục tiêu' : '➡️ Đạt mục tiêu';
             
@@ -464,9 +519,6 @@
             if (data.status_class === 'critical') statusCard.classList.add('bg-danger-light', 'text-danger');
             else if (data.status_class === 'excellent') statusCard.classList.add('bg-success-light', 'text-success');
             else statusCard.classList.add('bg-warning-light', 'text-warning');
-
-            // Insight (dùng innerHTML để hiển thị <br>)
-            document.getElementById('comp-insight').innerHTML = data.insight;
 
             // Chart: Lợi nhuận luỹ kế của công ty đang chọn
             const months = ["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08", "T09", "T10"];
@@ -549,6 +601,85 @@
             };
             
             Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {staticPlot: false, responsive: true, displayModeBar: false});
+            
+            // Render quarterly comparison chart
+            renderQuarterlyComparisonChart();
+        }
+
+        // Render quarterly comparison chart (2024 vs 2025)
+        function renderQuarterlyComparisonChart() {
+            if (!quarterlyComparison || !quarterlyComparison['2024'] || !quarterlyComparison['2025']) return;
+            
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const revenue2024 = quarters.map(q => quarterlyComparison['2024'].revenue[q]);
+            const revenue2025 = quarters.map(q => quarterlyComparison['2025'].revenue[q]);
+            
+            // Trace 1: Doanh thu 2024
+            const trace2024 = {
+                x: quarters,
+                y: revenue2024,
+                type: 'bar',
+                name: '2024',
+                marker: { 
+                    color: '#94A3B8',
+                    opacity: 0.7
+                },
+                text: revenue2024.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: { 
+                    size: 10, 
+                    color: '#94A3B8'
+                },
+                yaxis: 'y'
+            };
+            
+            // Trace 2: Doanh thu 2025
+            const trace2025 = {
+                x: quarters,
+                y: revenue2025,
+                type: 'bar',
+                name: '2025',
+                marker: { 
+                    color: '#1F6FEB',
+                    opacity: 0.8
+                },
+                text: revenue2025.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: { 
+                    size: 10, 
+                    color: '#1F6FEB'
+                },
+                yaxis: 'y'
+            };
+            
+            const layout = {
+                margin: { t: 10, b: 50, l: 50, r: 20 },
+                xaxis: { 
+                    title: '',
+                    tickfont: { size: 11 },
+                    showgrid: false
+                },
+                yaxis: {
+                    title: 'Doanh thu (M)',
+                    titlefont: { size: 11 },
+                    tickfont: { size: 10 },
+                    showgrid: true,
+                    gridcolor: '#E1E4EB'
+                },
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    y: -0.25,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: { size: 11 }
+                },
+                height: 250,
+                barmode: 'group',
+                hovermode: 'x unified'
+            };
+            
+            Plotly.newPlot('chart-quarterly-comparison', [trace2024, trace2025], layout, {staticPlot: false, responsive: true, displayModeBar: false});
         }
 
         // --- TAB 3: EXPENSE ---
@@ -833,7 +964,7 @@
                 let html = `
                 <div class="accordion">
                     <div class="accordion-header" onclick="toggleAccordion(this)">
-                        ${names[key]} <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
+                        ${names[key]} <span style="font-size: 12px; font-weight: 400; line-height: 1.5;">▼</span>
                     </div>
                     <div class="accordion-content ${isOpen}">
                 `;
@@ -851,59 +982,6 @@
             });
         }
 
-        // --- TAB 1: OVERVIEW ---
-        function updateOverviewTab() {
-            // Tính tổng doanh thu và lợi nhuận từ dữ liệu tổng (Total)
-            // Dữ liệu tổng theo tháng từ CSV
-            const totalRevenueMonthly = [6319.87, 4673.24, 7692.92, 6174.64, 6839.96, 7501.75, 7069.47, 5723.05, 6616.45, 7771.72];
-            const totalPBTMonthly = [930.44, 195.87, 1569.68, 628.51, 752.22, 1264.85, 1145.53, 1161.45, 629.5, 806.31];
-            
-            const totalRevenue = totalRevenueMonthly.reduce((sum, val) => sum + val, 0);
-            const totalPBT = totalPBTMonthly.reduce((sum, val) => sum + val, 0);
-            const overallMargin = (totalPBT / totalRevenue * 100).toFixed(2);
-            
-            // Tính %KPI DT từ dữ liệu tổng (Total) - trung bình 3 quý: Q1: 86.39%, Q2: 84.13%, Q3: 76.52%
-            const totalAchieveRates = [86.39, 84.13, 76.52];
-            const avgAchieve = totalAchieveRates.reduce((sum, val) => sum + val, 0) / totalAchieveRates.length;
-            
-            // Cập nhật KPI cards
-            document.getElementById('kpi-total-revenue').textContent = formatNumber(totalRevenue);
-            document.getElementById('kpi-total-pbt').textContent = formatNumber(totalPBT);
-            document.getElementById('kpi-margin').textContent = `Biên LN/DT: ${overallMargin}%`;
-            document.getElementById('kpi-revenue-achieve').textContent = avgAchieve.toFixed(1) + '%';
-            document.getElementById('kpi-revenue-achieve-sub').textContent = avgAchieve >= 100 ? '✅ Vượt mục tiêu' : avgAchieve < 90 ? '⚠️ Dưới mục tiêu' : '➡️ Đạt mục tiêu';
-            
-            // Sức khỏe tập đoàn
-            const hasNegative = companyData.some(c => c.margin < 0);
-            document.getElementById('kpi-health-status').textContent = hasNegative ? 'TRUNG BÌNH' : 'TỐT';
-            
-            // Cập nhật phần "Xem xét tổng quan"
-            const container = document.getElementById('overview-companies');
-            container.innerHTML = '';
-            
-            companyData.forEach(c => {
-                const achieveText = c.avg_achieve >= 100 ? 'Đạt kế hoạch' : 'Không đạt kế hoạch';
-                const marginText = c.margin >= 0 ? `${c.margin.toFixed(2)}%` : `${c.margin.toFixed(2)}%`;
-                
-                const html = `
-                <div class="ranking-item">
-                    <div class="ranking-icon ${c.status_class}">
-                        ${c.icon}
-                    </div>
-                    <div class="ranking-info">
-                        <div class="ranking-name"><strong>${c.name}:</strong> ${achieveText}</div>
-                        <div class="ranking-detail">
-                            Doanh thu: ${formatNumber(c.revenue)} (${c.avg_achieve.toFixed(1)}% KPI)<br>
-                            Lợi nhuận: ${formatNumber(c.pbt)} (${marginText} doanh thu)
-                        </div>
-                    </div>
-                    <div class="ranking-badge bg-${c.status_class}-light text-${c.status_class}">${c.status_short}</div>
-                </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
-            });
-        }
-
         // --- HELPERS ---
         function renderOverviewChart() {
             // Dữ liệu doanh thu và lợi nhuận theo tháng
@@ -911,131 +989,53 @@
             const revenueData = [6319.87, 4673.24, 7692.92, 6174.64, 6839.96, 7501.75, 7069.47, 5723.05, 6616.45, 7771.72];
             const pbtData = [930.44, 195.87, 1569.68, 628.51, 752.22, 1264.85, 1145.53, 1161.45, 629.5, 806.31];
             
-            // Trace 1: Doanh thu - Đường (line chart)
+            // Trace 1: Doanh thu (Cột)
             const traceRevenue = {
                 x: months,
                 y: revenueData,
-                type: 'scatter',
-                mode: 'lines+markers',
+                type: 'bar',
                 name: 'Doanh thu',
-                line: { 
-                    color: '#FF6B35', 
-                    width: 2,
-                    shape: 'spline',
-                    smoothing: 1.3
-                },
-                marker: { 
-                    size: 8, 
-                    color: '#FF6B35' 
-                },
-                yaxis: 'y',
-                hoverinfo: 'x+y+name'
+                marker: { color: '#1F6FEB', opacity: 0.8 },
+                text: revenueData.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: { size: 10 },
+                yaxis: 'y'
             };
             
-            // Trace 2: Lợi nhuận - Cột (bar chart)
+            // Trace 2: Lợi nhuận (Đường)
             const tracePBT = {
                 x: months,
                 y: pbtData,
-                type: 'bar',
-                name: 'Lợi nhuận',
-                marker: { 
-                    color: '#1F6FEB', 
-                    opacity: 0.7 
-                },
-                text: pbtData.map(v => formatNumber(v)),
-                textposition: 'outside',
-                textfont: { 
-                    size: 9, 
-                    color: '#1F6FEB',
-                    family: 'Arial' 
-                },
-                yaxis: 'y',
-                hoverinfo: 'x+y+name'
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Lợi nhuận trước thuế',
+                line: { color: '#1F6FEB', width: 3 },
+                marker: { size: 8, color: '#1F6FEB' },
+                yaxis: 'y2'
             };
             
-            // Tìm tháng có doanh thu cao nhất và thấp nhất
-            const maxRevenue = Math.max(...revenueData);
-            const minRevenue = Math.min(...revenueData);
-            const maxIndex = revenueData.indexOf(maxRevenue);
-            const minIndex = revenueData.indexOf(minRevenue);
-            
-            // Tạo annotations cho tháng cao nhất và thấp nhất
-            const annotations = [
-                {
-                    x: months[maxIndex],
-                    y: maxRevenue,
-                    text: formatNumber(maxRevenue),
-                    showarrow: true,
-                    arrowhead: 2,
-                    arrowsize: 1,
-                    arrowwidth: 2,
-                    arrowcolor: '#FF6B35',
-                    ax: 0,
-                    ay: -30,
-                    font: { 
-                        size: 10, 
-                        color: '#FF6B35',
-                        family: 'Arial',
-                        weight: 'bold'
-                    },
-                    bgcolor: 'rgba(255, 255, 255, 0.9)',
-                    bordercolor: '#FF6B35',
-                    borderwidth: 1,
-                    borderpad: 4
-                },
-                {
-                    x: months[minIndex],
-                    y: minRevenue,
-                    text: formatNumber(minRevenue),
-                    showarrow: true,
-                    arrowhead: 2,
-                    arrowsize: 1,
-                    arrowwidth: 2,
-                    arrowcolor: '#FF6B35',
-                    ax: 0,
-                    ay: 30,
-                    font: { 
-                        size: 10, 
-                        color: '#FF6B35',
-                        family: 'Arial',
-                        weight: 'bold'
-                    },
-                    bgcolor: 'rgba(255, 255, 255, 0.9)',
-                    bordercolor: '#FF6B35',
-                    borderwidth: 1,
-                    borderpad: 4
-                }
-            ];
-            
             const layout = {
-                margin: { t: 10, b: 60, l: 50, r: 20 },
+                margin: { t: 20, b: 40, l: 50, r: 50 },
                 xaxis: { 
                     title: '',
-                    tickangle: -45,
-                    tickfont: { size: 10 },
-                    showgrid: false
+                    tickangle: -45
                 },
                 yaxis: {
-                    title: '',
-                    titlefont: { color: '#1F6FEB', size: 11 },
-                    tickfont: { color: '#1F6FEB', size: 10 },
+                    title: 'Doanh thu (M)',
                     side: 'left',
-                    showgrid: true,
-                    gridcolor: '#E1E4EB'
+                    titlefont: { color: '#1F6FEB', size: 11 },
+                    tickfont: { color: '#1F6FEB', size: 10 }
                 },
-                showlegend: true,
-                legend: {
-                    orientation: 'h',
-                    y: -0.2,
-                    x: 0.5,
-                    xanchor: 'center',
-                    font: { size: 12 },
-                    itemclick: false,
-                    itemdoubleclick: false
+                yaxis2: {
+                    title: 'Lợi nhuận (M)',
+                    side: 'right',
+                    overlaying: 'y',
+                    titlefont: { color: '#1F6FEB', size: 11 },
+                    tickfont: { color: '#1F6FEB', size: 10 }
                 },
+                showlegend: false,
                 height: 250,
-                hovermode: 'x unified',
-                annotations: annotations
+                barmode: 'group'
             };
             
             Plotly.newPlot('chart-overview', [traceRevenue, tracePBT], layout, {staticPlot: false, responsive: true, displayModeBar: false});
