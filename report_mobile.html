@@ -511,10 +511,16 @@
             <div id="chart-company" style="height: 264px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
 
-        <!-- Company Quarterly Comparison Chart -->
+        <!-- Company Quarterly Comparison Chart - Revenue -->
         <div class="card">
             <div class="card-title">So sánh doanh thu cùng kỳ 2024</div>
             <div id="chart-company-quarterly-comparison" style="height: 300px;"></div>
+        </div>
+
+        <!-- Company Quarterly Comparison Chart - Profit -->
+        <div class="card">
+            <div class="card-title">So sánh lợi nhuận cùng kỳ 2024</div>
+            <div id="chart-company-quarterly-pbt-comparison" style="height: 300px;"></div>
         </div>
 
         <!-- Action Buttons -->
@@ -685,6 +691,7 @@
                 setTimeout(() => {
                     Plotly.Plots.resize('chart-company');
                     Plotly.Plots.resize('chart-company-quarterly-comparison');
+                    Plotly.Plots.resize('chart-company-quarterly-pbt-comparison');
                 }, 200);
             }
             
@@ -727,6 +734,7 @@
             setTimeout(() => {
                 Plotly.Plots.resize('chart-company');
                 Plotly.Plots.resize('chart-company-quarterly-comparison');
+                Plotly.Plots.resize('chart-company-quarterly-pbt-comparison');
             }, 100);
         }
 
@@ -882,6 +890,7 @@
             
             // Render company quarterly comparison chart
             renderCompanyQuarterlyComparisonChart(compId);
+            renderCompanyQuarterlyPBTComparisonChart(compId);
             
             // Update company analysis section
             updateCompanyQuarterlyAnalysis(compId);
@@ -1187,6 +1196,106 @@
             };
             
             Plotly.newPlot('chart-company-quarterly-comparison', [trace2024, trace2025], layout, {staticPlot: false, responsive: true, displayModeBar: false});
+        }
+
+        // Render company quarterly PBT comparison chart (2024 vs 2025 - for each company)
+        function renderCompanyQuarterlyPBTComparisonChart(compId) {
+            if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) return;
+            
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const pbt2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].pbt[q]);
+            const pbt2025 = quarters.map(q => quarterlyCompanyComparison[compId]['2025'].pbt[q]);
+            
+            // Tính toán tickvals và ticktext cho yaxis
+            const maxValue = Math.max(...pbt2024, ...pbt2025);
+            const minValue = Math.min(...pbt2024, ...pbt2025);
+            const range = maxValue - minValue;
+            const tickStep = range > 10000 ? 4000 : range > 5000 ? 2000 : 1000;
+            // Thêm padding 10% cho cả min và max để tránh che khuất số
+            const padding = range * 0.1;
+            const startTick = Math.floor((minValue - padding) / tickStep) * tickStep;
+            const endTick = Math.ceil((maxValue + padding) / tickStep) * tickStep;
+            const tickvals = [];
+            const ticktext = [];
+            for (let i = startTick; i <= endTick; i += tickStep) {
+                tickvals.push(i);
+                ticktext.push(i.toLocaleString('vi-VN') + ' M');
+            }
+            
+            // Trace 1: Lợi nhuận 2024
+            const trace2024 = {
+                x: quarters,
+                y: pbt2024,
+                type: 'bar',
+                name: '2024',
+                marker: { 
+                    color: '#94A3B8',
+                    opacity: 0.7
+                },
+                text: pbt2024.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: { 
+                    size: 10, 
+                    color: '#94A3B8'
+                },
+                yaxis: 'y'
+            };
+            
+            // Trace 2: Lợi nhuận 2025
+            const trace2025 = {
+                x: quarters,
+                y: pbt2025,
+                type: 'bar',
+                name: '2025',
+                marker: { 
+                    color: '#1F6FEB',
+                    opacity: 0.8
+                },
+                text: pbt2025.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: { 
+                    size: 10, 
+                    color: '#1F6FEB'
+                },
+                yaxis: 'y'
+            };
+            
+            const layout = {
+                margin: { t: 10, b: 10, l: 10, r: 10 },
+                xaxis: { 
+                    title: '',
+                    tickfont: { size: 11 },
+                    showgrid: false,
+                    fixedrange: true
+                },
+                yaxis: {
+                    title: '',
+                    titlefont: { size: 11 },
+                    tickfont: { size: 10 },
+                    showgrid: true,
+                    gridcolor: '#E1E4EB',
+                    tickmode: 'array',
+                    tickvals: tickvals,
+                    ticktext: ticktext,
+                    showticklabels: false,
+                    range: [startTick, endTick],
+                    fixedrange: true
+                },
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    y: -0.25,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: { size: 11 }
+                },
+                height: 300,
+                barmode: 'group',
+                hovermode: 'x unified',
+                dragmode: false
+            };
+            
+            Plotly.newPlot('chart-company-quarterly-pbt-comparison', [trace2024, trace2025], layout, {staticPlot: false, responsive: true, displayModeBar: false});
         }
 
         // Update quarterly analysis section for Overview tab
