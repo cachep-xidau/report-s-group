@@ -190,7 +190,7 @@
 
         <!-- Ranking -->
         <div class="card">
-            <div class="card-title">Xem xét tổng quan</div>
+            <div class="card-title">Tổng quan</div>
             <div id="overview-companies">
                 <!-- Injected by JS -->
             </div>
@@ -882,7 +882,7 @@
             container.innerHTML = '';
             
             companyData.forEach(c => {
-                const achieveText = c.avg_achieve >= 100 ? 'Đạt kế hoạch' : `Không đạt kế hoạch (${c.avg_achieve.toFixed(1)}%)`;
+                const achieveText = c.avg_achieve >= 100 ? 'Đạt kế hoạch' : 'Không đạt kế hoạch';
                 const marginText = c.margin >= 0 ? `${c.margin.toFixed(2)}%` : `${c.margin.toFixed(2)}%`;
                 
                 const html = `
@@ -893,9 +893,9 @@
                     <div class="ranking-info">
                         <div class="ranking-name"><strong>${c.name}:</strong></div>
                         <div class="ranking-detail">
-                            Doanh thu: ${formatNumber(c.revenue)}<br>
-                            Lợi nhuận: ${formatNumber(c.pbt)} (Biên ${marginText})<br>
-                            ${achieveText}
+                            ${achieveText}<br>
+                            Doanh thu: ${formatNumber(c.revenue)} (${c.avg_achieve.toFixed(1)}% KPI)<br>
+                            Lợi nhuận: ${formatNumber(c.pbt)} (${marginText} doanh thu)
                         </div>
                     </div>
                     <div class="ranking-badge bg-${c.status_class}-light text-${c.status_class}">${c.status_short}</div>
