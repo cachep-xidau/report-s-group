@@ -910,13 +910,17 @@ html_content = f"""
                 const yValues = [revenue, -cogs, gross_profit, -selling_exp, -admin_exp, -other_exp, pbt];
                 const measures = ['absolute', 'relative', 'total', 'relative', 'relative', 'relative', 'total'];
                 
-                // Format text with value and percentage
-                const textValues = [];
+                // Format text: % inside column, value above column
+                const textValues = []; // For inside column (%)
+                const valueLabels = []; // For above column (value)
+                const annotations = [];
+                
                 for (let i = 0; i < xLabels.length; i++) {{
                     const val = yValues[i];
                     const absVal = Math.abs(val);
                     const formatted = formatNumber(absVal);
                     
+                    // Calculate percentage
                     let percentage = '';
                     if (xLabels[i] === 'Doanh Thu') {{
                         percentage = '100%';
@@ -924,7 +928,42 @@ html_content = f"""
                         percentage = ((absVal / revenue) * 100).toFixed(1) + '%';
                     }}
                     
-                    textValues.push(formatted + ' ' + percentage);
+                    // % goes inside column
+                    textValues.push(percentage);
+                    // Value goes above column
+                    valueLabels.push(formatted);
+                    
+                    // Calculate Y position for annotation (top of the column)
+                    let yPos = 0;
+                    if (xLabels[i] === 'Doanh Thu') {{
+                        yPos = revenue;
+                    }} else if (xLabels[i] === 'Giá Vốn') {{
+                        yPos = revenue; // Top of the decreasing bar
+                    }} else if (xLabels[i] === 'Lãi Gộp') {{
+                        yPos = gross_profit;
+                    }} else if (xLabels[i] === 'CP Bán Hàng') {{
+                        yPos = gross_profit; // Top of the decreasing bar
+                    }} else if (xLabels[i] === 'CP Quản Lý') {{
+                        yPos = gross_profit - selling_exp; // Top of the decreasing bar
+                    }} else if (xLabels[i] === 'CP Khác') {{
+                        yPos = gross_profit - selling_exp - admin_exp; // Top of the decreasing bar
+                    }} else if (xLabels[i] === 'LN Trước Thuế') {{
+                        yPos = pbt;
+                    }}
+                    
+                    // Add annotation for value above column
+                    annotations.push({{
+                        x: xLabels[i],
+                        y: yPos,
+                        text: formatted,
+                        showarrow: false,
+                        font: {{ size: 12, color: '#333', family: 'Arial', weight: 'bold' }},
+                        yshift: 10,
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: 'rgba(0, 0, 0, 0.1)',
+                        borderwidth: 1,
+                        borderpad: 3
+                    }});
                 }}
                 
                 // Create chart configuration
@@ -937,7 +976,7 @@ html_content = f"""
                     y: yValues,
                     text: textValues,
                     textposition: 'inside',
-                    textfont: {{ size: 9, color: 'white', family: 'Arial' }},
+                    textfont: {{ size: 12, color: 'white', family: 'Arial', weight: 'bold' }},
                     connector: {{ line: {{ color: '#3A464E', width: 2 }} }},
                     decreasing: {{ marker: {{ color: '#FE3A45', line: {{ color: '#FE3A45', width: 2 }} }} }},
                     increasing: {{ marker: {{ color: '#3A464E', line: {{ color: '#3A464E', width: 2 }} }} }},
@@ -948,7 +987,7 @@ html_content = f"""
                     title: companyName + ' - ' + qName,
                     showlegend: false,
                     height: 280,
-                    margin: {{ t: 50, b: 60, l: 30, r: 10 }},
+                    margin: {{ t: 70, b: 60, l: 30, r: 10 }},
                     yaxis: {{ 
                         title: 'Số Tiền (M)',
                         titlefont: {{ size: 10 }}
@@ -960,7 +999,8 @@ html_content = f"""
                     }},
                     font: {{ size: 9 }},
                     template: 'plotly_white',
-                    autosize: true
+                    autosize: true,
+                    annotations: annotations
                 }};
                 
                 const config = {{
