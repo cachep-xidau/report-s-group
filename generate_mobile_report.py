@@ -139,6 +139,14 @@ gross_margin_rate = (total_gross_profit / total_revenue * 100) if total_revenue 
 overall_margin = (total_pbt / total_revenue * 100) if total_revenue > 0 else 0
 avg_monthly_revenue = total_revenue / 10
 
+# Tính %KPI DT tổng (trung bình % đạt kế hoạch của tất cả công ty)
+all_achieve_rates = []
+for company in companies:
+    achieve_rates = revenue_achievement[company]
+    all_achieve_rates.extend([r for r in achieve_rates if not np.isnan(r)])
+total_avg_achieve = np.nanmean(all_achieve_rates) if all_achieve_rates else 0
+total_avg_achieve_sub = '✅ Vượt mục tiêu' if total_avg_achieve >= 100 else '⚠️ Dưới mục tiêu' if total_avg_achieve < 90 else '➡️ Đạt mục tiêu'
+
 # Dữ liệu từng công ty cho Tab 2 & General
 company_data = []
 for company in companies:
@@ -431,7 +439,7 @@ html_content = f"""
         
         /* KPI Grid */
         .kpi-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }}
-        .kpi-card {{ background: var(--color-surface); border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--color-border); }}
+        .kpi-card {{ background: var(--color-surface); border-radius: 16px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--color-border); }}
         .kpi-label {{ font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); margin-bottom: 4px; text-align: left; padding: 0; }}
         .kpi-value {{ font-size: 18px; font-weight: 700; line-height: 1.25; color: var(--color-primary); margin-bottom: 2px; }}
         .kpi-sub {{ font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); }}
@@ -510,19 +518,18 @@ html_content = f"""
                 <div class="kpi-sub">~{format_number(avg_monthly_revenue)}/tháng</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">Tổng LNTT</div>
+                <div class="kpi-label">Tổng LN</div>
                 <div class="kpi-value">{format_number(total_pbt)}</div>
-                <div class="kpi-sub">LN/DT: {overall_margin:.2f}%</div>
+                <div class="kpi-sub">Biên LN/DT: {overall_margin:.2f}%</div>
             </div>
             <div class="kpi-card bg-success-light" style="box-shadow: none; border: 1px solid var(--color-success);">
-                <div class="kpi-label text-success">Hoạt động tốt nhất</div>
-                <div class="kpi-value text-success" style="font-size: 18px; font-weight: 700; line-height: 1.25;">{best_company['name']}</div>
-                <div class="kpi-sub text-success">LN/DT {best_company['margin']:.1f}% ✅</div>
+                <div class="kpi-label text-success">%KPI DT</div>
+                <div class="kpi-value text-success" style="font-size: 18px; font-weight: 700; line-height: 1.25;">{total_avg_achieve:.1f}%</div>
+                <div class="kpi-sub text-success">{total_avg_achieve_sub}</div>
             </div>
             <div class="kpi-card bg-warning-light" style="box-shadow: none; border: 1px solid var(--color-warning);">
                 <div class="kpi-label text-warning">Sức khỏe tập đoàn</div>
                 <div class="kpi-value text-warning" style="font-size: 18px; font-weight: 700; line-height: 1.25;">{health_status}</div>
-                <div class="kpi-sub text-warning">{health_subtitle}</div>
             </div>
         </div>
 
@@ -535,9 +542,10 @@ html_content = f"""
                     {c['icon']}
                 </div>
                 <div class="ranking-info">
-                    <div class="ranking-name">{c['name']}</div>
+                    <div class="ranking-name"><strong>{c['name']}:</strong> {'Không đạt kế hoạch' if c['avg_achieve'] < 100 else 'Đạt kế hoạch'}</div>
                     <div class="ranking-detail">
-                        Doanh thu: {format_number(c['revenue'])} • Lợi nhuận trước thuế: {format_number(c['pbt'])} ({c['margin']:.1f}%)
+                        Doanh thu: {format_number(c['revenue'])} (đạt {c['avg_achieve']:.1f}% KPI)<br>
+                        Lợi nhuận: {format_number(c['pbt'])} (chiếm {abs(c['margin']):.2f}% doanh thu)
                     </div>
                 </div>
                 <div class="ranking-badge bg-{c['status_class']}-light text-{c['status_class']}">{c['status_short']}</div>
@@ -550,21 +558,6 @@ html_content = f"""
         <div class="card">
             <div class="card-title">Doanh thu và lợi nhuận</div>
             <div id="chart-overview" style="height: 250px;"></div>
-        </div>
-
-        <!-- Accordion Insight -->
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                💡 Nhận xét <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
-            </div>
-            <div class="accordion-content open">
-                <ul>
-                    <li><strong>{best_company['name']}</strong> dẫn đầu về doanh thu ({format_number(best_company['revenue'])}) & tỷ suất lợi nhuận ({best_company['margin']:.2f}%).</li>
-                    <li><strong>{company_data[0]['name']}</strong> lỗ {format_number(abs(company_data[0]['pbt']))}, không đạt kế hoạch ({company_data[0]['avg_achieve']:.1f}%), LN/DT {company_data[0]['margin']:.2f}%.</li>
-                    <li><strong>{company_data[2]['name']}</strong> biên lợi nhuận {company_data[2]['margin']:.2f}% nhưng chi phí biến động.</li>
-                    <li>Tỷ suất lãi gộp toàn tập đoàn {gross_margin_rate:.2f}%, tổng doanh thu {format_number(total_revenue)}, tổng lợi nhuận {format_number(total_pbt)}.</li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -1298,53 +1291,120 @@ html_content = f"""
             const revenueData = {json.dumps([revenue_df.loc[month, 'Total'] for month in months])};
             const pbtData = {json.dumps([pbt_df.loc[month, 'Total'] for month in months])};
             
-            // Trace 1: Doanh thu (Cột)
+            // Tìm tháng có doanh thu cao nhất và thấp nhất
+            const maxRevenueIndex = revenueData.indexOf(Math.max(...revenueData));
+            const minRevenueIndex = revenueData.indexOf(Math.min(...revenueData));
+            const maxRevenueMonth = months[maxRevenueIndex];
+            const minRevenueMonth = months[minRevenueIndex];
+            const maxRevenueValue = revenueData[maxRevenueIndex];
+            const minRevenueValue = revenueData[minRevenueIndex];
+            
+            // Trace 1: Doanh thu (Đường - màu cam đậm, mượt, mỏng)
             const traceRevenue = {{
                 x: months,
                 y: revenueData,
-                type: 'bar',
+                type: 'scatter',
+                mode: 'lines+markers',
                 name: 'Doanh thu',
-                marker: {{ color: '#1F6FEB', opacity: 0.8 }},
-                text: revenueData.map(v => formatNumber(v)),
-                textposition: 'outside',
-                textfont: {{ size: 10 }},
-                yaxis: 'y'
+                line: {{ 
+                    color: '#FF6B35', // Màu cam đậm
+                    width: 2, // Mỏng hơn
+                    shape: 'spline', // Làm mượt
+                    smoothing: 1.3
+                }},
+                marker: {{ 
+                    size: 8, 
+                    color: '#FF6B35' 
+                }},
+                yaxis: 'y',
+                hoverinfo: 'x+y+name'
             }};
             
-            // Trace 2: Lợi nhuận (Đường)
+            // Trace 2: Lợi nhuận (Cột)
             const tracePBT = {{
                 x: months,
                 y: pbtData,
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Lợi nhuận trước thuế',
-                line: {{ color: '#1F6FEB', width: 3 }},
-                marker: {{ size: 8, color: '#1F6FEB' }},
-                yaxis: 'y2'
+                type: 'bar',
+                name: 'Lợi nhuận',
+                marker: {{ 
+                    color: '#1F6FEB', 
+                    opacity: 0.7 
+                }},
+                text: pbtData.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 9, 
+                    color: '#1F6FEB'
+                }},
+                yaxis: 'y', // Dùng chung axis
+                hoverinfo: 'x+y+name'
             }};
             
+            // Annotations cho tháng có doanh thu cao nhất và thấp nhất
+            const annotations = [
+                {{
+                    x: maxRevenueMonth,
+                    y: maxRevenueValue,
+                    text: formatNumber(maxRevenueValue),
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#FF6B35',
+                    ax: 0,
+                    ay: -30,
+                    font: {{ color: '#FF6B35', size: 10 }},
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: '#FF6B35',
+                    borderwidth: 1
+                }},
+                {{
+                    x: minRevenueMonth,
+                    y: minRevenueValue,
+                    text: formatNumber(minRevenueValue),
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#FF6B35',
+                    ax: 0,
+                    ay: 30,
+                    font: {{ color: '#FF6B35', size: 10 }},
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: '#FF6B35',
+                    borderwidth: 1
+                }}
+            ];
+            
             const layout = {{
-                margin: {{ t: 20, b: 40, l: 50, r: 50 }},
+                margin: {{ t: 10, b: 60, l: 50, r: 20 }},
                 xaxis: {{ 
                     title: '',
-                    tickangle: -45
+                    tickangle: -45,
+                    tickfont: {{ size: 10 }},
+                    showgrid: false
                 }},
                 yaxis: {{
-                    title: 'Doanh thu (M)',
+                    title: '', // Xóa title
                     side: 'left',
-                    titlefont: {{ color: '#1F6FEB', size: 11 }},
-                    tickfont: {{ color: '#1F6FEB', size: 10 }}
+                    showgrid: true,
+                    gridcolor: '#E1E4EB',
+                    tickfont: {{ size: 10 }}
                 }},
-                yaxis2: {{
-                    title: 'Lợi nhuận (M)',
-                    side: 'right',
-                    overlaying: 'y',
-                    titlefont: {{ color: '#1F6FEB', size: 11 }},
-                    tickfont: {{ color: '#1F6FEB', size: 10 }}
+                showlegend: true,
+                legend: {{
+                    orientation: 'h',
+                    y: -0.2,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: {{ size: 12 }},
+                    itemclick: false,
+                    itemdoubleclick: false
                 }},
-                showlegend: false,
                 height: 250,
-                barmode: 'group'
+                barmode: 'group',
+                hovermode: 'x unified',
+                annotations: annotations
             }};
             
             Plotly.newPlot('chart-overview', [traceRevenue, tracePBT], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});

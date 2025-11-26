@@ -96,7 +96,7 @@
         
         /* KPI Grid */
         .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .kpi-card { background: var(--color-surface); border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--color-border); }
+        .kpi-card { background: var(--color-surface); border-radius: 16px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--color-border); }
         .kpi-label { font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); margin-bottom: 4px; text-align: left; padding: 0; }
         .kpi-value { font-size: 18px; font-weight: 700; line-height: 1.25; color: var(--color-primary); margin-bottom: 2px; }
         .kpi-sub { font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); }
@@ -175,19 +175,18 @@
                 <div class="kpi-sub">~6.638 M/tháng</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">Tổng LNTT</div>
+                <div class="kpi-label">Tổng LN</div>
                 <div class="kpi-value">9.084 M</div>
-                <div class="kpi-sub">LN/DT: 13.68%</div>
+                <div class="kpi-sub">Biên LN/DT: 13.68%</div>
             </div>
             <div class="kpi-card bg-success-light" style="box-shadow: none; border: 1px solid var(--color-success);">
-                <div class="kpi-label text-success">Hoạt động tốt nhất</div>
-                <div class="kpi-value text-success" style="font-size: 18px; font-weight: 700; line-height: 1.25;">T</div>
-                <div class="kpi-sub text-success">LN/DT 24.7% ✅</div>
+                <div class="kpi-label text-success">%KPI DT</div>
+                <div class="kpi-value text-success" style="font-size: 18px; font-weight: 700; line-height: 1.25;">83.1%</div>
+                <div class="kpi-sub text-success">⚠️ Dưới mục tiêu</div>
             </div>
             <div class="kpi-card bg-warning-light" style="box-shadow: none; border: 1px solid var(--color-warning);">
                 <div class="kpi-label text-warning">Sức khỏe tập đoàn</div>
                 <div class="kpi-value text-warning" style="font-size: 18px; font-weight: 700; line-height: 1.25;">⚠️ TRUNG BÌNH</div>
-                <div class="kpi-sub text-warning">SAN âm, TGIL biến động</div>
             </div>
         </div>
 
@@ -200,9 +199,10 @@
                     🚨
                 </div>
                 <div class="ranking-info">
-                    <div class="ranking-name">S</div>
+                    <div class="ranking-name"><strong>S:</strong> Không đạt kế hoạch</div>
                     <div class="ranking-detail">
-                        Doanh thu: 17.162 M • Lợi nhuận trước thuế: -243 M (-6.8%)
+                        Doanh thu: 17.162 M (đạt 69.7% KPI)<br>
+                        Lợi nhuận: -243 M (chiếm 6.75% doanh thu)
                     </div>
                 </div>
                 <div class="ranking-badge bg-critical-light text-critical">NGHIÊM TRỌNG</div>
@@ -213,9 +213,10 @@
                     ✅
                 </div>
                 <div class="ranking-info">
-                    <div class="ranking-name">T</div>
+                    <div class="ranking-name"><strong>T:</strong> Không đạt kế hoạch</div>
                     <div class="ranking-detail">
-                        Doanh thu: 27.733 M • Lợi nhuận trước thuế: 434 M (24.7%)
+                        Doanh thu: 27.733 M (đạt 83.5% KPI)<br>
+                        Lợi nhuận: 434 M (chiếm 24.74% doanh thu)
                     </div>
                 </div>
                 <div class="ranking-badge bg-excellent-light text-excellent">XUẤT SẮC</div>
@@ -226,9 +227,10 @@
                     ⚠️
                 </div>
                 <div class="ranking-info">
-                    <div class="ranking-name">I</div>
+                    <div class="ranking-name"><strong>I:</strong> Không đạt kế hoạch</div>
                     <div class="ranking-detail">
-                        Doanh thu: 21.489 M • Lợi nhuận trước thuế: 615 M (15.7%)
+                        Doanh thu: 21.489 M (đạt 96.1% KPI)<br>
+                        Lợi nhuận: 615 M (chiếm 15.74% doanh thu)
                     </div>
                 </div>
                 <div class="ranking-badge bg-average-light text-average">TRUNG BÌNH</div>
@@ -241,21 +243,6 @@
         <div class="card">
             <div class="card-title">Doanh thu và lợi nhuận</div>
             <div id="chart-overview" style="height: 250px;"></div>
-        </div>
-
-        <!-- Accordion Insight -->
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                💡 Nhận xét <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
-            </div>
-            <div class="accordion-content open">
-                <ul>
-                    <li><strong>T</strong> dẫn đầu về doanh thu (27.733 M) & tỷ suất lợi nhuận (24.74%).</li>
-                    <li><strong>S</strong> lỗ 243 M, không đạt kế hoạch (69.7%), LN/DT -6.75%.</li>
-                    <li><strong>I</strong> biên lợi nhuận 15.74% nhưng chi phí biến động.</li>
-                    <li>Tỷ suất lãi gộp toàn tập đoàn 82.54%, tổng doanh thu 66.383 M, tổng lợi nhuận 9.084 M.</li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -989,53 +976,120 @@
             const revenueData = [6319.87, 4673.24, 7692.92, 6174.64, 6839.96, 7501.75, 7069.47, 5723.05, 6616.45, 7771.72];
             const pbtData = [930.44, 195.87, 1569.68, 628.51, 752.22, 1264.85, 1145.53, 1161.45, 629.5, 806.31];
             
-            // Trace 1: Doanh thu (Cột)
+            // Tìm tháng có doanh thu cao nhất và thấp nhất
+            const maxRevenueIndex = revenueData.indexOf(Math.max(...revenueData));
+            const minRevenueIndex = revenueData.indexOf(Math.min(...revenueData));
+            const maxRevenueMonth = months[maxRevenueIndex];
+            const minRevenueMonth = months[minRevenueIndex];
+            const maxRevenueValue = revenueData[maxRevenueIndex];
+            const minRevenueValue = revenueData[minRevenueIndex];
+            
+            // Trace 1: Doanh thu (Đường - màu cam đậm, mượt, mỏng)
             const traceRevenue = {
                 x: months,
                 y: revenueData,
-                type: 'bar',
+                type: 'scatter',
+                mode: 'lines+markers',
                 name: 'Doanh thu',
-                marker: { color: '#1F6FEB', opacity: 0.8 },
-                text: revenueData.map(v => formatNumber(v)),
-                textposition: 'outside',
-                textfont: { size: 10 },
-                yaxis: 'y'
+                line: { 
+                    color: '#FF6B35', // Màu cam đậm
+                    width: 2, // Mỏng hơn
+                    shape: 'spline', // Làm mượt
+                    smoothing: 1.3
+                },
+                marker: { 
+                    size: 8, 
+                    color: '#FF6B35' 
+                },
+                yaxis: 'y',
+                hoverinfo: 'x+y+name'
             };
             
-            // Trace 2: Lợi nhuận (Đường)
+            // Trace 2: Lợi nhuận (Cột)
             const tracePBT = {
                 x: months,
                 y: pbtData,
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Lợi nhuận trước thuế',
-                line: { color: '#1F6FEB', width: 3 },
-                marker: { size: 8, color: '#1F6FEB' },
-                yaxis: 'y2'
+                type: 'bar',
+                name: 'Lợi nhuận',
+                marker: { 
+                    color: '#1F6FEB', 
+                    opacity: 0.7 
+                },
+                text: pbtData.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: { 
+                    size: 9, 
+                    color: '#1F6FEB'
+                },
+                yaxis: 'y', // Dùng chung axis
+                hoverinfo: 'x+y+name'
             };
             
+            // Annotations cho tháng có doanh thu cao nhất và thấp nhất
+            const annotations = [
+                {
+                    x: maxRevenueMonth,
+                    y: maxRevenueValue,
+                    text: formatNumber(maxRevenueValue),
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#FF6B35',
+                    ax: 0,
+                    ay: -30,
+                    font: { color: '#FF6B35', size: 10 },
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: '#FF6B35',
+                    borderwidth: 1
+                },
+                {
+                    x: minRevenueMonth,
+                    y: minRevenueValue,
+                    text: formatNumber(minRevenueValue),
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#FF6B35',
+                    ax: 0,
+                    ay: 30,
+                    font: { color: '#FF6B35', size: 10 },
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    bordercolor: '#FF6B35',
+                    borderwidth: 1
+                }
+            ];
+            
             const layout = {
-                margin: { t: 20, b: 40, l: 50, r: 50 },
+                margin: { t: 10, b: 60, l: 50, r: 20 },
                 xaxis: { 
                     title: '',
-                    tickangle: -45
+                    tickangle: -45,
+                    tickfont: { size: 10 },
+                    showgrid: false
                 },
                 yaxis: {
-                    title: 'Doanh thu (M)',
+                    title: '', // Xóa title
                     side: 'left',
-                    titlefont: { color: '#1F6FEB', size: 11 },
-                    tickfont: { color: '#1F6FEB', size: 10 }
+                    showgrid: true,
+                    gridcolor: '#E1E4EB',
+                    tickfont: { size: 10 }
                 },
-                yaxis2: {
-                    title: 'Lợi nhuận (M)',
-                    side: 'right',
-                    overlaying: 'y',
-                    titlefont: { color: '#1F6FEB', size: 11 },
-                    tickfont: { color: '#1F6FEB', size: 10 }
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    y: -0.2,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: { size: 12 },
+                    itemclick: false,
+                    itemdoubleclick: false
                 },
-                showlegend: false,
                 height: 250,
-                barmode: 'group'
+                barmode: 'group',
+                hovermode: 'x unified',
+                annotations: annotations
             };
             
             Plotly.newPlot('chart-overview', [traceRevenue, tracePBT], layout, {staticPlot: false, responsive: true, displayModeBar: false});
