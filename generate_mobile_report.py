@@ -877,7 +877,7 @@ html_content = f"""
             // Render 3 waterfall charts (Q1, Q2, Q3)
             ['Q1', 'Q2', 'Q3'].forEach((qName, idx) => {{
                 const qData = quarterly[idx];
-                const chartId = `chart-waterfall-${{qName.toLowerCase()}}`;
+                const chartId = 'chart-waterfall-' + qName.toLowerCase();
                 
                 // Calculate values
                 const revenue = qData.revenue;
@@ -924,7 +924,7 @@ html_content = f"""
                         totals: {{ marker: {{ color: '#3A464E', line: {{ color: '#3A464E', width: 2 }} }} }}
                     }}],
                     layout: {{
-                        title: `${{companyName}} - ${{qName}}`,
+                        title: companyName + ' - ' + qName,
                         showlegend: false,
                         height: 280,
                         margin: {{ t: 50, b: 40, l: 50, r: 20 }},
