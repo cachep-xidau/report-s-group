@@ -902,25 +902,25 @@ html_content = f"""
         <!-- VIEW 1: RATIO -->
         <div id="view-ratio">
             <div class="segmented-control">
-                <button class="segment-btn active" onclick="switchExpenseCompany('SAN')">S</button>
-                <button class="segment-btn" onclick="switchExpenseCompany('TEENNIE')">T</button>
-                <button class="segment-btn" onclick="switchExpenseCompany('TGIL')">I</button>
+                <button class="segment-btn active" onclick="switchExpenseCompany('SAN')" data-company="SAN">S</button>
+                <button class="segment-btn" onclick="switchExpenseCompany('TEENNIE')" data-company="TEENNIE">T</button>
+                <button class="segment-btn" onclick="switchExpenseCompany('TGIL')" data-company="TGIL">I</button>
             </div>
             
             <!-- Waterfall Charts -->
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 1</div>
-                <div id="chart-waterfall-q1" style="height: 336px;"></div>
+                <div id="chart-waterfall-q1" style="height: 302px;"></div>
             </div>
             
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 2</div>
-                <div id="chart-waterfall-q2" style="height: 336px;"></div>
+                <div id="chart-waterfall-q2" style="height: 302px;"></div>
             </div>
             
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 3</div>
-                <div id="chart-waterfall-q3" style="height: 336px;"></div>
+                <div id="chart-waterfall-q3" style="height: 302px;"></div>
             </div>
             
             <div class="card">
@@ -1857,7 +1857,7 @@ html_content = f"""
             // Update buttons
             document.querySelectorAll('#view-ratio .segment-btn').forEach(btn => {{
                 btn.classList.remove('active');
-                if(btn.textContent === (compId === 'SAN' ? 'S' : compId === 'TEENNIE' ? 'T' : 'I')) 
+                if(btn.getAttribute('data-company') === compId) 
                     btn.classList.add('active');
             }});
         }}
@@ -1944,16 +1944,20 @@ html_content = f"""
                         yPos = pbt;
                     }}
                     
-                    // Add annotation for value above column
+                    // Tính toán vị trí label bên trên và bên ngoài cột (cách 3px)
+                    // Với cột dương: label ở trên yPos + absVal
+                    // Với cột âm: label ở trên yPos (vì yPos là điểm bắt đầu của cột giảm)
+                    const labelYPos = val >= 0 ? yPos + absVal + 3 : yPos + 3;
+                    
+                    // Add annotation for value above column (bên trên và bên ngoài cột, cách 3px)
                     annotations.push({{
                         x: xLabels[i],
-                        y: yPos,
+                        y: labelYPos,
                         text: formatted,
                         showarrow: false,
                         font: {{ size: 12, color: '#121826', family: 'Arial', weight: 'bold' }},
-                        yshift: 10,
-                        bgcolor: 'rgba(255, 255, 255, 0.8)',
-                        bordercolor: 'rgba(0, 0, 0, 0.1)',
+                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                        bordercolor: 'rgba(193, 193, 193, 0.2)',
                         borderwidth: 1,
                         borderpad: 3
                     }});
@@ -1979,7 +1983,7 @@ html_content = f"""
                 const layout = {{
                     title: '',
                     showlegend: false,
-                    height: 336,
+                    height: 302,
                     margin: {{ t: 10, b: 60, l: 10, r: 10 }},
                     yaxis: {{ 
                         title: '',
