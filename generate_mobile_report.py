@@ -701,6 +701,22 @@ html_content = f"""
             const months = {json.dumps(months)};
             const chartColor = data.status_class === 'critical' ? '#FE3A45' : data.status_class === 'excellent' ? '#27ae60' : '#f39c12';
             
+            // Tính toán min/max cho yaxis với padding
+            const allValues = [...data.monthly_pbt, ...data.cumulative_pbt];
+            const dataMin = Math.min(...allValues);
+            const dataMax = Math.max(...allValues);
+            const range = dataMax - dataMin;
+            
+            // Thêm padding 15% cho phần dương và âm
+            let yMin = dataMin - (range * 0.15);
+            let yMax = dataMax + (range * 0.15);
+            
+            // Đảm bảo có khoảng trống tối thiểu nếu dữ liệu quá nhỏ
+            if (Math.abs(dataMin) < 1 && Math.abs(dataMax) < 1) {{
+                yMin = Math.min(yMin, -1);
+                yMax = Math.max(yMax, 1);
+            }}
+            
             // Trace 1: Cột lợi nhuận hàng tháng
             const traceBar = {{
                 x: months,
@@ -746,7 +762,8 @@ html_content = f"""
                     tickfont: {{ size: 9 }},
                     zeroline: true,
                     zerolinecolor: '#999',
-                    zerolinewidth: 1
+                    zerolinewidth: 1,
+                    range: [yMin, yMax]
                 }},
                 legend: {{
                     orientation: 'h',
