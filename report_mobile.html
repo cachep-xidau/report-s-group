@@ -891,9 +891,8 @@
                         ${c.icon}
                     </div>
                     <div class="ranking-info">
-                        <div class="ranking-name"><strong>${c.name}:</strong></div>
+                        <div class="ranking-name"><strong>${c.name}:</strong> ${achieveText}</div>
                         <div class="ranking-detail">
-                            ${achieveText}<br>
                             Doanh thu: ${formatNumber(c.revenue)} (${c.avg_achieve.toFixed(1)}% KPI)<br>
                             Lợi nhuận: ${formatNumber(c.pbt)} (${marginText} doanh thu)
                         </div>
@@ -954,6 +953,60 @@
                 hoverinfo: 'x+y+name'
             };
             
+            // Tìm tháng có doanh thu cao nhất và thấp nhất
+            const maxRevenue = Math.max(...revenueData);
+            const minRevenue = Math.min(...revenueData);
+            const maxIndex = revenueData.indexOf(maxRevenue);
+            const minIndex = revenueData.indexOf(minRevenue);
+            
+            // Tạo annotations cho tháng cao nhất và thấp nhất
+            const annotations = [
+                {
+                    x: months[maxIndex],
+                    y: maxRevenue,
+                    text: formatNumber(maxRevenue),
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#FF6B35',
+                    ax: 0,
+                    ay: -30,
+                    font: { 
+                        size: 10, 
+                        color: '#FF6B35',
+                        family: 'Arial',
+                        weight: 'bold'
+                    },
+                    bgcolor: 'rgba(255, 255, 255, 0.9)',
+                    bordercolor: '#FF6B35',
+                    borderwidth: 1,
+                    borderpad: 4
+                },
+                {
+                    x: months[minIndex],
+                    y: minRevenue,
+                    text: formatNumber(minRevenue),
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#FF6B35',
+                    ax: 0,
+                    ay: 30,
+                    font: { 
+                        size: 10, 
+                        color: '#FF6B35',
+                        family: 'Arial',
+                        weight: 'bold'
+                    },
+                    bgcolor: 'rgba(255, 255, 255, 0.9)',
+                    bordercolor: '#FF6B35',
+                    borderwidth: 1,
+                    borderpad: 4
+                }
+            ];
+            
             const layout = {
                 margin: { t: 10, b: 60, l: 50, r: 20 },
                 xaxis: { 
@@ -981,7 +1034,8 @@
                     itemdoubleclick: false
                 },
                 height: 250,
-                hovermode: 'x unified'
+                hovermode: 'x unified',
+                annotations: annotations
             };
             
             Plotly.newPlot('chart-overview', [traceRevenue, tracePBT], layout, {staticPlot: false, responsive: true, displayModeBar: false});
