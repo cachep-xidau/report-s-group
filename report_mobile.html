@@ -910,16 +910,32 @@
             // Tính phần còn lại (doanh thu - lợi nhuận) cho stacked bar
             const remainingData = revenueData.map((rev, idx) => rev - pbtData[idx]);
             
+            // Tính vị trí y cho annotations (giữa phần chi phí)
+            const annotations = remainingData.map((val, idx) => {
+                // Vị trí y là giữa phần chi phí (từ đỉnh cột trừ đi một nửa chi phí)
+                const yPos = revenueData[idx] - (val / 2);
+                return {
+                    x: months[idx],
+                    y: yPos,
+                    text: formatNumber(val),
+                    showarrow: false,
+                    font: { size: 9, color: '#6B7280' },
+                    textangle: -90,
+                    xanchor: 'center',
+                    yanchor: 'middle'
+                };
+            });
+            
             // Trace 1: Phần còn lại (Doanh thu - Lợi nhuận) - màu xám nhạt
             const traceRemaining = {
                 x: months,
                 y: remainingData,
                 type: 'bar',
-                name: 'Doanh thu (trừ LN)',
+                name: 'Chi phí',
                 marker: { color: '#E1E4EB', opacity: 0.8 },
-                text: remainingData.map(v => formatNumber(v)),
-                textposition: 'inside',
-                textfont: { size: 9, color: '#6B7280' }
+                text: '', // Không hiển thị text trong bar
+                textposition: 'none',
+                hoverinfo: 'y+name'
             };
             
             // Trace 2: Lợi nhuận - màu xanh đậm (nằm bên trong)
@@ -930,26 +946,39 @@
                 name: 'Lợi nhuận',
                 marker: { color: '#1F6FEB', opacity: 0.9 },
                 text: pbtData.map(v => formatNumber(v)),
-                textposition: 'inside',
-                textfont: { size: 9, color: 'white', weight: 'bold' }
+                textposition: 'bottom',
+                textfont: { size: 9, color: '#1F6FEB', family: 'Arial' }
             };
             
             const layout = {
-                margin: { t: 20, b: 40, l: 50, r: 20 },
+                margin: { t: 10, b: 60, l: 10, r: 10 },
                 xaxis: { 
                     title: '',
                     tickangle: -45,
-                    tickfont: { size: 10 }
+                    tickfont: { size: 10 },
+                    showgrid: false
                 },
                 yaxis: {
-                    title: 'Số tiền (M)',
+                    title: '',
                     titlefont: { color: '#1F6FEB', size: 11 },
-                    tickfont: { color: '#1F6FEB', size: 10 }
+                    tickfont: { color: '#1F6FEB', size: 10 },
+                    showgrid: true,
+                    gridcolor: '#E1E4EB'
                 },
-                showlegend: false,
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    y: -0.2,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: { size: 12 },
+                    itemclick: false,
+                    itemdoubleclick: false
+                },
                 height: 250,
                 barmode: 'stack',
-                hovermode: 'x unified'
+                hovermode: 'x unified',
+                annotations: annotations
             };
             
             Plotly.newPlot('chart-overview', [traceRemaining, tracePBT], layout, {staticPlot: false, responsive: true, displayModeBar: false});
