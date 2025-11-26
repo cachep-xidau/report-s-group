@@ -910,17 +910,22 @@ html_content = f"""
             <!-- Waterfall Charts -->
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 1</div>
-                <div id="chart-waterfall-q1" style="height: 280px;"></div>
+                <div id="chart-waterfall-q1" style="height: 336px;"></div>
             </div>
             
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 2</div>
-                <div id="chart-waterfall-q2" style="height: 280px;"></div>
+                <div id="chart-waterfall-q2" style="height: 336px;"></div>
             </div>
             
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 3</div>
-                <div id="chart-waterfall-q3" style="height: 280px;"></div>
+                <div id="chart-waterfall-q3" style="height: 336px;"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Cơ cấu chi phí</div>
+                <div id="chart-expense-structure" style="height: 300px;"></div>
             </div>
             
             <div class="card">
@@ -1020,6 +1025,7 @@ html_content = f"""
             updateQuarterlyAnalysisOverview();
             updateExpenseRatioChart('SAN');
             renderWaterfallCharts('SAN');
+            renderExpenseStructureChart('SAN');
             renderCVChart();
             renderActions('0-30');
             
@@ -1819,6 +1825,7 @@ html_content = f"""
                     Plotly.Plots.resize('chart-waterfall-q1');
                     Plotly.Plots.resize('chart-waterfall-q2');
                     Plotly.Plots.resize('chart-waterfall-q3');
+                    Plotly.Plots.resize('chart-expense-structure');
                 }}, 100);
             }} else {{
                 document.getElementById('view-ratio').style.display = 'none';
@@ -1834,6 +1841,7 @@ html_content = f"""
             currentExpenseCompanyId = compId;
             updateExpenseRatioChart(compId);
             renderWaterfallCharts(compId);
+            renderExpenseStructureChart(compId);
             
             // Update buttons
             document.querySelectorAll('#view-ratio .segment-btn').forEach(btn => {{
@@ -1958,13 +1966,14 @@ html_content = f"""
                 }};
                 
                 const layout = {{
-                    title: companyName + ' - ' + qName,
+                    title: '',
                     showlegend: false,
-                    height: 280,
-                    margin: {{ t: 70, b: 60, l: 30, r: 10 }},
+                    height: 336,
+                    margin: {{ t: 10, b: 60, l: 10, r: 10 }},
                     yaxis: {{ 
-                        title: 'Số Tiền (M)',
+                        title: '',
                         titlefont: {{ size: 10 }},
+                        showticklabels: false,
                         fixedrange: true
                     }},
                     xaxis: {{
@@ -1975,7 +1984,8 @@ html_content = f"""
                     }},
                     font: {{ size: 9 }},
                     template: 'plotly_white',
-                    autosize: true,
+                    autosize: false,
+                    width: chartElement.offsetWidth || 400,
                     dragmode: false,
                     annotations: annotations
                 }};
