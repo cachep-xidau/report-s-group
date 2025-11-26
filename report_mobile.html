@@ -41,12 +41,21 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.5;
             background: var(--bg);
             color: var(--text);
             padding-bottom: 80px; /* Space for bottom nav */
             overflow-x: hidden;
         }
+        
+        /* Typography Scale */
+        h1 { font-size: 20px; font-weight: 700; line-height: 1.4; }
+        h2 { font-size: 17px; font-weight: 600; line-height: 1.4; }
+        h3 { font-size: 15px; font-weight: 600; line-height: 1.4; }
+        p, div, span { line-height: 1.5; }
 
         /* Utility Classes */
         .text-success { color: var(--success); }
@@ -67,8 +76,8 @@
             top: 0;
             z-index: 100;
         }
-        .header h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-        .header p { font-size: 12px; opacity: 0.9; }
+        .header h1 { font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }
+        .header p { font-size: 12px; font-weight: 400; line-height: 1.5; opacity: 0.9; }
 
         /* Tab System */
         .tab-content { display: none; padding: 16px; animation: fadeIn 0.3s; }
@@ -83,14 +92,14 @@
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        .card-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--color-primary); display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 17px; font-weight: 600; line-height: 1.4; margin-bottom: 12px; color: var(--color-primary); display: flex; justify-content: space-between; align-items: center; }
         
         /* KPI Grid */
         .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
         .kpi-card { background: var(--color-surface); border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--color-border); }
-        .kpi-label { font-size: 11px; color: var(--color-text-muted); margin-bottom: 4px; font-weight: 500; text-align: left; padding: 0; }
-        .kpi-value { font-size: 20px; font-weight: 700; color: var(--color-primary); line-height: 1.2; margin-bottom: 2px; }
-        .kpi-sub { font-size: 10px; color: var(--color-text-muted); }
+        .kpi-label { font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); margin-bottom: 4px; text-align: left; padding: 0; }
+        .kpi-value { font-size: 22px; font-weight: 700; line-height: 1.4; color: var(--color-primary); margin-bottom: 2px; }
+        .kpi-sub { font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); }
 
         /* Ranking List */
         .ranking-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-divider); }
@@ -100,37 +109,37 @@
         .ranking-icon.excellent { background: var(--color-primary-soft); color: var(--color-success); }
         .ranking-icon.average { background: var(--color-primary-soft); color: var(--color-warning); }
         .ranking-info { flex: 1; }
-        .ranking-name { font-weight: 700; font-size: 15px; color: var(--color-text-main); }
-        .ranking-detail { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; }
-        .ranking-badge { font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 12px; white-space: nowrap; }
+        .ranking-name { font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--color-text-main); }
+        .ranking-detail { font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); margin-top: 2px; }
+        .ranking-badge { font-size: 12px; font-weight: 400; line-height: 1.5; padding: 4px 8px; border-radius: 12px; white-space: nowrap; }
 
         /* Accordion */
         .accordion { background: var(--color-surface); border-radius: 12px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid var(--color-border); }
-        .accordion-header { padding: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--color-surface); color: var(--color-text-main); }
-        .accordion-content { padding: 0 16px 16px; display: none; font-size: 13px; line-height: 1.5; color: var(--color-text-muted); border-top: 1px solid var(--color-divider); }
+        .accordion-header { padding: 16px; font-size: 15px; font-weight: 600; line-height: 1.4; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--color-surface); color: var(--color-text-main); }
+        .accordion-content { padding: 0 16px 16px; display: none; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); border-top: 1px solid var(--color-divider); }
         .accordion-content.open { display: block; }
         .accordion-content ul { padding-left: 20px; margin-top: 8px; }
         .accordion-content li { margin-bottom: 6px; }
 
         /* Segmented Control */
         .segmented-control { display: flex; background: var(--color-border); padding: 4px; border-radius: 8px; margin-bottom: 16px; }
-        .segment-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 13px; font-weight: 600; color: var(--color-text-muted); cursor: pointer; transition: all 0.2s; }
+        .segment-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); cursor: pointer; transition: all 0.2s; }
         .segment-btn.active { background: var(--color-surface); color: var(--color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         /* Toggle Switch */
         .toggle-container { display: flex; justify-content: center; margin-bottom: 16px; }
         .toggle-wrapper { display: flex; background: var(--color-border); border-radius: 20px; padding: 3px; position: relative; }
-        .toggle-btn { padding: 6px 20px; border-radius: 18px; border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--color-text-muted); z-index: 1; position: relative; cursor: pointer; transition: color 0.2s; }
+        .toggle-btn { padding: 6px 20px; border-radius: 18px; border: none; background: transparent; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); z-index: 1; position: relative; cursor: pointer; transition: color 0.2s; }
         .toggle-btn.active { color: var(--color-primary); }
         .toggle-bg { position: absolute; top: 3px; bottom: 3px; left: 3px; width: 50%; background: var(--color-surface); border-radius: 18px; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         /* Chips */
         .chips-container { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
-        .chip { padding: 8px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; font-size: 13px; font-weight: 500; color: var(--color-text-muted); white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+        .chip { padding: 8px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); white-space: nowrap; cursor: pointer; transition: all 0.2s; }
         .chip.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
 
         /* Buttons */
-        .btn { display: block; width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; border: none; cursor: pointer; margin-bottom: 12px; transition: opacity 0.2s; }
+        .btn { display: block; width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 400; line-height: 1.5; text-align: center; border: none; cursor: pointer; margin-bottom: 12px; transition: opacity 0.2s; }
         .btn-primary { background: var(--color-primary); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-primary); }
         .btn:active { opacity: 0.8; }
@@ -144,8 +153,8 @@
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--color-surface); border-top: 1px solid var(--color-border); display: flex; justify-content: space-around; padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 4px; cursor: pointer; color: var(--color-text-muted); transition: color 0.2s; }
         .nav-item.active { color: var(--color-primary); }
-        .nav-icon { font-size: 22px; margin-bottom: 2px; }
-        .nav-label { font-size: 10px; font-weight: 500; }
+        .nav-icon { font-size: 22px; margin-bottom: 2px; line-height: 1.4; }
+        .nav-label { font-size: 12px; font-weight: 400; line-height: 1.5; }
 
     </style>
 </head>
@@ -172,12 +181,12 @@
             </div>
             <div class="kpi-card bg-success-light" style="box-shadow: none; border: 1px solid var(--color-success);">
                 <div class="kpi-label text-success">Hoạt động tốt nhất</div>
-                <div class="kpi-value text-success" style="font-size: 18px">T</div>
+                <div class="kpi-value text-success" style="font-size: 22px; font-weight: 700; line-height: 1.4;">T</div>
                 <div class="kpi-sub text-success">LN/DT 24.7% ✅</div>
             </div>
             <div class="kpi-card bg-warning-light" style="box-shadow: none; border: 1px solid var(--color-warning);">
                 <div class="kpi-label text-warning">Sức khỏe tập đoàn</div>
-                <div class="kpi-value text-warning" style="font-size: 18px">⚠️ TRUNG BÌNH</div>
+                <div class="kpi-value text-warning" style="font-size: 22px; font-weight: 700; line-height: 1.4;">⚠️ TRUNG BÌNH</div>
                 <div class="kpi-sub text-warning">SAN âm, TGIL biến động</div>
             </div>
         </div>
@@ -237,7 +246,7 @@
         <!-- Accordion Insight -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                💡 Nhận xét <span style="font-size: 10px">▼</span>
+                💡 Nhận xét <span style="font-size: 12px; font-weight: 400; line-height: 1.5;">▼</span>
             </div>
             <div class="accordion-content open">
                 <ul>
@@ -277,7 +286,7 @@
             </div>
             <div class="kpi-card" id="comp-status-card">
                 <div class="kpi-label">Trạng thái</div>
-                <div class="kpi-value" style="font-size: 16px;" id="comp-status">...</div>
+                <div class="kpi-value" style="font-size: 22px; font-weight: 700; line-height: 1.4;" id="comp-status">...</div>
             </div>
         </div>
 
@@ -290,7 +299,7 @@
         <!-- Current Situation -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                📌 Tình hình hiện tại <span style="font-size: 10px">▼</span>
+                📌 Tình hình hiện tại <span style="font-size: 12px; font-weight: 400; line-height: 1.5;">▼</span>
             </div>
             <div class="accordion-content open" id="comp-insight">
                 ...
@@ -343,8 +352,8 @@
             </div>
 
             <div class="card bg-warning-light" style="border: 1px solid var(--color-warning); box-shadow: none;">
-                <div class="card-title text-warning" style="font-size: 14px;">⚠️ Đánh giá</div>
-                <div style="font-size: 13px; color: var(--color-text-muted);" id="expense-insight">
+                <div class="card-title text-warning" style="font-size: 17px; font-weight: 600; line-height: 1.4;">⚠️ Đánh giá</div>
+                <div style="font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted);" id="expense-insight">
                     ...
                 </div>
             </div>
@@ -362,7 +371,7 @@
             
             <div class="card">
                 <div class="card-title">Phát hiện bất thường</div>
-                <ul style="font-size: 13px; color: var(--color-text-muted); padding-left: 20px; line-height: 1.6;">
+                <ul style="font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); padding-left: 20px;">
                     <li><strong>I:</strong> Biến động giá vốn thấp nhất (ổn định).</li>
                     <li><strong>S & T:</strong> Chi phí khác biến động rất mạnh (>69%), cần kiểm soát các khoản chi bất thường.</li>
                     <li><strong>S:</strong> Chi phí bán hàng biến động cao (22.8%), cho thấy chi tiêu marketing chưa đều đặn.</li>
@@ -380,7 +389,7 @@
             <div class="chip" onclick="filterAction('60-90', this)">60-90 ngày</div>
         </div>
 
-        <div style="margin-bottom: 16px; font-size: 13px; color: var(--color-text-muted); font-style: italic;" id="action-subtitle">
+        <div style="margin-bottom: 16px; font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); font-style: italic;" id="action-subtitle">
             Ưu tiên khẩn cấp: Cắt giảm chi phí & Ổn định
         </div>
 
@@ -878,7 +887,7 @@
                 let html = `
                 <div class="accordion">
                     <div class="accordion-header" onclick="toggleAccordion(this)">
-                        ${names[key]} <span style="font-size: 10px">▼</span>
+                        ${names[key]} <span style="font-size: 12px; font-weight: 400; line-height: 1.5;">▼</span>
                     </div>
                     <div class="accordion-content ${isOpen}">
                 `;
