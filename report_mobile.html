@@ -199,7 +199,7 @@
 
         <!-- Chart -->
         <div class="card">
-            <div class="card-title">Doanh thu và lợi nhuận theo tháng</div>
+            <div class="card-title">Doanh thu và lợi nhuận</div>
             <div id="chart-overview" style="height: 250px;"></div>
         </div>
     </div>
@@ -912,51 +912,48 @@
             const revenueData = [6319.87, 4673.24, 7692.92, 6174.64, 6839.96, 7501.75, 7069.47, 5723.05, 6616.45, 7771.72];
             const pbtData = [930.44, 195.87, 1569.68, 628.51, 752.22, 1264.85, 1145.53, 1161.45, 629.5, 806.31];
             
-            // Tính phần còn lại (doanh thu - lợi nhuận) cho stacked bar
-            const remainingData = revenueData.map((rev, idx) => rev - pbtData[idx]);
-            
-            // Tính vị trí y cho annotations (giữa phần chi phí)
-            const annotations = remainingData.map((val, idx) => {
-                // Vị trí y là giữa phần chi phí (từ đỉnh cột trừ đi một nửa chi phí)
-                const yPos = revenueData[idx] - (val / 2);
-                return {
-                    x: months[idx],
-                    y: yPos,
-                    text: formatNumber(val),
-                    showarrow: false,
-                    font: { size: 9, color: '#6B7280' },
-                    textangle: -90,
-                    xanchor: 'center',
-                    yanchor: 'middle'
-                };
-            });
-            
-            // Trace 1: Phần còn lại (Doanh thu - Lợi nhuận) - màu xám nhạt
-            const traceRemaining = {
+            // Trace 1: Doanh thu - Đường (line chart)
+            const traceRevenue = {
                 x: months,
-                y: remainingData,
-                type: 'bar',
-                name: 'Chi phí',
-                marker: { color: '#E1E4EB', opacity: 0.8 },
-                text: '', // Không hiển thị text trong bar
-                textposition: 'none',
-                hoverinfo: 'y+name'
+                y: revenueData,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Doanh thu',
+                line: { 
+                    color: '#1F6FEB', 
+                    width: 3 
+                },
+                marker: { 
+                    size: 8, 
+                    color: '#1F6FEB' 
+                },
+                yaxis: 'y',
+                hoverinfo: 'x+y+name'
             };
             
-            // Trace 2: Lợi nhuận - màu xanh đậm (nằm bên trong)
+            // Trace 2: Lợi nhuận - Cột (bar chart)
             const tracePBT = {
                 x: months,
                 y: pbtData,
                 type: 'bar',
                 name: 'Lợi nhuận',
-                marker: { color: '#1F6FEB', opacity: 0.9 },
+                marker: { 
+                    color: '#1F6FEB', 
+                    opacity: 0.7 
+                },
                 text: pbtData.map(v => formatNumber(v)),
-                textposition: 'bottom',
-                textfont: { size: 9, color: '#1F6FEB', family: 'Arial' }
+                textposition: 'outside',
+                textfont: { 
+                    size: 9, 
+                    color: '#1F6FEB',
+                    family: 'Arial' 
+                },
+                yaxis: 'y2',
+                hoverinfo: 'x+y+name'
             };
             
             const layout = {
-                margin: { t: 10, b: 60, l: 10, r: 10 },
+                margin: { t: 10, b: 60, l: 50, r: 20 },
                 xaxis: { 
                     title: '',
                     tickangle: -45,
@@ -964,11 +961,20 @@
                     showgrid: false
                 },
                 yaxis: {
-                    title: '',
+                    title: 'Doanh thu (M)',
                     titlefont: { color: '#1F6FEB', size: 11 },
                     tickfont: { color: '#1F6FEB', size: 10 },
+                    side: 'left',
                     showgrid: true,
                     gridcolor: '#E1E4EB'
+                },
+                yaxis2: {
+                    title: 'Lợi nhuận (M)',
+                    titlefont: { color: '#1F6FEB', size: 11 },
+                    tickfont: { color: '#1F6FEB', size: 10 },
+                    side: 'right',
+                    overlaying: 'y',
+                    showgrid: false
                 },
                 showlegend: true,
                 legend: {
@@ -981,12 +987,10 @@
                     itemdoubleclick: false
                 },
                 height: 250,
-                barmode: 'stack',
-                hovermode: 'x unified',
-                annotations: annotations
+                hovermode: 'x unified'
             };
             
-            Plotly.newPlot('chart-overview', [traceRemaining, tracePBT], layout, {staticPlot: false, responsive: true, displayModeBar: false});
+            Plotly.newPlot('chart-overview', [traceRevenue, tracePBT], layout, {staticPlot: false, responsive: true, displayModeBar: false});
         }
 
         function formatNumber(num) {
