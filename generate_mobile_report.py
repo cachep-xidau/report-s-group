@@ -596,7 +596,7 @@ html_content = f"""
 
         <!-- Quarterly Comparison Chart -->
         <div class="card">
-            <div class="card-title">So sánh cùng kỳ 2024</div>
+            <div class="card-title">So sánh doanh thu cùng kỳ 2024</div>
             <div id="chart-quarterly-comparison-overview" style="height: 250px;"></div>
         </div>
 
@@ -648,7 +648,7 @@ html_content = f"""
 
         <!-- Company Quarterly Comparison Chart -->
         <div class="card">
-            <div class="card-title">So sánh cùng kỳ 2024</div>
+            <div class="card-title">So sánh doanh thu cùng kỳ 2024</div>
             <div id="chart-company-quarterly-comparison" style="height: 250px;"></div>
         </div>
 
@@ -657,11 +657,9 @@ html_content = f"""
         <button class="btn btn-primary" onclick="goToActionTab()">Xem việc cần làm 90 ngày →</button>
 
         <!-- Phân tích -->
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                📊 Phân tích <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
-            </div>
-            <div class="accordion-content open" id="quarterly-analysis-company">
+        <div class="card">
+            <div class="card-title">Phân tích</div>
+            <div id="quarterly-analysis-company" style="font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted);">
                 ...
             </div>
         </div>
@@ -990,7 +988,8 @@ html_content = f"""
                     zerolinecolor: '#D1D5DB',
                     zerolinewidth: 1,
                     range: [yMin, yMax],
-                    fixedrange: true
+                    fixedrange: true,
+                    showticklabels: false
                 }},
                 legend: {{
                     orientation: 'h',
@@ -1082,14 +1081,16 @@ html_content = f"""
                     showgrid: false
                 }},
                 yaxis: {{
-                    title: 'Doanh thu (M)',
+                    title: '',
                     titlefont: {{ size: 11 }},
                     tickfont: {{ size: 10 }},
                     showgrid: true,
                     gridcolor: '#E1E4EB',
                     tickmode: 'array',
                     tickvals: tickvals,
-                    ticktext: ticktext
+                    ticktext: ticktext,
+                    showticklabels: false,
+                    range: [0, 22000]
                 }},
                 showlegend: true,
                 legend: {{
@@ -1175,14 +1176,15 @@ html_content = f"""
                     showgrid: false
                 }},
                 yaxis: {{
-                    title: 'Doanh thu (M)',
+                    title: '',
                     titlefont: {{ size: 11 }},
                     tickfont: {{ size: 10 }},
                     showgrid: true,
                     gridcolor: '#E1E4EB',
                     tickmode: 'array',
                     tickvals: tickvals,
-                    ticktext: ticktext
+                    ticktext: ticktext,
+                    showticklabels: false
                 }},
                 showlegend: true,
                 legend: {{
@@ -1775,7 +1777,8 @@ html_content = f"""
                     tickfont: {{ size: 10 }},
                     tickmode: 'array',
                     tickvals: tickvals,
-                    ticktext: ticktext
+                    ticktext: ticktext,
+                    showticklabels: false
                 }},
                 showlegend: true,
                 legend: {{
