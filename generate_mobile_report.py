@@ -501,9 +501,9 @@ html_content = f"""
         </div>
 
         <!-- Mini Chart -->
-        <div class="card" style="overflow-x: auto;">
+        <div class="card" style="overflow: hidden;">
             <div class="card-title">Lợi nhuận luỹ kế</div>
-            <div id="chart-company" style="height: 220px; width: 100%; min-width: 100%;"></div>
+            <div id="chart-company" style="height: 220px; width: 100%; max-width: 100%;"></div>
         </div>
 
         <!-- Current Situation -->
@@ -629,7 +629,10 @@ html_content = f"""
         // --- INIT ---
         document.addEventListener('DOMContentLoaded', () => {{
             renderOverviewChart();
-            updateCompanyTab('SAN');
+            // Đợi một chút để đảm bảo layout đã render xong
+            setTimeout(() => {{
+                updateCompanyTab('SAN');
+            }}, 100);
             updateExpenseRatioChart('SAN');
             renderCVChart();
             renderActions('0-30');
@@ -749,12 +752,26 @@ html_content = f"""
                 yaxis: 'y'
             }};
             
+            // Lấy width của container - đảm bảo tính toán đúng
+            const container = document.getElementById('chart-company');
+            let containerWidth = container.offsetWidth;
+            
+            // Nếu chưa có width, tính từ parent hoặc window
+            if (!containerWidth || containerWidth === 0) {{
+                const parent = container.parentElement;
+                containerWidth = parent ? parent.offsetWidth - 32 : window.innerWidth - 32; // Trừ padding card (16px mỗi bên)
+            }}
+            
+            // Đảm bảo width không vượt quá màn hình
+            containerWidth = Math.min(containerWidth, window.innerWidth - 32);
+            
             const layout = {{
                 margin: {{ t: 10, b: 40, l: 45, r: 10 }},
                 xaxis: {{ 
                     title: '',
                     tickangle: -45,
-                    tickfont: {{ size: 9 }}
+                    tickfont: {{ size: 9 }},
+                    fixedrange: true
                 }},
                 yaxis: {{
                     title: 'Lợi nhuận (M)',
@@ -763,7 +780,8 @@ html_content = f"""
                     zeroline: true,
                     zerolinecolor: '#999',
                     zerolinewidth: 1,
-                    range: [yMin, yMax]
+                    range: [yMin, yMax],
+                    fixedrange: true
                 }},
                 legend: {{
                     orientation: 'h',
@@ -773,11 +791,15 @@ html_content = f"""
                     font: {{ size: 9 }}
                 }},
                 height: 220,
+                width: containerWidth,
                 hovermode: 'x unified',
-                autosize: true
+                autosize: false
             }};
             
-            Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
+            Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {{staticPlot: false, responsive: false, displayModeBar: false}}).then(() => {{
+                // Force resize sau khi render
+                Plotly.Plots.resize('chart-company');
+            }});
         }}
 
         // --- TAB 3: EXPENSE ---
