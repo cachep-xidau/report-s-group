@@ -111,6 +111,9 @@ revenue_achievement = {
 # Tính toán các chỉ số chính cho Tab 1
 total_revenue = revenue_df['Total'].sum()
 total_pbt = pbt_df['Total'].sum()
+total_cogs = cogs_df['Total'].sum()
+total_gross_profit = total_revenue - total_cogs
+gross_margin_rate = (total_gross_profit / total_revenue * 100) if total_revenue > 0 else 0
 overall_margin = (total_pbt / total_revenue * 100) if total_revenue > 0 else 0
 avg_monthly_revenue = total_revenue / 10
 
@@ -446,14 +449,14 @@ html_content = f"""
         <!-- Accordion Insight -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                💡 Insight chính <span style="font-size: 10px">▼</span>
+                💡 Nhận xét <span style="font-size: 10px">▼</span>
             </div>
             <div class="accordion-content open">
                 <ul>
-                    <li><strong>{best_company['name']}</strong> dẫn đầu về doanh thu & tỷ suất lợi nhuận.</li>
-                    <li><strong>{company_data[0]['name']}</strong> lỗ, không đạt kế hoạch ({company_data[0]['avg_achieve']:.1f}%).</li>
-                    <li><strong>{company_data[2]['name']}</strong> biên lợi nhuận trung bình nhưng chi phí biến động.</li>
-                    <li>Tỷ suất lãi gộp toàn tập đoàn tốt, cần tối ưu CP vận hành.</li>
+                    <li><strong>{best_company['name']}</strong> dẫn đầu về doanh thu ({format_number(best_company['revenue'])}) & tỷ suất lợi nhuận ({best_company['margin']:.2f}%).</li>
+                    <li><strong>{company_data[0]['name']}</strong> lỗ {format_number(abs(company_data[0]['pbt']))}, không đạt kế hoạch ({company_data[0]['avg_achieve']:.1f}%), LN/DT {company_data[0]['margin']:.2f}%.</li>
+                    <li><strong>{company_data[2]['name']}</strong> biên lợi nhuận {company_data[2]['margin']:.2f}% nhưng chi phí biến động.</li>
+                    <li>Tỷ suất lãi gộp toàn tập đoàn {gross_margin_rate:.2f}%, tổng doanh thu {format_number(total_revenue)}, tổng lợi nhuận {format_number(total_pbt)}.</li>
                 </ul>
             </div>
         </div>
@@ -885,28 +888,23 @@ html_content = f"""
             const layout = {{
                 margin: {{ t: 20, b: 40, l: 50, r: 50 }},
                 xaxis: {{ 
-                    title: 'Tháng',
+                    title: '',
                     tickangle: -45
                 }},
                 yaxis: {{
-                    title: 'Doanh thu (Triệu)',
+                    title: 'Doanh thu (M)',
                     side: 'left',
-                    titlefont: {{ color: '#3A464E' }},
-                    tickfont: {{ color: '#3A464E' }}
+                    titlefont: {{ color: '#3A464E', size: 11 }},
+                    tickfont: {{ color: '#3A464E', size: 10 }}
                 }},
                 yaxis2: {{
-                    title: 'Lợi nhuận (Triệu)',
+                    title: 'Lợi nhuận (M)',
                     side: 'right',
                     overlaying: 'y',
-                    titlefont: {{ color: '#FE3A45' }},
-                    tickfont: {{ color: '#FE3A45' }}
+                    titlefont: {{ color: '#FE3A45', size: 11 }},
+                    tickfont: {{ color: '#FE3A45', size: 10 }}
                 }},
-                legend: {{
-                    orientation: 'h',
-                    y: -0.2,
-                    x: 0.5,
-                    xanchor: 'center'
-                }},
+                showlegend: false,
                 height: 250,
                 barmode: 'group'
             }};
