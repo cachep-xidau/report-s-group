@@ -301,7 +301,7 @@ action_plans = {
 }
 
 # Prepare JSON for JS
-# Dữ liệu so sánh quý 2024 vs 2025
+# Dữ liệu so sánh quý 2024 vs 2025 - Tổng
 quarterly_comparison_data = {
     '2024': {
         'revenue': {
@@ -333,9 +333,44 @@ quarterly_comparison_data = {
     }
 }
 
+# Dữ liệu so sánh quý 2024 vs 2025 - Từng công ty
+quarterly_company_comparison_data = {}
+for company in companies:
+    quarterly_company_comparison_data[company] = {
+        '2024': {
+            'revenue': {
+                'Q1': float(revenue_quarterly_2024.loc['Q1', company]),
+                'Q2': float(revenue_quarterly_2024.loc['Q2', company]),
+                'Q3': float(revenue_quarterly_2024.loc['Q3', company]),
+                'Q4': float(revenue_quarterly_2024.loc['Q4', company])
+            },
+            'pbt': {
+                'Q1': float(pbt_quarterly_2024.loc['Q1', company]),
+                'Q2': float(pbt_quarterly_2024.loc['Q2', company]),
+                'Q3': float(pbt_quarterly_2024.loc['Q3', company]),
+                'Q4': float(pbt_quarterly_2024.loc['Q4', company])
+            }
+        },
+        '2025': {
+            'revenue': {
+                'Q1': float(revenue_quarterly.loc['Q1', company]),
+                'Q2': float(revenue_quarterly.loc['Q2', company]),
+                'Q3': float(revenue_quarterly.loc['Q3', company]),
+                'Q4': float(revenue_quarterly.loc['Q4', company])
+            },
+            'pbt': {
+                'Q1': float(pbt_quarterly.loc['Q1', company]),
+                'Q2': float(pbt_quarterly.loc['Q2', company]),
+                'Q3': float(pbt_quarterly.loc['Q3', company]),
+                'Q4': float(pbt_quarterly.loc['Q4', company])
+            }
+        }
+    }
+
 js_company_data = json.dumps(company_data)
 js_action_plans = json.dumps(action_plans)
 js_quarterly_comparison = json.dumps(quarterly_comparison_data)
+js_quarterly_company_comparison = json.dumps(quarterly_company_comparison_data)
 
 # ============================================================================
 # TẠO HTML MOBILE
@@ -558,6 +593,22 @@ html_content = f"""
             <div class="card-title">Doanh thu và lợi nhuận</div>
             <div id="chart-overview" style="height: 250px;"></div>
         </div>
+
+        <!-- Quarterly Comparison Chart -->
+        <div class="card">
+            <div class="card-title">So sánh cùng kỳ 2024</div>
+            <div id="chart-quarterly-comparison-overview" style="height: 250px;"></div>
+        </div>
+
+        <!-- Phân tích -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                📊 Phân tích <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
+            </div>
+            <div class="accordion-content open" id="quarterly-analysis-overview">
+                ...
+            </div>
+        </div>
     </div>
 
     <!-- TAB 2: THEO CÔNG TY -->
@@ -597,10 +648,10 @@ html_content = f"""
             <div id="chart-company" style="height: 220px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
 
-        <!-- Quarterly Comparison Chart -->
+        <!-- Company Quarterly Comparison Chart -->
         <div class="card">
             <div class="card-title">So sánh cùng kỳ 2024</div>
-            <div id="chart-quarterly-comparison" style="height: 250px;"></div>
+            <div id="chart-company-quarterly-comparison" style="height: 250px;"></div>
         </div>
 
         <!-- Action Buttons -->
@@ -612,7 +663,7 @@ html_content = f"""
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 📊 Phân tích <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
             </div>
-            <div class="accordion-content open" id="quarterly-analysis-section">
+            <div class="accordion-content open" id="quarterly-analysis-company">
                 ...
             </div>
         </div>
@@ -736,6 +787,7 @@ html_content = f"""
         const companyData = {js_company_data};
         const actionPlans = {js_action_plans};
         const quarterlyComparison = {js_quarterly_comparison};
+        const quarterlyCompanyComparison = {js_quarterly_company_comparison};
         let currentCompanyId = 'SAN';
         let currentExpenseCompanyId = 'SAN';
         let currentTimeframe = '0-30';
@@ -744,6 +796,8 @@ html_content = f"""
         // Khởi tạo khi DOM ready
         document.addEventListener('DOMContentLoaded', () => {{
             renderOverviewChart();
+            renderQuarterlyComparisonChartOverview();
+            updateQuarterlyAnalysisOverview();
             updateExpenseRatioChart('SAN');
             renderWaterfallCharts('SAN');
             renderCVChart();
@@ -768,7 +822,15 @@ html_content = f"""
             if (tabId === 'tab-company') {{
                 setTimeout(() => {{
                     Plotly.Plots.resize('chart-company');
-                    Plotly.Plots.resize('chart-quarterly-comparison');
+                    Plotly.Plots.resize('chart-company-quarterly-comparison');
+                }}, 200);
+            }}
+            
+            // Nếu chuyển sang tab overview, resize biểu đồ sau khi tab được hiển thị
+            if (tabId === 'tab-overview') {{
+                setTimeout(() => {{
+                    Plotly.Plots.resize('chart-overview');
+                    Plotly.Plots.resize('chart-quarterly-comparison-overview');
                 }}, 200);
             }}
         }}
@@ -953,8 +1015,8 @@ html_content = f"""
             updateQuarterlyAnalysis();
         }}
 
-        // Render quarterly comparison chart (2024 vs 2025)
-        function renderQuarterlyComparisonChart() {{
+        // Render quarterly comparison chart for Overview tab (2024 vs 2025 - Total)
+        function renderQuarterlyComparisonChartOverview() {{
             if (!quarterlyComparison || !quarterlyComparison['2024'] || !quarterlyComparison['2025']) return;
             
             const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
@@ -1026,11 +1088,87 @@ html_content = f"""
                 hovermode: 'x unified'
             }};
             
-            Plotly.newPlot('chart-quarterly-comparison', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
+            Plotly.newPlot('chart-quarterly-comparison-overview', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
         }}
 
-        // Update quarterly analysis section
-        function updateQuarterlyAnalysis() {{
+        // Render company quarterly comparison chart (2024 vs 2025 - for each company)
+        function renderCompanyQuarterlyComparisonChart(compId) {{
+            if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) return;
+            
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const revenue2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].revenue[q]);
+            const revenue2025 = quarters.map(q => quarterlyCompanyComparison[compId]['2025'].revenue[q]);
+            
+            // Trace 1: Doanh thu 2024
+            const trace2024 = {{
+                x: quarters,
+                y: revenue2024,
+                type: 'bar',
+                name: '2024',
+                marker: {{ 
+                    color: '#94A3B8',
+                    opacity: 0.7
+                }},
+                text: revenue2024.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#94A3B8'
+                }},
+                yaxis: 'y'
+            }};
+            
+            // Trace 2: Doanh thu 2025
+            const trace2025 = {{
+                x: quarters,
+                y: revenue2025,
+                type: 'bar',
+                name: '2025',
+                marker: {{ 
+                    color: '#1F6FEB',
+                    opacity: 0.8
+                }},
+                text: revenue2025.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#1F6FEB'
+                }},
+                yaxis: 'y'
+            }};
+            
+            const layout = {{
+                margin: {{ t: 10, b: 50, l: 50, r: 20 }},
+                xaxis: {{ 
+                    title: '',
+                    tickfont: {{ size: 11 }},
+                    showgrid: false
+                }},
+                yaxis: {{
+                    title: 'Doanh thu (M)',
+                    titlefont: {{ size: 11 }},
+                    tickfont: {{ size: 10 }},
+                    showgrid: true,
+                    gridcolor: '#E1E4EB'
+                }},
+                showlegend: true,
+                legend: {{
+                    orientation: 'h',
+                    y: -0.25,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: {{ size: 11 }}
+                }},
+                height: 250,
+                barmode: 'group',
+                hovermode: 'x unified'
+            }};
+            
+            Plotly.newPlot('chart-company-quarterly-comparison', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
+        }}
+
+        // Update quarterly analysis section for Overview tab
+        function updateQuarterlyAnalysisOverview() {{
             if (!quarterlyComparison || !quarterlyComparison['2024'] || !quarterlyComparison['2025']) return;
             
             const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
@@ -1099,7 +1237,87 @@ html_content = f"""
             
             analysis += '</ul>';
             
-            document.getElementById('quarterly-analysis-section').innerHTML = analysis;
+            document.getElementById('quarterly-analysis-overview').innerHTML = analysis;
+        }}
+
+        // Update company quarterly analysis section
+        function updateCompanyQuarterlyAnalysis(compId) {{
+            if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) return;
+            
+            const companyName = compId === 'SAN' ? 'S' : compId === 'TEENNIE' ? 'T' : 'I';
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const revenue2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].revenue[q]);
+            const revenue2025 = quarters.map(q => quarterlyCompanyComparison[compId]['2025'].revenue[q]);
+            const pbt2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].pbt[q]);
+            const pbt2025 = quarters.map(q => quarterlyCompanyComparison[compId]['2025'].pbt[q]);
+            
+            // Tính toán tổng và so sánh
+            const totalRevenue2024 = revenue2024.reduce((a, b) => a + b, 0);
+            const totalRevenue2025 = revenue2025.reduce((a, b) => a + b, 0);
+            const totalPBT2024 = pbt2024.reduce((a, b) => a + b, 0);
+            const totalPBT2025 = pbt2025.reduce((a, b) => a + b, 0);
+            
+            const revenueGrowth = ((totalRevenue2025 - totalRevenue2024) / totalRevenue2024 * 100).toFixed(1);
+            const pbtGrowth = totalPBT2024 !== 0 ? ((totalPBT2025 - totalPBT2024) / Math.abs(totalPBT2024) * 100).toFixed(1) : 'N/A';
+            
+            // Tính toán % thay đổi theo quý
+            const q1Growth = ((revenue2025[0] - revenue2024[0]) / revenue2024[0] * 100).toFixed(1);
+            const q2Growth = ((revenue2025[1] - revenue2024[1]) / revenue2024[1] * 100).toFixed(1);
+            const q3Growth = ((revenue2025[2] - revenue2024[2]) / revenue2024[2] * 100).toFixed(1);
+            const q4Growth = ((revenue2025[3] - revenue2024[3]) / revenue2024[3] * 100).toFixed(1);
+            
+            // Tính tỷ suất lợi nhuận
+            const margin2024 = (totalPBT2024 / totalRevenue2024 * 100).toFixed(2);
+            const margin2025 = (totalPBT2025 / totalRevenue2025 * 100).toFixed(2);
+            
+            // Tạo phân tích
+            let analysis = '<ul style="margin: 0; padding-left: 20px;">';
+            
+            // Phân tích tổng quan
+            analysis += `<li><strong>Công ty ${{companyName}}:</strong> So với cùng kỳ năm 2024, doanh thu năm 2025 ${{parseFloat(revenueGrowth) >= 0 ? 'tăng' : 'giảm'}} <strong>${{Math.abs(parseFloat(revenueGrowth))}}%</strong> (từ ${{formatNumber(totalRevenue2024)}} lên ${{formatNumber(totalRevenue2025)}}).</li>`;
+            
+            if (parseFloat(revenueGrowth) > 5) {{
+                analysis += `<li>Đây là dấu hiệu tích cực cho thấy công ty ${{companyName}} đang phục hồi và tăng trưởng mạnh so với năm trước.</li>`;
+            }} else if (parseFloat(revenueGrowth) < -5) {{
+                analysis += `<li>Cần phân tích sâu hơn về nguyên nhân giảm doanh thu của công ty ${{companyName}} và có biện pháp khắc phục kịp thời.</li>`;
+            }} else {{
+                analysis += `<li>Doanh thu của công ty ${{companyName}} tương đối ổn định so với năm trước, cần tập trung vào cải thiện hiệu quả hoạt động.</li>`;
+            }}
+            
+            // Phân tích theo quý
+            analysis += `<li><strong>Theo quý:</strong></li>`;
+            analysis += `<li>Quý 1: ${{parseFloat(q1Growth) >= 0 ? 'Tăng' : 'Giảm'}} ${{Math.abs(parseFloat(q1Growth))}}% (${{formatNumber(revenue2024[0])}} → ${{formatNumber(revenue2025[0])}})</li>`;
+            analysis += `<li>Quý 2: ${{parseFloat(q2Growth) >= 0 ? 'Tăng' : 'Giảm'}} ${{Math.abs(parseFloat(q2Growth))}}% (${{formatNumber(revenue2024[1])}} → ${{formatNumber(revenue2025[1])}})</li>`;
+            analysis += `<li>Quý 3: ${{parseFloat(q3Growth) >= 0 ? 'Tăng' : 'Giảm'}} ${{Math.abs(parseFloat(q3Growth))}}% (${{formatNumber(revenue2024[2])}} → ${{formatNumber(revenue2025[2])}})</li>`;
+            analysis += `<li>Quý 4: ${{parseFloat(q4Growth) >= 0 ? 'Tăng' : 'Giảm'}} ${{Math.abs(parseFloat(q4Growth))}}% (${{formatNumber(revenue2024[3])}} → ${{formatNumber(revenue2025[3])}})</li>`;
+            
+            // Phân tích lợi nhuận
+            if (pbtGrowth !== 'N/A') {{
+                analysis += `<li><strong>Lợi nhuận:</strong> Tổng lợi nhuận năm 2025 ${{parseFloat(pbtGrowth) >= 0 ? 'tăng' : 'giảm'}} <strong>${{Math.abs(parseFloat(pbtGrowth))}}%</strong> so với 2024 (từ ${{formatNumber(totalPBT2024)}} lên ${{formatNumber(totalPBT2025)}}).</li>`;
+            }} else {{
+                analysis += `<li><strong>Lợi nhuận:</strong> Tổng lợi nhuận năm 2025 là ${{formatNumber(totalPBT2025)}} (năm 2024: ${{formatNumber(totalPBT2024)}}).</li>`;
+            }}
+            
+            // Phân tích tỷ suất lợi nhuận
+            analysis += `<li><strong>Tỷ suất lợi nhuận:</strong> Năm 2024 đạt ${{margin2024}}%, năm 2025 đạt ${{margin2025}}%. ${{parseFloat(margin2025) > parseFloat(margin2024) ? 'Cải thiện' : parseFloat(margin2025) < parseFloat(margin2024) ? 'Giảm' : 'Giữ nguyên'}} tỷ suất lợi nhuận cho thấy ${{parseFloat(margin2025) > parseFloat(margin2024) ? 'hiệu quả hoạt động được nâng cao' : parseFloat(margin2025) < parseFloat(margin2024) ? 'cần tập trung vào kiểm soát chi phí' : 'hoạt động ổn định'}}.</li>`;
+            
+            // Đánh giá và khuyến nghị
+            const bestQuarter = quarters[revenue2025.indexOf(Math.max(...revenue2025))];
+            const worstQuarter = quarters[revenue2025.indexOf(Math.min(...revenue2025))];
+            
+            analysis += `<li><strong>Đánh giá:</strong> Quý có doanh thu cao nhất là <strong>${{bestQuarter}}</strong> với ${{formatNumber(revenue2025[quarters.indexOf(bestQuarter)])}}, trong khi quý thấp nhất là <strong>${{worstQuarter}}</strong> với ${{formatNumber(revenue2025[quarters.indexOf(worstQuarter)])}}.</li>`;
+            
+            if (parseFloat(revenueGrowth) > 5) {{
+                analysis += `<li><strong>Khuyến nghị:</strong> Tiếp tục duy trì đà tăng trưởng, tập trung vào các quý có hiệu suất tốt để nhân rộng mô hình thành công.</li>`;
+            }} else if (parseFloat(revenueGrowth) < -5) {{
+                analysis += `<li><strong>Khuyến nghị:</strong> Cần có biện pháp khẩn cấp để cải thiện doanh thu, đặc biệt là phân tích nguyên nhân giảm và đề xuất giải pháp cụ thể.</li>`;
+            }} else {{
+                analysis += `<li><strong>Khuyến nghị:</strong> Cần ổn định và cải thiện hiệu quả hoạt động, tập trung vào tối ưu hóa chi phí và nâng cao chất lượng dịch vụ.</li>`;
+            }}
+            
+            analysis += '</ul>';
+            
+            document.getElementById('quarterly-analysis-company').innerHTML = analysis;
         }}
 
         // --- TAB 3: EXPENSE ---
