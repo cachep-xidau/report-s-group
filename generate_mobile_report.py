@@ -643,13 +643,13 @@ html_content = f"""
         <!-- Mini Chart -->
         <div class="card" style="overflow: hidden; width: 100%;">
             <div class="card-title">Lợi nhuận luỹ kế <span id="cumulative-final-label" style="font-size: 12px; font-weight: 400; color: var(--color-text-muted);"></span></div>
-            <div id="chart-company" style="height: 220px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
+            <div id="chart-company" style="height: 264px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
 
         <!-- Company Quarterly Comparison Chart -->
         <div class="card">
             <div class="card-title">So sánh doanh thu cùng kỳ 2024</div>
-            <div id="chart-company-quarterly-comparison" style="height: 250px;"></div>
+            <div id="chart-company-quarterly-comparison" style="height: 300px;"></div>
         </div>
 
         <!-- Action Buttons -->
@@ -900,9 +900,13 @@ html_content = f"""
             const dataMax = Math.max(...allValues);
             const range = dataMax - dataMin;
             
-            // Thêm padding 15% cho phần dương và âm
+            // Thêm padding 15% cho phần dương và âm, sau đó tăng thêm 20% cho range
             let yMin = dataMin - (range * 0.15);
             let yMax = dataMax + (range * 0.15);
+            // Tăng range lên 20%
+            const rangePadding = (yMax - yMin) * 0.2;
+            yMin = yMin - rangePadding;
+            yMax = yMax + rangePadding;
             
             // Đảm bảo có khoảng trống tối thiểu nếu dữ liệu quá nhỏ
             if (Math.abs(dataMin) < 1 && Math.abs(dataMax) < 1) {{
@@ -973,7 +977,7 @@ html_content = f"""
             ];
             
             const layout = {{
-                margin: {{ t: 30, b: 40, l: 45, r: 10 }}, // Tăng margin top để có chỗ cho text
+                margin: {{ t: 40, b: 50, l: 45, r: 10 }}, // Tăng margin top và bottom để có chỗ cho text
                 xaxis: {{ 
                     title: '',
                     tickangle: -45,
@@ -998,7 +1002,7 @@ html_content = f"""
                     xanchor: 'center',
                     font: {{ size: 9 }}
                 }},
-                height: 220,
+                height: 264,
                 hovermode: 'x unified',
                 autosize: true,
                 annotations: annotations
@@ -1122,10 +1126,12 @@ html_content = f"""
             const range = maxValue - minValue;
             const tickStep = range > 100000 ? 40000 : range > 50000 ? 20000 : 10000;
             const startTick = Math.floor(minValue / tickStep) * tickStep;
+            // Tăng endTick lên 20% để có thêm không gian cho label
             const endTick = Math.ceil(maxValue / tickStep) * tickStep;
+            const endTickWithPadding = endTick + (endTick - startTick) * 0.2;
             const tickvals = [];
             const ticktext = [];
-            for (let i = startTick; i <= endTick; i += tickStep) {{
+            for (let i = startTick; i <= endTickWithPadding; i += tickStep) {{
                 tickvals.push(i);
                 ticktext.push(i.toLocaleString('vi-VN') + ' M');
             }}
@@ -1169,7 +1175,7 @@ html_content = f"""
             }};
             
             const layout = {{
-                margin: {{ t: 10, b: 50, l: 50, r: 20 }},
+                margin: {{ t: 10, b: 70, l: 50, r: 20 }}, // Tăng margin bottom để có chỗ cho label
                 xaxis: {{ 
                     title: '',
                     tickfont: {{ size: 11 }},
@@ -1184,7 +1190,8 @@ html_content = f"""
                     tickmode: 'array',
                     tickvals: tickvals,
                     ticktext: ticktext,
-                    showticklabels: false
+                    showticklabels: false,
+                    range: [startTick, endTickWithPadding]
                 }},
                 showlegend: true,
                 legend: {{
@@ -1194,7 +1201,7 @@ html_content = f"""
                     xanchor: 'center',
                     font: {{ size: 11 }}
                 }},
-                height: 250,
+                height: 300,
                 barmode: 'group',
                 hovermode: 'x unified'
             }};
