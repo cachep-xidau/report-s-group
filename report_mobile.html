@@ -853,13 +853,18 @@
 
         // --- TAB 1: OVERVIEW ---
         function updateOverviewTab() {
-            // Tính tổng doanh thu và lợi nhuận
-            const totalRevenue = companyData.reduce((sum, c) => sum + c.revenue, 0);
-            const totalPBT = companyData.reduce((sum, c) => sum + c.pbt, 0);
+            // Tính tổng doanh thu và lợi nhuận từ dữ liệu tổng (Total)
+            // Dữ liệu tổng theo tháng từ CSV
+            const totalRevenueMonthly = [6319.87, 4673.24, 7692.92, 6174.64, 6839.96, 7501.75, 7069.47, 5723.05, 6616.45, 7771.72];
+            const totalPBTMonthly = [930.44, 195.87, 1569.68, 628.51, 752.22, 1264.85, 1145.53, 1161.45, 629.5, 806.31];
+            
+            const totalRevenue = totalRevenueMonthly.reduce((sum, val) => sum + val, 0);
+            const totalPBT = totalPBTMonthly.reduce((sum, val) => sum + val, 0);
             const overallMargin = (totalPBT / totalRevenue * 100).toFixed(2);
             
-            // Tính %KPI DT (trung bình % đạt kế hoạch doanh thu của 3 công ty)
-            const avgAchieve = companyData.reduce((sum, c) => sum + c.avg_achieve, 0) / companyData.length;
+            // Tính %KPI DT từ dữ liệu tổng (Total) - trung bình 3 quý: Q1: 86.39%, Q2: 84.13%, Q3: 76.52%
+            const totalAchieveRates = [86.39, 84.13, 76.52];
+            const avgAchieve = totalAchieveRates.reduce((sum, val) => sum + val, 0) / totalAchieveRates.length;
             
             // Cập nhật KPI cards
             document.getElementById('kpi-total-revenue').textContent = formatNumber(totalRevenue);
