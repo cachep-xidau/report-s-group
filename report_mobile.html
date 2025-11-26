@@ -899,10 +899,12 @@
             const range = maxValue - minValue;
             const tickStep = range > 100000 ? 40000 : range > 50000 ? 20000 : 10000;
             const startTick = Math.floor(minValue / tickStep) * tickStep;
+            // Tăng endTick lên 10% để có thêm không gian cho label
             const endTick = Math.ceil(maxValue / tickStep) * tickStep;
+            const endTickWithPadding = endTick + (endTick - startTick) * 0.1;
             const tickvals = [];
             const ticktext = [];
-            for (let i = startTick; i <= endTick; i += tickStep) {
+            for (let i = startTick; i <= endTickWithPadding; i += tickStep) {
                 tickvals.push(i);
                 ticktext.push(i.toLocaleString('vi-VN') + ' M');
             }
@@ -946,7 +948,7 @@
             };
             
             const layout = {
-                margin: { t: 10, b: 50, l: 10, r: 20 },
+                margin: { t: 10, b: 10, l: 10, r: 10 },
                 xaxis: { 
                     title: '',
                     tickfont: { size: 11 },
@@ -963,7 +965,7 @@
                     tickvals: tickvals,
                     ticktext: ticktext,
                     showticklabels: false,
-                    range: [0, 22000],
+                    range: [startTick, endTickWithPadding],
                     fixedrange: true
                 },
                 showlegend: true,
@@ -996,8 +998,10 @@
             const minValue = Math.min(...pbt2024, ...pbt2025);
             const range = maxValue - minValue;
             const tickStep = range > 10000 ? 4000 : range > 5000 ? 2000 : 1000;
-            const startTick = Math.floor(minValue / tickStep) * tickStep;
-            const endTick = Math.ceil(maxValue / tickStep) * tickStep;
+            // Thêm padding 10% cho cả min và max để tránh che khuất số
+            const padding = range * 0.1;
+            const startTick = Math.floor((minValue - padding) / tickStep) * tickStep;
+            const endTick = Math.ceil((maxValue + padding) / tickStep) * tickStep;
             const tickvals = [];
             const ticktext = [];
             for (let i = startTick; i <= endTick; i += tickStep) {
@@ -1044,7 +1048,7 @@
             };
             
             const layout = {
-                margin: { t: 10, b: 70, l: 10, r: 20 }, // Tăng margin bottom để có chỗ cho label
+                margin: { t: 10, b: 10, l: 10, r: 10 },
                 xaxis: { 
                     title: '',
                     tickfont: { size: 11 },
@@ -1061,6 +1065,7 @@
                     tickvals: tickvals,
                     ticktext: ticktext,
                     showticklabels: false,
+                    range: [startTick, endTick],
                     fixedrange: true
                 },
                 showlegend: true,
