@@ -794,7 +794,6 @@ html_content = f"""
                         Lợi nhuận: {format_number(c['pbt'])} (chiếm {abs(c['margin']):.2f}% doanh thu)
                     </div>
                 </div>
-                <div class="ranking-badge bg-{c['status_class']}-light text-{c['status_class']}">{c['status_short']}</div>
             </div>
             ''' for c in company_data])}
             <button class="btn btn-outline" onclick="switchTab('tab-company')" style="margin-top: 12px;">Xem chi tiết theo công ty →</button>
@@ -806,10 +805,16 @@ html_content = f"""
             <div id="chart-overview" style="height: 250px;"></div>
         </div>
 
-        <!-- Quarterly Comparison Chart -->
+        <!-- Quarterly Comparison Chart - Revenue -->
         <div class="card">
             <div class="card-title">So sánh doanh thu cùng kỳ 2024</div>
             <div id="chart-quarterly-comparison-overview" style="height: 250px;"></div>
+        </div>
+
+        <!-- Quarterly Comparison Chart - Profit -->
+        <div class="card">
+            <div class="card-title">So sánh lợi nhuận cùng kỳ 2024</div>
+            <div id="chart-quarterly-pbt-comparison-overview" style="height: 250px;"></div>
         </div>
 
         <!-- Phân tích -->
@@ -1005,6 +1010,7 @@ html_content = f"""
         document.addEventListener('DOMContentLoaded', () => {{
             renderOverviewChart();
             renderQuarterlyComparisonChartOverview();
+            renderQuarterlyPBTComparisonChartOverview();
             updateQuarterlyAnalysisOverview();
             updateExpenseRatioChart('SAN');
             renderWaterfallCharts('SAN');
@@ -1039,6 +1045,7 @@ html_content = f"""
                 setTimeout(() => {{
                     Plotly.Plots.resize('chart-overview');
                     Plotly.Plots.resize('chart-quarterly-comparison-overview');
+                    Plotly.Plots.resize('chart-quarterly-pbt-comparison-overview');
                 }}, 200);
             }}
         }}
@@ -1291,7 +1298,7 @@ html_content = f"""
             }};
             
             const layout = {{
-                margin: {{ t: 10, b: 50, l: 50, r: 20 }},
+                margin: {{ t: 10, b: 50, l: 10, r: 20 }},
                 xaxis: {{ 
                     title: '',
                     tickfont: {{ size: 11 }},
@@ -1326,6 +1333,103 @@ html_content = f"""
             }};
             
             Plotly.newPlot('chart-quarterly-comparison-overview', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
+        }}
+
+        // Render quarterly PBT comparison chart for Overview tab (2024 vs 2025 - Total)
+        function renderQuarterlyPBTComparisonChartOverview() {{
+            if (!quarterlyComparison || !quarterlyComparison['2024'] || !quarterlyComparison['2025']) return;
+            
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const pbt2024 = quarters.map(q => quarterlyComparison['2024'].pbt[q]);
+            const pbt2025 = quarters.map(q => quarterlyComparison['2025'].pbt[q]);
+            
+            // Tính toán tickvals và ticktext cho yaxis
+            const maxValue = Math.max(...pbt2024, ...pbt2025);
+            const minValue = Math.min(...pbt2024, ...pbt2025);
+            const range = maxValue - minValue;
+            const tickStep = range > 10000 ? 4000 : range > 5000 ? 2000 : 1000;
+            const startTick = Math.floor(minValue / tickStep) * tickStep;
+            const endTick = Math.ceil(maxValue / tickStep) * tickStep;
+            const tickvals = [];
+            const ticktext = [];
+            for (let i = startTick; i <= endTick; i += tickStep) {{
+                tickvals.push(i);
+                ticktext.push(i.toLocaleString('vi-VN') + ' M');
+            }}
+            
+            // Trace 1: Lợi nhuận 2024
+            const trace2024 = {{
+                x: quarters,
+                y: pbt2024,
+                type: 'bar',
+                name: '2024',
+                marker: {{ 
+                    color: '#94A3B8',
+                    opacity: 0.7
+                }},
+                text: pbt2024.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#94A3B8'
+                }},
+                yaxis: 'y'
+            }};
+            
+            // Trace 2: Lợi nhuận 2025
+            const trace2025 = {{
+                x: quarters,
+                y: pbt2025,
+                type: 'bar',
+                name: '2025',
+                marker: {{ 
+                    color: '#1F6FEB',
+                    opacity: 0.8
+                }},
+                text: pbt2025.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#1F6FEB'
+                }},
+                yaxis: 'y'
+            }};
+            
+            const layout = {{
+                margin: {{ t: 10, b: 70, l: 10, r: 20 }}, // Tăng margin bottom để có chỗ cho label
+                xaxis: {{ 
+                    title: '',
+                    tickfont: {{ size: 11 }},
+                    showgrid: false,
+                    fixedrange: true
+                }},
+                yaxis: {{
+                    title: '',
+                    titlefont: {{ size: 11 }},
+                    tickfont: {{ size: 10 }},
+                    showgrid: true,
+                    gridcolor: '#E1E4EB',
+                    tickmode: 'array',
+                    tickvals: tickvals,
+                    ticktext: ticktext,
+                    showticklabels: false,
+                    fixedrange: true
+                }},
+                showlegend: true,
+                legend: {{
+                    orientation: 'h',
+                    y: -0.25,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: {{ size: 11 }}
+                }},
+                height: 250,
+                barmode: 'group',
+                hovermode: 'x unified',
+                dragmode: false
+            }};
+            
+            Plotly.newPlot('chart-quarterly-pbt-comparison-overview', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
         }}
 
         // Render company quarterly comparison chart (2024 vs 2025 - for each company)
@@ -1995,7 +2099,7 @@ html_content = f"""
             ];
             
             const layout = {{
-                margin: {{ t: 10, b: 60, l: 50, r: 20 }},
+                margin: {{ t: 10, b: 60, l: 10, r: 20 }},
                 xaxis: {{ 
                     title: '',
                     tickangle: -45,
