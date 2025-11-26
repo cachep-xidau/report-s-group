@@ -1294,7 +1294,8 @@ html_content = f"""
                 xaxis: {{ 
                     title: '',
                     tickfont: {{ size: 11 }},
-                    showgrid: false
+                    showgrid: false,
+                    fixedrange: true
                 }},
                 yaxis: {{
                     title: '',
@@ -1306,7 +1307,8 @@ html_content = f"""
                     tickvals: tickvals,
                     ticktext: ticktext,
                     showticklabels: false,
-                    range: [0, 22000]
+                    range: [0, 22000],
+                    fixedrange: true
                 }},
                 showlegend: true,
                 legend: {{
@@ -1318,7 +1320,8 @@ html_content = f"""
                 }},
                 height: 250,
                 barmode: 'group',
-                hovermode: 'x unified'
+                hovermode: 'x unified',
+                dragmode: false
             }};
             
             Plotly.newPlot('chart-quarterly-comparison-overview', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
@@ -1986,7 +1989,8 @@ html_content = f"""
                     title: '',
                     tickangle: -45,
                     tickfont: {{ size: 10 }},
-                    showgrid: false
+                    showgrid: false,
+                    fixedrange: true
                 }},
                 yaxis: {{
                     title: '', // Xóa title
@@ -1997,7 +2001,8 @@ html_content = f"""
                     tickmode: 'array',
                     tickvals: tickvals,
                     ticktext: ticktext,
-                    showticklabels: false
+                    showticklabels: false,
+                    fixedrange: true
                 }},
                 showlegend: true,
                 legend: {{
@@ -2012,6 +2017,7 @@ html_content = f"""
                 height: 250,
                 barmode: 'group',
                 hovermode: 'x unified',
+                dragmode: false,
                 annotations: annotations
             }};
             
