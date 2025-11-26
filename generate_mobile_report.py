@@ -379,7 +379,7 @@ html_content = f"""
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             font-size: 14px;
             font-weight: 400;
-            line-height: 1.5;
+            line-height: 1.25;
             background: var(--bg);
             color: var(--text);
             padding-bottom: 80px; /* Space for bottom nav */
@@ -387,10 +387,10 @@ html_content = f"""
         }}
         
         /* Typography Scale */
-        h1 {{ font-size: 20px; font-weight: 700; line-height: 1.4; }}
-        h2 {{ font-size: 17px; font-weight: 600; line-height: 1.4; }}
-        h3 {{ font-size: 15px; font-weight: 600; line-height: 1.4; }}
-        p, div, span {{ line-height: 1.5; }}
+        h1 {{ font-size: 18px; font-weight: 700; line-height: 1.25; }}
+        h2 {{ font-size: 15px; font-weight: 600; line-height: 1.25; }}
+        h3 {{ font-size: 13px; font-weight: 600; line-height: 1.25; }}
+        p, div, span {{ font-size: 14px; font-weight: 400; line-height: 1.25; }}
 
         /* Utility Classes */
         .text-success {{ color: var(--success); }}
@@ -411,8 +411,8 @@ html_content = f"""
             top: 0;
             z-index: 100;
         }}
-        .header h1 {{ font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }}
-        .header p {{ font-size: 12px; font-weight: 400; line-height: 1.5; opacity: 0.9; }}
+        .header h1 {{ font-size: 18px; font-weight: 700; line-height: 1.25; margin-bottom: 4px; }}
+        .header p {{ font-size: 12px; font-weight: 400; line-height: 1.25; opacity: 0.9; }}
 
         /* Tab System */
         .tab-content {{ display: none; padding: 16px; animation: fadeIn 0.3s; }}
@@ -427,14 +427,14 @@ html_content = f"""
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }}
-        .card-title {{ font-size: 17px; font-weight: 600; line-height: 1.4; margin-bottom: 12px; color: var(--color-primary); display: flex; justify-content: space-between; align-items: center; }}
+        .card-title {{ font-size: 15px; font-weight: 600; line-height: 1.25; margin-bottom: 12px; color: var(--color-primary); display: flex; justify-content: space-between; align-items: center; }}
         
         /* KPI Grid */
         .kpi-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }}
         .kpi-card {{ background: var(--color-surface); border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--color-border); }}
-        .kpi-label {{ font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); margin-bottom: 4px; text-align: left; padding: 0; }}
-        .kpi-value {{ font-size: 22px; font-weight: 700; line-height: 1.4; color: var(--color-primary); margin-bottom: 2px; }}
-        .kpi-sub {{ font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); }}
+        .kpi-label {{ font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); margin-bottom: 4px; text-align: left; padding: 0; }}
+        .kpi-value {{ font-size: 18px; font-weight: 700; line-height: 1.25; color: var(--color-primary); margin-bottom: 2px; }}
+        .kpi-sub {{ font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); }}
 
         /* Ranking List */
         .ranking-item {{ display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-divider); }}
@@ -444,21 +444,21 @@ html_content = f"""
         .ranking-icon.excellent {{ background: var(--color-primary-soft); color: var(--color-success); }}
         .ranking-icon.average {{ background: var(--color-primary-soft); color: var(--color-warning); }}
         .ranking-info {{ flex: 1; }}
-        .ranking-name {{ font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--color-text-main); }}
-        .ranking-detail {{ font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); margin-top: 2px; }}
-        .ranking-badge {{ font-size: 12px; font-weight: 400; line-height: 1.5; padding: 4px 8px; border-radius: 12px; white-space: nowrap; }}
+        .ranking-name {{ font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--color-text-main); }}
+        .ranking-detail {{ font-size: 12px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); margin-top: 2px; }}
+        .ranking-badge {{ font-size: 12px; font-weight: 400; line-height: 1.25; padding: 4px 8px; border-radius: 12px; white-space: nowrap; }}
 
         /* Accordion */
         .accordion {{ background: var(--color-surface); border-radius: 12px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid var(--color-border); }}
-        .accordion-header {{ padding: 16px; font-size: 15px; font-weight: 600; line-height: 1.4; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--color-surface); color: var(--color-text-main); }}
-        .accordion-content {{ padding: 0 16px 16px; display: none; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); border-top: 1px solid var(--color-divider); }}
+        .accordion-header {{ padding: 16px; font-size: 13px; font-weight: 600; line-height: 1.25; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--color-surface); color: var(--color-text-main); }}
+        .accordion-content {{ padding: 0 16px 16px; display: none; font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); border-top: 1px solid var(--color-divider); }}
         .accordion-content.open {{ display: block; }}
         .accordion-content ul {{ padding-left: 20px; margin-top: 8px; }}
         .accordion-content li {{ margin-bottom: 6px; }}
 
         /* Segmented Control */
         .segmented-control {{ display: flex; background: var(--color-border); padding: 4px; border-radius: 8px; margin-bottom: 16px; }}
-        .segment-btn {{ flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); cursor: pointer; transition: all 0.2s; }}
+        .segment-btn {{ flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted); cursor: pointer; transition: all 0.2s; }}
         .segment-btn.active {{ background: var(--color-surface); color: var(--color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
 
         /* Toggle Switch */
@@ -516,19 +516,19 @@ html_content = f"""
             </div>
             <div class="kpi-card bg-success-light" style="box-shadow: none; border: 1px solid var(--color-success);">
                 <div class="kpi-label text-success">Hoạt động tốt nhất</div>
-                <div class="kpi-value text-success" style="font-size: 22px; font-weight: 700; line-height: 1.4;">{best_company['name']}</div>
+                <div class="kpi-value text-success" style="font-size: 18px; font-weight: 700; line-height: 1.25;">{best_company['name']}</div>
                 <div class="kpi-sub text-success">LN/DT {best_company['margin']:.1f}% ✅</div>
             </div>
             <div class="kpi-card bg-warning-light" style="box-shadow: none; border: 1px solid var(--color-warning);">
                 <div class="kpi-label text-warning">Sức khỏe tập đoàn</div>
-                <div class="kpi-value text-warning" style="font-size: 22px; font-weight: 700; line-height: 1.4;">{health_status}</div>
+                <div class="kpi-value text-warning" style="font-size: 18px; font-weight: 700; line-height: 1.25;">{health_status}</div>
                 <div class="kpi-sub text-warning">{health_subtitle}</div>
             </div>
         </div>
 
         <!-- Ranking -->
         <div class="card">
-            <div class="card-title">Xem xét tổng quan</div>
+            <div class="card-title">Tổng quan</div>
             {"".join([f'''
             <div class="ranking-item">
                 <div class="ranking-icon {c['status_class']}">
@@ -548,14 +548,14 @@ html_content = f"""
 
         <!-- Chart -->
         <div class="card">
-            <div class="card-title">Doanh thu và lợi nhuận theo tháng</div>
+            <div class="card-title">Doanh thu và lợi nhuận</div>
             <div id="chart-overview" style="height: 250px;"></div>
         </div>
 
         <!-- Accordion Insight -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                💡 Nhận xét <span style="font-size: 12px; font-weight: 400; line-height: 1.5;">▼</span>
+                💡 Nhận xét <span style="font-size: 12px; font-weight: 400; line-height: 1.25;">▼</span>
             </div>
             <div class="accordion-content open">
                 <ul>
@@ -595,7 +595,7 @@ html_content = f"""
             </div>
             <div class="kpi-card" id="comp-status-card">
                 <div class="kpi-label">Trạng thái</div>
-                <div class="kpi-value" style="font-size: 22px; font-weight: 700; line-height: 1.4;" id="comp-status">...</div>
+                <div class="kpi-value" style="font-size: 18px; font-weight: 700; line-height: 1.25;" id="comp-status">...</div>
             </div>
         </div>
 
@@ -657,8 +657,8 @@ html_content = f"""
             </div>
 
             <div class="card bg-warning-light" style="border: 1px solid var(--color-warning); box-shadow: none;">
-                <div class="card-title text-warning" style="font-size: 17px; font-weight: 600; line-height: 1.4;">⚠️ Đánh giá</div>
-                <div style="font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted);" id="expense-insight">
+                <div class="card-title text-warning" style="font-size: 15px; font-weight: 600; line-height: 1.25;">⚠️ Đánh giá</div>
+                <div style="font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted);" id="expense-insight">
                     ...
                 </div>
             </div>
