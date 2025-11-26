@@ -1126,6 +1126,8 @@ html_content = f"""
             const rangePadding = (yMax - yMin) * 0.2;
             yMin = yMin - rangePadding;
             yMax = yMax + rangePadding;
+            // Giảm max axis 15% vì bên trên nhìn trống quá
+            yMax = yMax - (yMax - yMin) * 0.15;
             
             // Đảm bảo có khoảng trống tối thiểu nếu dữ liệu quá nhỏ
             if (Math.abs(dataMin) < 1 && Math.abs(dataMax) < 1) {{
@@ -1196,7 +1198,7 @@ html_content = f"""
             ];
             
             const layout = {{
-                margin: {{ t: 40, b: 50, l: 45, r: 10 }}, // Tăng margin top và bottom để có chỗ cho text
+                margin: {{ t: 10, b: 10, l: 10, r: 10 }},
                 xaxis: {{ 
                     title: '',
                     tickangle: -45,
@@ -1204,7 +1206,7 @@ html_content = f"""
                     fixedrange: true
                 }},
                 yaxis: {{
-                    title: 'Lợi nhuận (M)',
+                    title: '',
                     titlefont: {{ size: 10 }},
                     tickfont: {{ size: 9 }},
                     zeroline: true,
@@ -1451,9 +1453,11 @@ html_content = f"""
             const range = maxValue - minValue;
             const tickStep = range > 100000 ? 40000 : range > 50000 ? 20000 : 10000;
             const startTick = Math.floor(minValue / tickStep) * tickStep;
-            // Tăng endTick lên 20% để có thêm không gian cho label
+            // Tăng endTick lên 20% để có thêm không gian cho label, sau đó giảm 15% vì bên trên nhìn trống quá
             const endTick = Math.ceil(maxValue / tickStep) * tickStep;
-            const endTickWithPadding = endTick + (endTick - startTick) * 0.2;
+            let endTickWithPadding = endTick + (endTick - startTick) * 0.2;
+            // Giảm max axis 15%
+            endTickWithPadding = endTickWithPadding - (endTickWithPadding - startTick) * 0.15;
             const tickvals = [];
             const ticktext = [];
             for (let i = startTick; i <= endTickWithPadding; i += tickStep) {{
@@ -1500,7 +1504,7 @@ html_content = f"""
             }};
             
             const layout = {{
-                margin: {{ t: 10, b: 70, l: 50, r: 20 }}, // Tăng margin bottom để có chỗ cho label
+                margin: {{ t: 10, b: 10, l: 10, r: 10 }},
                 xaxis: {{ 
                     title: '',
                     tickfont: {{ size: 11 }},
