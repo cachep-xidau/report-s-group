@@ -179,11 +179,11 @@ for company in companies:
     
     # Insights for Tab 2 Accordion
     if company == 'SAN':
-        insight = f"LN/DT {margin:.2f}%, không đạt kế hoạch doanh thu ({avg_achieve:.1f}%). • Cơ cấu chi phí bán hàng, quản lý cao, ảnh hưởng mạnh đến lợi nhuận."
+        insight = f"- LN/DT {margin:.2f}%, không đạt kế hoạch doanh thu ({avg_achieve:.1f}%).<br>- Cơ cấu chi phí bán hàng, quản lý cao, ảnh hưởng mạnh đến lợi nhuận."
     elif company == 'TEENNIE':
-        insight = f"LN/DT {margin:.2f}%, đạt {avg_achieve:.1f}% kế hoạch. • Tỷ suất khỏe, là đầu tàu lợi nhuận."
+        insight = f"- LN/DT {margin:.2f}%, đạt {avg_achieve:.1f}% kế hoạch.<br>- Tỷ suất khỏe, là đầu tàu lợi nhuận."
     else: # TGIL
-        insight = f"LN/DT {margin:.2f}%, nhưng chi phí biến động. • Cần ổn định vận hành và kiểm soát chi phí."
+        insight = f"- LN/DT {margin:.2f}%, nhưng chi phí biến động.<br>- Cần ổn định vận hành và kiểm soát chi phí."
 
     company_data.append({
         'id': company,
@@ -496,7 +496,6 @@ html_content = f"""
             <div class="kpi-card" id="comp-status-card">
                 <div class="kpi-label">Trạng thái</div>
                 <div class="kpi-value" style="font-size: 16px;" id="comp-status">...</div>
-                <div class="kpi-sub" id="comp-icon">...</div>
             </div>
         </div>
 
@@ -606,7 +605,7 @@ html_content = f"""
         </div>
         <div class="nav-item" onclick="switchTab('tab-company')">
             <div class="nav-icon">🏢</div>
-            <div class="nav-label">Công ty</div>
+            <div class="nav-label">Doanh thu</div>
         </div>
         <div class="nav-item" onclick="switchTab('tab-expense')">
             <div class="nav-icon">💰</div>
@@ -627,16 +626,32 @@ html_content = f"""
         let currentTimeframe = '0-30';
 
         // --- INIT ---
-        document.addEventListener('DOMContentLoaded', () => {{
+        // Khởi tạo khi DOM ready
+        function initCharts() {{
             renderOverviewChart();
-            // Đợi một chút để đảm bảo layout đã render xong
-            setTimeout(() => {{
-                updateCompanyTab('SAN');
-            }}, 100);
             updateExpenseRatioChart('SAN');
             renderCVChart();
             renderActions('0-30');
-        }});
+            
+            // Đợi window load để đảm bảo layout đã hoàn toàn render
+            if (document.readyState === 'complete') {{
+                setTimeout(() => {{
+                    updateCompanyTab('SAN');
+                }}, 200);
+            }} else {{
+                window.addEventListener('load', () => {{
+                    setTimeout(() => {{
+                        updateCompanyTab('SAN');
+                    }}, 200);
+                }});
+            }}
+        }}
+        
+        if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initCharts);
+        }} else {{
+            initCharts();
+        }}
 
         // --- NAVIGATION ---
         function switchTab(tabId) {{
@@ -646,6 +661,13 @@ html_content = f"""
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             event.currentTarget.classList.add('active');
             window.scrollTo({{ top: 0, behavior: 'smooth' }});
+            
+            // Nếu chuyển sang tab company, resize biểu đồ
+            if (tabId === 'tab-company') {{
+                setTimeout(() => {{
+                    Plotly.Plots.resize('chart-company');
+                }}, 100);
+            }}
         }}
 
         function goToExpenseTab() {{
@@ -672,6 +694,11 @@ html_content = f"""
                 if(btn.textContent === (compId === 'SAN' ? 'S' : compId === 'TEENNIE' ? 'T' : 'I')) 
                     btn.classList.add('active');
             }});
+            
+            // Resize biểu đồ sau khi chuyển công ty
+            setTimeout(() => {{
+                Plotly.Plots.resize('chart-company');
+            }}, 50);
         }}
 
         function updateCompanyTab(compId) {{
@@ -689,7 +716,6 @@ html_content = f"""
             const statusEl = document.getElementById('comp-status');
             const statusCard = document.getElementById('comp-status-card');
             statusEl.textContent = data.status;
-            document.getElementById('comp-icon').textContent = data.icon;
             
             // Styling status card
             statusCard.className = 'kpi-card'; // reset
@@ -697,8 +723,8 @@ html_content = f"""
             else if (data.status_class === 'excellent') statusCard.classList.add('bg-success-light', 'text-success');
             else statusCard.classList.add('bg-warning-light', 'text-warning');
 
-            // Insight
-            document.getElementById('comp-insight').textContent = data.insight;
+            // Insight (dùng innerHTML để hiển thị <br>)
+            document.getElementById('comp-insight').innerHTML = data.insight;
 
             // Chart: Lợi nhuận luỹ kế của công ty đang chọn
             const months = {json.dumps(months)};
@@ -759,11 +785,20 @@ html_content = f"""
             // Nếu chưa có width, tính từ parent hoặc window
             if (!containerWidth || containerWidth === 0) {{
                 const parent = container.parentElement;
-                containerWidth = parent ? parent.offsetWidth - 32 : window.innerWidth - 32; // Trừ padding card (16px mỗi bên)
+                if (parent) {{
+                    containerWidth = parent.offsetWidth - 32; // Trừ padding card (16px mỗi bên)
+                }} else {{
+                    containerWidth = window.innerWidth - 32;
+                }}
             }}
             
-            // Đảm bảo width không vượt quá màn hình
-            containerWidth = Math.min(containerWidth, window.innerWidth - 32);
+            // Nếu vẫn chưa có, dùng window width trừ padding
+            if (!containerWidth || containerWidth === 0) {{
+                containerWidth = window.innerWidth - 32;
+            }}
+            
+            // Đảm bảo width không vượt quá màn hình và có giá trị hợp lý
+            containerWidth = Math.max(280, Math.min(containerWidth, window.innerWidth - 32));
             
             const layout = {{
                 margin: {{ t: 10, b: 40, l: 45, r: 10 }},
