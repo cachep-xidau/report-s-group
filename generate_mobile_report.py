@@ -1945,9 +1945,16 @@ html_content = f"""
                     }}
                     
                     // Tính toán vị trí label bên trên và bên ngoài cột (cách 3px)
-                    // Với cột dương: label ở trên yPos + absVal
-                    // Với cột âm: label ở trên yPos (vì yPos là điểm bắt đầu của cột giảm)
-                    const labelYPos = val >= 0 ? yPos + absVal + 3 : yPos + 3;
+                    // Với waterfall chart của Plotly:
+                    // - "Doanh Thu" (absolute): cột vẽ từ 0 lên đến revenue, đỉnh là revenue
+                    // - "Giá Vốn" (relative, negative): cột giảm từ revenue xuống, đỉnh là revenue
+                    // - "Lãi Gộp" (total): cột vẽ từ điểm trước đó lên đến gross_profit, đỉnh là gross_profit
+                    // - Các chi phí (relative, negative): cột giảm từ điểm trước đó xuống, đỉnh là điểm bắt đầu
+                    // Trong code này, yPos đã được tính là đỉnh cột cho cả hai loại
+                    // Label nên ở ngay trên đỉnh cột, cách một khoảng nhỏ
+                    // Sử dụng giá trị cố định nhỏ để label gần cột hơn (khoảng 20-30 pixel trên chart)
+                    const labelOffset = Math.max(revenue * 0.005, 20); // 0.5% của revenue hoặc tối thiểu 20
+                    const labelYPos = yPos + labelOffset;
                     
                     // Add annotation for value above column (bên trên và bên ngoài cột, cách 3px)
                     annotations.push({{
