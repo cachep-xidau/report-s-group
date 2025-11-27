@@ -1003,7 +1003,7 @@ html_content = f"""
         
         <!-- Section 2: Biểu đồ cấu trúc chi phí theo quý -->
         <div class="card" style="overflow-x: hidden;">
-            <div class="card-title">Cấu trúc chi phí theo quý</div>
+            <div class="card-title">So sánh cấu trúc chi phí theo quý với năm 2024</div>
             <div id="chart-expense-structure-quarterly" style="height: 300px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
     </div>
@@ -1936,21 +1936,9 @@ html_content = f"""
             }});
             
             // Tạo traces cho từng loại chi phí (stacked bar)
-            // Mỗi trace sẽ có giá trị cho tất cả các quý (2024 và 2025)
+            // Thứ tự traces quyết định thứ tự từ dưới lên trên trong cột
+            // Định phí (CP Quản lý) đặt ở dưới cùng (trace đầu tiên)
             const traces = [
-                {{
-                    name: 'CP Bán hàng',
-                    x: xLabels,
-                    y: quarters.flatMap(q => [exp2024.selling[q], exp2025.selling[q]]),
-                    type: 'bar',
-                    marker: {{ color: '#E03A3E' }},
-                    text: quarters.flatMap(q => [
-                        formatNumber(exp2024.selling[q]),
-                        formatNumber(exp2025.selling[q])
-                    ]),
-                    textposition: 'inside',
-                    textfont: {{ size: 9, color: 'white' }}
-                }},
                 {{
                     name: 'CP Quản lý',
                     x: xLabels,
@@ -1960,6 +1948,19 @@ html_content = f"""
                     text: quarters.flatMap(q => [
                         formatNumber(exp2024.admin[q]),
                         formatNumber(exp2025.admin[q])
+                    ]),
+                    textposition: 'inside',
+                    textfont: {{ size: 9, color: 'white' }}
+                }},
+                {{
+                    name: 'CP Bán hàng',
+                    x: xLabels,
+                    y: quarters.flatMap(q => [exp2024.selling[q], exp2025.selling[q]]),
+                    type: 'bar',
+                    marker: {{ color: '#E03A3E' }},
+                    text: quarters.flatMap(q => [
+                        formatNumber(exp2024.selling[q]),
+                        formatNumber(exp2025.selling[q])
                     ]),
                     textposition: 'inside',
                     textfont: {{ size: 9, color: 'white' }}
