@@ -2318,41 +2318,22 @@ html_content = f"""
                     textValues.push(percentage);
                 }}
                 
-                // Tạo mảng màu cho từng cột
-                const markerColors = [];
-                const lineColors = [];
-                for (let i = 0; i < xLabels.length; i++) {{
-                    const label = xLabels[i];
-                    const val = yValues[i];
-                    
-                    if (label === 'LN Trước Thuế') {{
-                        // Cột lợi nhuận: đỏ opacity 80% nếu âm, xanh lá nếu dương
-                        if (val < 0) {{
-                            markerColors.push('rgba(224, 58, 62, 0.8)'); // Đỏ opacity 80%
-                            lineColors.push('rgba(224, 58, 62, 0.8)');
-                        }} else {{
-                            markerColors.push('#2E7D32'); // Xanh lá cây
-                            lineColors.push('#2E7D32');
-                        }}
-                    }} else if (label === 'Giá Vốn' || label === 'CP Bán Hàng' || label === 'CP QLDN' || label === 'CP Khác') {{
-                        // Các cột chi phí: đỏ opacity 30%
-                        markerColors.push('rgba(224, 58, 62, 0.3)');
-                        lineColors.push('rgba(224, 58, 62, 0.3)');
-                    }} else {{
-                        // Các cột khác (Doanh Thu, Lãi Gộp): giữ màu mặc định
-                        if (val < 0) {{
-                            markerColors.push('#E03A3E');
-                            lineColors.push('#E03A3E');
-                        }} else {{
-                            markerColors.push('#1F6FEB');
-                            lineColors.push('#1F6FEB');
-                        }}
-                    }}
+                // Xác định màu cho cột lợi nhuận (totals)
+                let pbtColor = '#1F6FEB'; // Mặc định xanh dương
+                let pbtLineColor = '#1F6FEB';
+                if (pbt < 0) {{
+                    pbtColor = 'rgba(224, 58, 62, 0.8)'; // Đỏ opacity 80% nếu âm
+                    pbtLineColor = 'rgba(224, 58, 62, 0.8)';
+                }} else {{
+                    pbtColor = '#2E7D32'; // Xanh lá cây nếu dương
+                    pbtLineColor = '#2E7D32';
                 }}
                 
                 // Create chart configuration
                 // Plotly waterfall chart sử dụng decreasing/increasing/totals để xác định màu
-                // Nhưng để tùy chỉnh màu cho từng cột, cần sử dụng marker.color với mảng
+                // decreasing: cho các giá trị âm (chi phí) - đỏ opacity 30%
+                // increasing: cho các giá trị dương (doanh thu, lãi gộp) - xanh dương
+                // totals: cho cột tổng (lợi nhuận) - đỏ 80% nếu âm, xanh lá nếu dương
                 const trace = {{
                     type: 'waterfall',
                     name: 'Luồng P&L',
@@ -2365,17 +2346,9 @@ html_content = f"""
                     textfont: {{ size: 12, color: 'white', family: 'Arial', weight: 'bold' }},
                     textangle: 0, // Nằm ngang
                     connector: {{ line: {{ color: '#1F6FEB', width: 2 }} }},
-                    marker: {{
-                        color: markerColors,
-                        line: {{
-                            color: lineColors,
-                            width: 2
-                        }}
-                    }},
-                    // Giữ decreasing/increasing/totals nhưng sẽ bị override bởi marker.color nếu được hỗ trợ
                     decreasing: {{ marker: {{ color: 'rgba(224, 58, 62, 0.3)', line: {{ color: 'rgba(224, 58, 62, 0.3)', width: 2 }} }} }},
                     increasing: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }},
-                    totals: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }}
+                    totals: {{ marker: {{ color: pbtColor, line: {{ color: pbtLineColor, width: 2 }} }} }}
                 }};
                 
                 const layout = {{
@@ -2410,15 +2383,7 @@ html_content = f"""
                 
                 // Clear and render chart
                 Plotly.purge(chartElement);
-                Plotly.newPlot(chartId, [trace], layout, config).then(() => {{
-                    // Sau khi render, cập nhật màu cho từng cột
-                    // Plotly waterfall không hỗ trợ mảng màu trực tiếp, nên cần cập nhật sau khi render
-                    const update = {{
-                        'marker.color': markerColors,
-                        'marker.line.color': lineColors
-                    }};
-                    Plotly.restyle(chartId, update, [0]);
-                }});
+                Plotly.newPlot(chartId, [trace], layout, config);
             }});
         }}
 
