@@ -573,6 +573,27 @@
             <div class="card-title">So sánh cấu trúc chi phí theo quý với năm 2024</div>
             <div id="chart-expense-structure-quarterly" style="height: 300px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
+        
+        <!-- Section 3: Waterfall Charts theo quý 2025 -->
+        <div class="card">
+            <div class="card-title">Cấu trúc chi phí - Quý 1</div>
+            <div id="chart-expense-waterfall-q1" style="height: 280px;"></div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">Cấu trúc chi phí - Quý 2</div>
+            <div id="chart-expense-waterfall-q2" style="height: 280px;"></div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">Cấu trúc chi phí - Quý 3</div>
+            <div id="chart-expense-waterfall-q3" style="height: 280px;"></div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">Cấu trúc chi phí - Quý 4</div>
+            <div id="chart-expense-waterfall-q4" style="height: 280px;"></div>
+        </div>
     </div>
 
     <!-- TAB 4: HÀNH ĐỘNG -->
@@ -689,6 +710,10 @@
                 setTimeout(() => {
                     updateExpenseTab(currentExpenseCompanyId);
                     Plotly.Plots.resize('chart-expense-structure-quarterly');
+                    Plotly.Plots.resize('chart-expense-waterfall-q1');
+                    Plotly.Plots.resize('chart-expense-waterfall-q2');
+                    Plotly.Plots.resize('chart-expense-waterfall-q3');
+                    Plotly.Plots.resize('chart-expense-waterfall-q4');
                 }, 200);
             }
         }
@@ -1502,6 +1527,11 @@
                 xLabels.push(q + ' 2025');
             });
             
+            // Hàm format số không có đơn vị M
+            function formatNumberNoUnit(num) {
+                return new Intl.NumberFormat('vi-VN').format(Math.round(num));
+            }
+            
             // Tạo traces cho từng loại chi phí (stacked bar)
             // Thứ tự traces quyết định thứ tự từ dưới lên trên trong cột
             // Định phí (CP Quản lý) đặt ở dưới cùng (trace đầu tiên)
@@ -1513,11 +1543,12 @@
                     type: 'bar',
                     marker: { color: '#F5A623' },
                     text: quarters.flatMap(q => [
-                        formatNumber(exp2024.admin[q]),
-                        formatNumber(exp2025.admin[q])
+                        formatNumberNoUnit(exp2024.admin[q]),
+                        formatNumberNoUnit(exp2025.admin[q])
                     ]),
                     textposition: 'inside',
-                    textfont: { size: 9, color: 'white' }
+                    textfont: { size: 9, color: 'white' },
+                    textangle: 0 // Nằm ngang
                 },
                 {
                     name: 'CP Bán hàng',
@@ -1526,11 +1557,12 @@
                     type: 'bar',
                     marker: { color: '#E03A3E' },
                     text: quarters.flatMap(q => [
-                        formatNumber(exp2024.selling[q]),
-                        formatNumber(exp2025.selling[q])
+                        formatNumberNoUnit(exp2024.selling[q]),
+                        formatNumberNoUnit(exp2025.selling[q])
                     ]),
                     textposition: 'inside',
-                    textfont: { size: 9, color: 'white' }
+                    textfont: { size: 9, color: 'white' },
+                    textangle: 0 // Nằm ngang
                 },
                 {
                     name: 'CP Khác',
@@ -1538,12 +1570,8 @@
                     y: quarters.flatMap(q => [exp2024.other[q], exp2025.other[q]]),
                     type: 'bar',
                     marker: { color: '#9B9B9B' },
-                    text: quarters.flatMap(q => [
-                        formatNumber(exp2024.other[q]),
-                        formatNumber(exp2025.other[q])
-                    ]),
-                    textposition: 'inside',
-                    textfont: { size: 9, color: 'white' }
+                    text: [], // Xóa label của CP Khác
+                    textposition: 'none'
                 }
             ];
             
