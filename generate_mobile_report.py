@@ -890,76 +890,7 @@ html_content = f"""
 
     <!-- TAB 3: CHI PHÍ & BIẾN ĐỘNG -->
     <div id="tab-expense" class="tab-content">
-        <!-- View Toggle -->
-        <div class="toggle-container">
-            <div class="toggle-wrapper">
-                <div class="toggle-bg" id="expense-toggle-bg"></div>
-                <button class="toggle-btn active" onclick="toggleExpenseView('ratio')">Tỷ lệ</button>
-                <button class="toggle-btn" onclick="toggleExpenseView('cv')">Biến động</button>
-            </div>
-        </div>
-
-        <!-- VIEW 1: RATIO -->
-        <div id="view-ratio">
-            <div class="segmented-control">
-                <button class="segment-btn active" onclick="switchExpenseCompany('SAN')" data-company="SAN">S</button>
-                <button class="segment-btn" onclick="switchExpenseCompany('TEENNIE')" data-company="TEENNIE">T</button>
-                <button class="segment-btn" onclick="switchExpenseCompany('TGIL')" data-company="TGIL">I</button>
-            </div>
-            
-            <!-- Waterfall Charts -->
-            <div class="card">
-                <div class="card-title">Cấu trúc chi phí - Quý 1</div>
-                <div id="chart-waterfall-q1" style="height: 272px;"></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">Cấu trúc chi phí - Quý 2</div>
-                <div id="chart-waterfall-q2" style="height: 272px;"></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">Cấu trúc chi phí - Quý 3</div>
-                <div id="chart-waterfall-q3" style="height: 272px;"></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">Cơ cấu chi phí</div>
-                <div id="chart-expense-structure" style="height: 300px;"></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">Cơ cấu chi phí (% Doanh thu)</div>
-                <div id="chart-expense-ratio" style="height: 220px;"></div>
-            </div>
-
-            <div class="card bg-warning-light" style="border: 1px solid var(--color-warning); box-shadow: none;">
-                <div class="card-title text-warning" style="font-size: 15px; font-weight: 600; line-height: 1.25;">⚠️ Đánh giá</div>
-                <div style="font-size: 14px; font-weight: 400; line-height: 1.25; color: var(--color-text-muted);" id="expense-insight">
-                    ...
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 2: CV -->
-        <div id="view-cv" style="display: none;">
-            <div class="card">
-                <div class="card-title">Biến động chi phí (CV%)</div>
-                <div style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 10px;">
-                    Chỉ số càng cao = Càng không ổn định (Rủi ro)
-                </div>
-                <div id="chart-cv" style="height: 300px;"></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">Phát hiện bất thường</div>
-                <ul style="font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); padding-left: 20px;">
-                    <li><strong>I:</strong> Biến động giá vốn thấp nhất (ổn định).</li>
-                    <li><strong>S & T:</strong> Chi phí khác biến động rất mạnh (>69%), cần kiểm soát các khoản chi bất thường.</li>
-                    <li><strong>S:</strong> Chi phí bán hàng biến động cao ({company_data[0]['cv_data']['Selling']:.1f}%), cho thấy chi tiêu marketing chưa đều đặn.</li>
-                </ul>
-            </div>
-        </div>
+        <!-- Nội dung sẽ được thêm sau -->
     </div>
 
     <!-- TAB 4: HÀNH ĐỘNG -->
@@ -1023,10 +954,7 @@ html_content = f"""
             renderQuarterlyComparisonChartOverview();
             renderQuarterlyPBTComparisonChartOverview();
             updateQuarterlyAnalysisOverview();
-            updateExpenseRatioChart('SAN');
-            renderWaterfallCharts('SAN');
-            renderExpenseStructureChart('SAN');
-            renderCVChart();
+            // Tab Chi phí đã được xóa, sẽ làm lại sau
             renderActions('0-30');
             
             // Đợi một chút để đảm bảo layout đã render xong, sau đó cập nhật tab company
@@ -1821,51 +1749,7 @@ html_content = f"""
         }}
 
         // --- TAB 3: EXPENSE ---
-        function toggleExpenseView(view) {{
-            const bg = document.getElementById('expense-toggle-bg');
-            const btns = document.querySelectorAll('.toggle-btn');
-            
-            if (view === 'ratio') {{
-                document.getElementById('view-ratio').style.display = 'block';
-                document.getElementById('view-cv').style.display = 'none';
-                bg.style.transform = 'translateX(0)';
-                btns[0].classList.add('active');
-                btns[1].classList.remove('active');
-                // Resize waterfall charts when showing ratio view
-                setTimeout(() => {{
-                    Plotly.Plots.resize('chart-waterfall-q1');
-                    Plotly.Plots.resize('chart-waterfall-q2');
-                    Plotly.Plots.resize('chart-waterfall-q3');
-                    Plotly.Plots.resize('chart-expense-structure');
-                }}, 100);
-            }} else {{
-                document.getElementById('view-ratio').style.display = 'none';
-                document.getElementById('view-cv').style.display = 'block';
-                bg.style.transform = 'translateX(100%)';
-                btns[0].classList.remove('active');
-                btns[1].classList.add('active');
-                renderCVChart(); // Render when shown
-            }}
-        }}
-
-        function switchExpenseCompany(compId) {{
-            currentExpenseCompanyId = compId;
-            updateExpenseRatioChart(compId);
-            renderWaterfallCharts(compId);
-            renderExpenseStructureChart(compId);
-            
-            // Update buttons - tìm tất cả button có data-company trong tab-expense
-            const buttons = document.querySelectorAll('#tab-expense button[data-company]');
-            buttons.forEach(btn => {{
-                btn.classList.remove('active');
-                const btnCompanyId = btn.getAttribute('data-company');
-                if(btnCompanyId === compId) {{
-                    btn.classList.add('active');
-                }}
-            }});
-        }}
-        
-        function renderWaterfallCharts(compId) {{
+        // Tab Chi phí đã được xóa, các hàm sẽ được thêm lại sau
             // Find company data
             const company = companyData.find(c => c.id === compId);
             if (!company || !company.quarterly_data) {{
