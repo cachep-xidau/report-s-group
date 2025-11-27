@@ -221,18 +221,31 @@ for company in companies:
         cum_sum += pbt_val
         cumulative_pbt.append(cum_sum)
     
-    # Quarterly data for Waterfall Charts (Tab 3)
+    # Quarterly data for Waterfall Charts (Tab 3) - Q1, Q2, Q3, Q4
     quarterly_data = []
-    for q_idx, q_name in enumerate(['Q1', 'Q2', 'Q3'], 1):
-        q_data = {
-            'quarter': q_name,
-            'revenue': revenue_quarterly.loc[q_name, company],
-            'cogs': cogs_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
-            'selling_exp': selling_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
-            'admin_exp': admin_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
-            'other_exp': other_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
-            'pbt': pbt_quarterly.loc[q_name, company]
-        }
+    for q_idx, q_name in enumerate(['Q1', 'Q2', 'Q3', 'Q4'], 1):
+        if q_idx <= 3:
+            # Q1, Q2, Q3: 3 tháng mỗi quý
+            q_data = {
+                'quarter': q_name,
+                'revenue': revenue_quarterly.loc[q_name, company],
+                'cogs': cogs_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
+                'selling_exp': selling_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
+                'admin_exp': admin_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
+                'other_exp': other_exp_df[company].iloc[(q_idx-1)*3:q_idx*3].sum(),
+                'pbt': pbt_quarterly.loc[q_name, company]
+            }
+        else:
+            # Q4: chỉ có tháng T10 (index 9)
+            q_data = {
+                'quarter': q_name,
+                'revenue': revenue_quarterly.loc[q_name, company],
+                'cogs': cogs_df[company].iloc[9:10].sum(),
+                'selling_exp': selling_exp_df[company].iloc[9:10].sum(),
+                'admin_exp': admin_exp_df[company].iloc[9:10].sum(),
+                'other_exp': other_exp_df[company].iloc[9:10].sum(),
+                'pbt': pbt_quarterly.loc[q_name, company]
+            }
         quarterly_data.append(q_data)
     
     # Insights for Tab 2 Accordion
@@ -1939,6 +1952,9 @@ html_content = f"""
             
             // Render biểu đồ cấu trúc chi phí theo quý
             renderExpenseStructureQuarterlyChart(compId);
+            
+            // Render waterfall charts theo quý
+            renderExpenseWaterfallCharts(compId);
         }}
         
         function renderExpenseStructureQuarterlyChart(compId) {{
@@ -2060,6 +2076,105 @@ html_content = f"""
                     autosize: true
                 }});
             }}, 100);
+        }}
+        
+        function renderExpenseWaterfallCharts(compId) {{
+            const data = companyData.find(c => c.id === compId);
+            if (!data || !data.quarterly_data) {{
+                console.error('Quarterly data not found for:', compId);
+                return;
+            }}
+            
+            const quarterly = data.quarterly_data;
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            
+            quarters.forEach((qName, idx) => {{
+                const qData = quarterly[idx];
+                if (!qData) return;
+                
+                const chartId = 'chart-expense-waterfall-' + qName.toLowerCase();
+                const chartElement = document.getElementById(chartId);
+                if (!chartElement) return;
+                
+                // Extract values
+                const revenue = qData.revenue || 0;
+                const cogs = qData.cogs || 0;
+                const gross_profit = revenue - cogs;
+                const selling_exp = qData.selling_exp || 0;
+                const admin_exp = qData.admin_exp || 0;
+                const other_exp = qData.other_exp || 0;
+                const pbt = qData.pbt || 0;
+                
+                // Prepare waterfall data
+                const xLabels = ['Doanh Thu', 'Giá Vốn', 'Lãi Gộp', 'CP Bán Hàng', 'CP QLDN', 'CP Khác', 'LN Trước Thuế'];
+                const yValues = [revenue, -cogs, gross_profit, -selling_exp, -admin_exp, -other_exp, pbt];
+                const measures = ['absolute', 'relative', 'total', 'relative', 'relative', 'relative', 'total'];
+                
+                // Format text: % inside column
+                const textValues = [];
+                for (let i = 0; i < xLabels.length; i++) {{
+                    const val = yValues[i];
+                    const absVal = Math.abs(val);
+                    let percentage = '';
+                    if (xLabels[i] === 'Doanh Thu') {{
+                        percentage = '100%';
+                    }} else {{
+                        percentage = ((absVal / revenue) * 100).toFixed(1) + '%';
+                    }}
+                    textValues.push(percentage);
+                }}
+                
+                // Create chart configuration
+                const trace = {{
+                    type: 'waterfall',
+                    name: 'Luồng P&L',
+                    orientation: 'v',
+                    measure: measures,
+                    x: xLabels,
+                    y: yValues,
+                    text: textValues,
+                    textposition: 'inside',
+                    textfont: {{ size: 12, color: 'white', family: 'Arial', weight: 'bold' }},
+                    connector: {{ line: {{ color: '#1F6FEB', width: 2 }} }},
+                    decreasing: {{ marker: {{ color: '#E03A3E', line: {{ color: '#E03A3E', width: 2 }} }} }},
+                    increasing: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }},
+                    totals: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }}
+                }};
+                
+                const layout = {{
+                    title: '',
+                    showlegend: false,
+                    height: 280,
+                    margin: {{ t: 10, b: 60, l: 10, r: 10 }},
+                    yaxis: {{ 
+                        title: '',
+                        titlefont: {{ size: 10 }},
+                        showticklabels: false,
+                        fixedrange: true
+                    }},
+                    xaxis: {{
+                        tickangle: -45,
+                        tickfont: {{ size: 9 }},
+                        type: 'category',
+                        fixedrange: true
+                    }},
+                    font: {{ size: 9 }},
+                    template: 'plotly_white',
+                    autosize: false,
+                    width: chartElement.offsetWidth || 400,
+                    dragmode: false
+                }};
+                
+                const config = {{
+                    staticPlot: false,
+                    responsive: true,
+                    displayModeBar: false
+                }};
+                
+                // Clear and render chart
+                Plotly.purge(chartElement);
+                Plotly.newPlot(chartId, [trace], layout, config);
+            }});
         }}
 
         // --- TAB 4: ACTION ---
