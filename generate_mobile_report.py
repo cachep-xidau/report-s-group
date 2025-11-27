@@ -2351,6 +2351,8 @@ html_content = f"""
                 }}
                 
                 // Create chart configuration
+                // Plotly waterfall chart sử dụng decreasing/increasing/totals để xác định màu
+                // Nhưng để tùy chỉnh màu cho từng cột, cần sử dụng marker.color với mảng
                 const trace = {{
                     type: 'waterfall',
                     name: 'Luồng P&L',
@@ -2369,7 +2371,11 @@ html_content = f"""
                             color: lineColors,
                             width: 2
                         }}
-                    }}
+                    }},
+                    // Giữ decreasing/increasing/totals nhưng sẽ bị override bởi marker.color nếu được hỗ trợ
+                    decreasing: {{ marker: {{ color: 'rgba(224, 58, 62, 0.3)', line: {{ color: 'rgba(224, 58, 62, 0.3)', width: 2 }} }} }},
+                    increasing: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }},
+                    totals: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }}
                 }};
                 
                 const layout = {{
@@ -2404,7 +2410,15 @@ html_content = f"""
                 
                 // Clear and render chart
                 Plotly.purge(chartElement);
-                Plotly.newPlot(chartId, [trace], layout, config);
+                Plotly.newPlot(chartId, [trace], layout, config).then(() => {{
+                    // Sau khi render, cập nhật màu cho từng cột
+                    // Plotly waterfall không hỗ trợ mảng màu trực tiếp, nên cần cập nhật sau khi render
+                    const update = {{
+                        'marker.color': markerColors,
+                        'marker.line.color': lineColors
+                    }};
+                    Plotly.restyle(chartId, update, [0]);
+                }});
             }});
         }}
 
