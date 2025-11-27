@@ -1002,9 +1002,9 @@ html_content = f"""
         </div>
         
         <!-- Section 2: Biểu đồ cấu trúc chi phí theo quý -->
-        <div class="card">
+        <div class="card" style="overflow-x: hidden;">
             <div class="card-title">Cấu trúc chi phí theo quý</div>
-            <div id="chart-expense-structure-quarterly" style="height: 300px;"></div>
+            <div id="chart-expense-structure-quarterly" style="height: 300px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
     </div>
 
@@ -1973,34 +1973,47 @@ html_content = f"""
             
             const layout = {{
                 barmode: 'stack', // Cột chồng
-                margin: {{ t: 10, b: 50, l: 40, r: 10 }},
+                margin: {{ t: 10, b: 60, l: 50, r: 10 }},
                 xaxis: {{ 
                     title: '',
                     fixedrange: true,
-                    tickfont: {{ size: 9 }},
-                    tickangle: -45
+                    tickfont: {{ size: 8 }},
+                    tickangle: -45,
+                    automargin: true
                 }},
                 yaxis: {{ 
                     title: 'Chi phí (M)',
                     fixedrange: true,
-                    tickfont: {{ size: 9 }}
+                    tickfont: {{ size: 9 }},
+                    titlefont: {{ size: 10 }}
                 }},
                 legend: {{ 
                     orientation: 'h', 
-                    y: -0.3,
+                    y: -0.35,
                     x: 0.5,
                     xanchor: 'center',
-                    font: {{ size: 9 }}
+                    font: {{ size: 8 }},
+                    tracegroupgap: 5
                 }},
                 height: 300,
+                width: null, // Auto width để responsive
+                autosize: true,
                 dragmode: false
             }};
             
-            Plotly.newPlot('chart-expense-structure-quarterly', traces, layout, {{
-                staticPlot: false, 
-                responsive: true, 
-                displayModeBar: false
-            }});
+            const chartElement = document.getElementById('chart-expense-structure-quarterly');
+            if (chartElement) {{
+                // Đảm bảo width không vượt quá container
+                const containerWidth = chartElement.offsetWidth || window.innerWidth - 32;
+                layout.width = containerWidth;
+                
+                Plotly.newPlot('chart-expense-structure-quarterly', traces, layout, {{
+                    staticPlot: false, 
+                    responsive: true, 
+                    displayModeBar: false,
+                    autosize: true
+                }});
+            }}
         }}
 
         // --- TAB 4: ACTION ---
