@@ -1854,11 +1854,14 @@ html_content = f"""
             renderWaterfallCharts(compId);
             renderExpenseStructureChart(compId);
             
-            // Update buttons
-            document.querySelectorAll('#view-ratio .segment-btn').forEach(btn => {{
+            // Update buttons - tìm tất cả button có data-company trong tab-expense
+            const buttons = document.querySelectorAll('#tab-expense button[data-company]');
+            buttons.forEach(btn => {{
                 btn.classList.remove('active');
-                if(btn.getAttribute('data-company') === compId) 
+                const btnCompanyId = btn.getAttribute('data-company');
+                if(btnCompanyId === compId) {{
                     btn.classList.add('active');
+                }}
             }});
         }}
         
