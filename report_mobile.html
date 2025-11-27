@@ -1487,65 +1487,65 @@
             
             const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
             
-            // Tạo traces cho từng loại chi phí (2024 và 2025)
+            // Tạo x-axis labels: Q1 2024, Q1 2025, Q2 2024, Q2 2025, ...
+            const xLabels = [];
+            quarters.forEach(q => {
+                xLabels.push(q + ' 2024');
+                xLabels.push(q + ' 2025');
+            });
+            
+            // Tạo traces cho từng loại chi phí (stacked bar)
+            // Mỗi trace sẽ có giá trị cho tất cả các quý (2024 và 2025)
             const traces = [
                 {
-                    name: 'CP Bán hàng 2024',
-                    x: quarters,
-                    y: quarters.map(q => exp2024.selling[q]),
+                    name: 'CP Bán hàng',
+                    x: xLabels,
+                    y: quarters.flatMap(q => [exp2024.selling[q], exp2025.selling[q]]),
                     type: 'bar',
-                    marker: { color: '#E03A3E', opacity: 0.6 },
-                    legendgroup: 'selling'
+                    marker: { color: '#E03A3E' },
+                    text: quarters.flatMap(q => [
+                        formatNumber(exp2024.selling[q]),
+                        formatNumber(exp2025.selling[q])
+                    ]),
+                    textposition: 'inside',
+                    textfont: { size: 9, color: 'white' }
                 },
                 {
-                    name: 'CP Bán hàng 2025',
-                    x: quarters,
-                    y: quarters.map(q => exp2025.selling[q]),
+                    name: 'CP Quản lý',
+                    x: xLabels,
+                    y: quarters.flatMap(q => [exp2024.admin[q], exp2025.admin[q]]),
                     type: 'bar',
-                    marker: { color: '#E03A3E', opacity: 0.9 },
-                    legendgroup: 'selling'
+                    marker: { color: '#F5A623' },
+                    text: quarters.flatMap(q => [
+                        formatNumber(exp2024.admin[q]),
+                        formatNumber(exp2025.admin[q])
+                    ]),
+                    textposition: 'inside',
+                    textfont: { size: 9, color: 'white' }
                 },
                 {
-                    name: 'CP Quản lý 2024',
-                    x: quarters,
-                    y: quarters.map(q => exp2024.admin[q]),
+                    name: 'CP Khác',
+                    x: xLabels,
+                    y: quarters.flatMap(q => [exp2024.other[q], exp2025.other[q]]),
                     type: 'bar',
-                    marker: { color: '#F5A623', opacity: 0.6 },
-                    legendgroup: 'admin'
-                },
-                {
-                    name: 'CP Quản lý 2025',
-                    x: quarters,
-                    y: quarters.map(q => exp2025.admin[q]),
-                    type: 'bar',
-                    marker: { color: '#F5A623', opacity: 0.9 },
-                    legendgroup: 'admin'
-                },
-                {
-                    name: 'CP Khác 2024',
-                    x: quarters,
-                    y: quarters.map(q => exp2024.other[q]),
-                    type: 'bar',
-                    marker: { color: '#9B9B9B', opacity: 0.6 },
-                    legendgroup: 'other'
-                },
-                {
-                    name: 'CP Khác 2025',
-                    x: quarters,
-                    y: quarters.map(q => exp2025.other[q]),
-                    type: 'bar',
-                    marker: { color: '#9B9B9B', opacity: 0.9 },
-                    legendgroup: 'other'
+                    marker: { color: '#9B9B9B' },
+                    text: quarters.flatMap(q => [
+                        formatNumber(exp2024.other[q]),
+                        formatNumber(exp2025.other[q])
+                    ]),
+                    textposition: 'inside',
+                    textfont: { size: 9, color: 'white' }
                 }
             ];
             
             const layout = {
-                barmode: 'group',
-                margin: { t: 10, b: 40, l: 40, r: 10 },
+                barmode: 'stack', // Cột chồng
+                margin: { t: 10, b: 50, l: 40, r: 10 },
                 xaxis: { 
                     title: '',
                     fixedrange: true,
-                    tickfont: { size: 10 }
+                    tickfont: { size: 9 },
+                    tickangle: -45
                 },
                 yaxis: { 
                     title: 'Chi phí (M)',
@@ -1554,7 +1554,7 @@
                 },
                 legend: { 
                     orientation: 'h', 
-                    y: -0.25,
+                    y: -0.3,
                     x: 0.5,
                     xanchor: 'center',
                     font: { size: 9 }
