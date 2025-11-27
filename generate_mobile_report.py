@@ -2369,10 +2369,7 @@ html_content = f"""
                             color: lineColors,
                             width: 2
                         }}
-                    }},
-                    decreasing: {{ marker: {{ color: 'rgba(224, 58, 62, 0.3)', line: {{ color: 'rgba(224, 58, 62, 0.3)', width: 2 }} }} }},
-                    increasing: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }},
-                    totals: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }}
+                    }}
                 }};
                 
                 const layout = {{
