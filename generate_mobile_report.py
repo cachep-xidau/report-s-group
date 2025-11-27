@@ -103,6 +103,20 @@ def create_quarterly_data_2024(df):
 revenue_quarterly_2024 = create_quarterly_data_2024(revenue_df_2024)
 pbt_quarterly_2024 = create_quarterly_data_2024(pbt_df_2024)
 
+# Trích xuất dữ liệu chi phí từ file 2024
+selling_exp_df_2024 = extract_company_data(df_raw_2024, metrics_rows['Selling Expenses'], 'Selling Expenses')
+admin_exp_df_2024 = extract_company_data(df_raw_2024, metrics_rows['Admin Expenses'], 'Admin Expenses')
+other_exp_df_2024 = extract_company_data(df_raw_2024, metrics_rows['Other Expenses'], 'Other Expenses')
+
+# Tạo dữ liệu quý cho chi phí 2024 và 2025
+selling_exp_quarterly = create_quarterly_data(selling_exp_df)
+admin_exp_quarterly = create_quarterly_data(admin_exp_df)
+other_exp_quarterly = create_quarterly_data(other_exp_df)
+
+selling_exp_quarterly_2024 = create_quarterly_data_2024(selling_exp_df_2024)
+admin_exp_quarterly_2024 = create_quarterly_data_2024(admin_exp_df_2024)
+other_exp_quarterly_2024 = create_quarterly_data_2024(other_exp_df_2024)
+
 # Đọc % đạt kế hoạch
 def extract_achievement_rate(df, row_idx):
     """Trích xuất % đạt kế hoạch từ các cột trong CSV"""
@@ -229,6 +243,61 @@ for company in companies:
     else: # TGIL
         insight = f"- LN/DT {margin:.2f}%, nhưng chi phí biến động.<br>- Cần ổn định vận hành và kiểm soát chi phí."
 
+    # Tính tổng chi phí YTD (10 tháng) và trung bình tháng
+    total_selling_exp = selling_exp_df[company].iloc[0:10].sum()
+    total_admin_exp = admin_exp_df[company].iloc[0:10].sum()
+    total_other_exp = other_exp_df[company].iloc[0:10].sum()
+    total_expense_ytd = total_selling_exp + total_admin_exp + total_other_exp
+    
+    avg_monthly_selling = total_selling_exp / 10
+    avg_monthly_admin = total_admin_exp / 10
+    avg_monthly_other = total_other_exp / 10
+    avg_monthly_total = total_expense_ytd / 10
+    
+    # Dữ liệu chi phí quý 2025
+    expense_quarterly_2025 = {
+        'selling': {
+            'Q1': float(selling_exp_quarterly.loc['Q1', company]),
+            'Q2': float(selling_exp_quarterly.loc['Q2', company]),
+            'Q3': float(selling_exp_quarterly.loc['Q3', company]),
+            'Q4': float(selling_exp_quarterly.loc['Q4', company])
+        },
+        'admin': {
+            'Q1': float(admin_exp_quarterly.loc['Q1', company]),
+            'Q2': float(admin_exp_quarterly.loc['Q2', company]),
+            'Q3': float(admin_exp_quarterly.loc['Q3', company]),
+            'Q4': float(admin_exp_quarterly.loc['Q4', company])
+        },
+        'other': {
+            'Q1': float(other_exp_quarterly.loc['Q1', company]),
+            'Q2': float(other_exp_quarterly.loc['Q2', company]),
+            'Q3': float(other_exp_quarterly.loc['Q3', company]),
+            'Q4': float(other_exp_quarterly.loc['Q4', company])
+        }
+    }
+    
+    # Dữ liệu chi phí quý 2024
+    expense_quarterly_2024 = {
+        'selling': {
+            'Q1': float(selling_exp_quarterly_2024.loc['Q1', company]),
+            'Q2': float(selling_exp_quarterly_2024.loc['Q2', company]),
+            'Q3': float(selling_exp_quarterly_2024.loc['Q3', company]),
+            'Q4': float(selling_exp_quarterly_2024.loc['Q4', company])
+        },
+        'admin': {
+            'Q1': float(admin_exp_quarterly_2024.loc['Q1', company]),
+            'Q2': float(admin_exp_quarterly_2024.loc['Q2', company]),
+            'Q3': float(admin_exp_quarterly_2024.loc['Q3', company]),
+            'Q4': float(admin_exp_quarterly_2024.loc['Q4', company])
+        },
+        'other': {
+            'Q1': float(other_exp_quarterly_2024.loc['Q1', company]),
+            'Q2': float(other_exp_quarterly_2024.loc['Q2', company]),
+            'Q3': float(other_exp_quarterly_2024.loc['Q3', company]),
+            'Q4': float(other_exp_quarterly_2024.loc['Q4', company])
+        }
+    }
+    
     company_data.append({
         'id': company,
         'name': company_display_names[company],
@@ -246,7 +315,19 @@ for company in companies:
         'monthly_pbt': monthly_pbt,
         'cumulative_pbt': cumulative_pbt,
         'quarterly_data': quarterly_data,
-        'insight': insight
+        'insight': insight,
+        'expense_data': {
+            'total_selling': float(total_selling_exp),
+            'total_admin': float(total_admin_exp),
+            'total_other': float(total_other_exp),
+            'total_ytd': float(total_expense_ytd),
+            'avg_monthly_selling': float(avg_monthly_selling),
+            'avg_monthly_admin': float(avg_monthly_admin),
+            'avg_monthly_other': float(avg_monthly_other),
+            'avg_monthly_total': float(avg_monthly_total),
+            'quarterly_2025': expense_quarterly_2025,
+            'quarterly_2024': expense_quarterly_2024
+        }
     })
 
 # Sắp xếp cho Tab 1 Ranking
@@ -896,7 +977,35 @@ html_content = f"""
             <button class="segment-btn" onclick="switchExpenseCompany('TGIL')" data-company="TGIL">I</button>
         </div>
         
-        <!-- Nội dung sẽ được thêm sau -->
+        <!-- Section 1: KPI Chips -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Tổng chi phí bán hàng</div>
+                <div class="kpi-value" id="exp-selling-total">...</div>
+                <div class="kpi-sub" id="exp-selling-avg">...</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Tổng chi phí quản lý doanh nghiệp</div>
+                <div class="kpi-value" id="exp-admin-total">...</div>
+                <div class="kpi-sub" id="exp-admin-avg">...</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Tổng chi phí khác</div>
+                <div class="kpi-value" id="exp-other-total">...</div>
+                <div class="kpi-sub" id="exp-other-avg">...</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Tổng chi phí YTD</div>
+                <div class="kpi-value" id="exp-total-ytd">...</div>
+                <div class="kpi-sub" id="exp-total-avg">...</div>
+            </div>
+        </div>
+        
+        <!-- Section 2: Biểu đồ cấu trúc chi phí theo quý -->
+        <div class="card">
+            <div class="card-title">Cấu trúc chi phí theo quý</div>
+            <div id="chart-expense-structure-quarterly" style="height: 300px;"></div>
+        </div>
     </div>
 
     <!-- TAB 4: HÀNH ĐỘNG -->
@@ -960,7 +1069,8 @@ html_content = f"""
             renderQuarterlyComparisonChartOverview();
             renderQuarterlyPBTComparisonChartOverview();
             updateQuarterlyAnalysisOverview();
-            // Tab Chi phí đã được xóa, sẽ làm lại sau
+            // Khởi tạo tab Chi phí
+            updateExpenseTab('SAN');
             renderActions('0-30');
             
             // Đợi một chút để đảm bảo layout đã render xong, sau đó cập nhật tab company
