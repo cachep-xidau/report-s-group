@@ -910,17 +910,17 @@ html_content = f"""
             <!-- Waterfall Charts -->
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 1</div>
-                <div id="chart-waterfall-q1" style="height: 302px;"></div>
+                <div id="chart-waterfall-q1" style="height: 272px;"></div>
             </div>
             
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 2</div>
-                <div id="chart-waterfall-q2" style="height: 302px;"></div>
+                <div id="chart-waterfall-q2" style="height: 272px;"></div>
             </div>
             
             <div class="card">
                 <div class="card-title">Cấu trúc chi phí - Quý 3</div>
-                <div id="chart-waterfall-q3" style="height: 302px;"></div>
+                <div id="chart-waterfall-q3" style="height: 272px;"></div>
             </div>
             
             <div class="card">
@@ -1978,8 +1978,8 @@ html_content = f"""
                     measure: measures,
                     x: xLabels,
                     y: yValues,
-                    text: textValues,
-                    textposition: 'inside',
+                    text: [], // Xóa text bên trong cột, chỉ dùng annotation bên ngoài
+                    textposition: 'none',
                     textfont: {{ size: 12, color: 'white', family: 'Arial', weight: 'bold' }},
                     connector: {{ line: {{ color: '#1F6FEB', width: 2 }} }},
                     decreasing: {{ marker: {{ color: '#E03A3E', line: {{ color: '#E03A3E', width: 2 }} }} }},
@@ -1990,7 +1990,7 @@ html_content = f"""
                 const layout = {{
                     title: '',
                     showlegend: false,
-                    height: 302,
+                    height: 272,
                     margin: {{ t: 10, b: 60, l: 10, r: 10 }},
                     yaxis: {{ 
                         title: '',
