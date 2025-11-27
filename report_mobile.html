@@ -1120,7 +1120,15 @@
 
         // Render company quarterly comparison chart Q1-Q2 (2024 vs 2025 vs KPI 2025 - for each company)
         function renderCompanyQuarterlyComparisonChartQ12(compId) {
-            if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) return;
+            const chartElement = document.getElementById('chart-company-quarterly-comparison-q12');
+            if (!chartElement) {
+                console.warn('Chart element chart-company-quarterly-comparison-q12 not found');
+                return;
+            }
+            if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) {
+                console.warn('Data not available for company:', compId);
+                return;
+            }
             
             const quarters = ['Q1', 'Q2'];
             const revenue2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].revenue[q]);
@@ -1243,7 +1251,15 @@
         
         // Render company quarterly comparison chart Q3-Q4 (2024 vs 2025 vs KPI 2025 - for each company)
         function renderCompanyQuarterlyComparisonChartQ34(compId) {
-            if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) return;
+            const chartElement = document.getElementById('chart-company-quarterly-comparison-q34');
+            if (!chartElement) {
+                console.warn('Chart element chart-company-quarterly-comparison-q34 not found');
+                return;
+            }
+            if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) {
+                console.warn('Data not available for company:', compId);
+                return;
+            }
             
             const quarters = ['Q3', 'Q4'];
             const revenue2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].revenue[q]);
