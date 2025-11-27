@@ -1432,9 +1432,9 @@
         }
 
         // --- TAB 3: EXPENSE ---
-        // --- TAB 3: EXPENSE ---
         function switchExpenseCompany(compId) {
             currentExpenseCompanyId = compId;
+            updateExpenseTab(compId);
             
             // Update buttons
             document.querySelectorAll('#tab-expense .segment-btn').forEach(btn => {
@@ -1443,7 +1443,131 @@
                     btn.classList.add('active');
             });
             
-            // Nội dung sẽ được thêm sau
+            // Resize biểu đồ sau khi chuyển công ty
+            setTimeout(() => {
+                Plotly.Plots.resize('chart-expense-structure-quarterly');
+            }, 100);
+        }
+        
+        function updateExpenseTab(compId) {
+            const data = companyData.find(c => c.id === compId);
+            if (!data || !data.expense_data) {
+                console.error('Expense data not found for:', compId);
+                return;
+            }
+            
+            const exp = data.expense_data;
+            
+            // Update KPI chips
+            document.getElementById('exp-selling-total').textContent = formatNumber(exp.total_selling);
+            document.getElementById('exp-selling-avg').textContent = `Trung bình tháng: ${formatNumber(exp.avg_monthly_selling)}`;
+            
+            document.getElementById('exp-admin-total').textContent = formatNumber(exp.total_admin);
+            document.getElementById('exp-admin-avg').textContent = `Trung bình tháng: ${formatNumber(exp.avg_monthly_admin)}`;
+            
+            document.getElementById('exp-other-total').textContent = formatNumber(exp.total_other);
+            document.getElementById('exp-other-avg').textContent = `Trung bình tháng: ${formatNumber(exp.avg_monthly_other)}`;
+            
+            document.getElementById('exp-total-ytd').textContent = formatNumber(exp.total_ytd);
+            document.getElementById('exp-total-avg').textContent = `Trung bình tháng: ${formatNumber(exp.avg_monthly_total)}`;
+            
+            // Render biểu đồ cấu trúc chi phí theo quý
+            renderExpenseStructureQuarterlyChart(compId);
+        }
+        
+        function renderExpenseStructureQuarterlyChart(compId) {
+            const data = companyData.find(c => c.id === compId);
+            if (!data || !data.expense_data) {
+                console.error('Expense data not found for:', compId);
+                return;
+            }
+            
+            const exp2024 = data.expense_data.quarterly_2024;
+            const exp2025 = data.expense_data.quarterly_2025;
+            
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            
+            // Tạo traces cho từng loại chi phí (2024 và 2025)
+            const traces = [
+                {
+                    name: 'CP Bán hàng 2024',
+                    x: quarters,
+                    y: quarters.map(q => exp2024.selling[q]),
+                    type: 'bar',
+                    marker: { color: '#E03A3E', opacity: 0.6 },
+                    legendgroup: 'selling'
+                },
+                {
+                    name: 'CP Bán hàng 2025',
+                    x: quarters,
+                    y: quarters.map(q => exp2025.selling[q]),
+                    type: 'bar',
+                    marker: { color: '#E03A3E', opacity: 0.9 },
+                    legendgroup: 'selling'
+                },
+                {
+                    name: 'CP Quản lý 2024',
+                    x: quarters,
+                    y: quarters.map(q => exp2024.admin[q]),
+                    type: 'bar',
+                    marker: { color: '#F5A623', opacity: 0.6 },
+                    legendgroup: 'admin'
+                },
+                {
+                    name: 'CP Quản lý 2025',
+                    x: quarters,
+                    y: quarters.map(q => exp2025.admin[q]),
+                    type: 'bar',
+                    marker: { color: '#F5A623', opacity: 0.9 },
+                    legendgroup: 'admin'
+                },
+                {
+                    name: 'CP Khác 2024',
+                    x: quarters,
+                    y: quarters.map(q => exp2024.other[q]),
+                    type: 'bar',
+                    marker: { color: '#9B9B9B', opacity: 0.6 },
+                    legendgroup: 'other'
+                },
+                {
+                    name: 'CP Khác 2025',
+                    x: quarters,
+                    y: quarters.map(q => exp2025.other[q]),
+                    type: 'bar',
+                    marker: { color: '#9B9B9B', opacity: 0.9 },
+                    legendgroup: 'other'
+                }
+            ];
+            
+            const layout = {
+                barmode: 'group',
+                margin: { t: 10, b: 40, l: 40, r: 10 },
+                xaxis: { 
+                    title: '',
+                    fixedrange: true,
+                    tickfont: { size: 10 }
+                },
+                yaxis: { 
+                    title: 'Chi phí (M)',
+                    fixedrange: true,
+                    tickfont: { size: 9 }
+                },
+                legend: { 
+                    orientation: 'h', 
+                    y: -0.25,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: { size: 9 }
+                },
+                height: 300,
+                dragmode: false
+            };
+            
+            Plotly.newPlot('chart-expense-structure-quarterly', traces, layout, {
+                staticPlot: false, 
+                responsive: true, 
+                displayModeBar: false
+            });
         }
 
         // --- TAB 4: ACTION ---
