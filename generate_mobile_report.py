@@ -890,6 +890,12 @@ html_content = f"""
 
     <!-- TAB 3: CHI PHÍ & BIẾN ĐỘNG -->
     <div id="tab-expense" class="tab-content">
+        <div class="segmented-control">
+            <button class="segment-btn active" onclick="switchExpenseCompany('SAN')" data-company="SAN">S</button>
+            <button class="segment-btn" onclick="switchExpenseCompany('TEENNIE')" data-company="TEENNIE">T</button>
+            <button class="segment-btn" onclick="switchExpenseCompany('TGIL')" data-company="TGIL">I</button>
+        </div>
+        
         <!-- Nội dung sẽ được thêm sau -->
     </div>
 
@@ -1749,7 +1755,19 @@ html_content = f"""
         }}
 
         // --- TAB 3: EXPENSE ---
-        // Tab Chi phí đã được xóa, các hàm sẽ được thêm lại sau
+        // --- TAB 3: EXPENSE ---
+        function switchExpenseCompany(compId) {{
+            currentExpenseCompanyId = compId;
+            
+            // Update buttons
+            document.querySelectorAll('#tab-expense .segment-btn').forEach(btn => {{
+                btn.classList.remove('active');
+                if(btn.getAttribute('data-company') === compId) 
+                    btn.classList.add('active');
+            }});
+            
+            // Nội dung sẽ được thêm sau
+        }}
 
         // --- TAB 4: ACTION ---
         function filterAction(timeframe, btn) {{
