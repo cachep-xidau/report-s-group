@@ -430,6 +430,21 @@ quarterly_comparison_data = {
 # Dữ liệu so sánh quý 2024 vs 2025 - Từng công ty
 quarterly_company_comparison_data = {}
 for company in companies:
+    # Tính KPI (kế hoạch) cho từng quý: KPI = Actual / (% đạt kế hoạch / 100)
+    achieve_rates = revenue_achievement[company]  # [Q1%, Q2%, Q3%]
+    revenue_q1_2025 = float(revenue_quarterly.loc['Q1', company])
+    revenue_q2_2025 = float(revenue_quarterly.loc['Q2', company])
+    revenue_q3_2025 = float(revenue_quarterly.loc['Q3', company])
+    revenue_q4_2025 = float(revenue_quarterly.loc['Q4', company])
+    
+    # Tính KPI cho Q1, Q2, Q3 (Q4 không có dữ liệu % đạt kế hoạch, dùng trung bình của Q1-Q3)
+    kpi_q1 = revenue_q1_2025 / (achieve_rates[0] / 100) if not np.isnan(achieve_rates[0]) and achieve_rates[0] > 0 else np.nan
+    kpi_q2 = revenue_q2_2025 / (achieve_rates[1] / 100) if not np.isnan(achieve_rates[1]) and achieve_rates[1] > 0 else np.nan
+    kpi_q3 = revenue_q3_2025 / (achieve_rates[2] / 100) if not np.isnan(achieve_rates[2]) and achieve_rates[2] > 0 else np.nan
+    # Q4: dùng trung bình % đạt kế hoạch của Q1-Q3
+    avg_achieve = np.nanmean([r for r in achieve_rates if not np.isnan(r)])
+    kpi_q4 = revenue_q4_2025 / (avg_achieve / 100) if not np.isnan(avg_achieve) and avg_achieve > 0 else np.nan
+    
     quarterly_company_comparison_data[company] = {
         '2024': {
             'revenue': {
@@ -447,10 +462,10 @@ for company in companies:
         },
         '2025': {
             'revenue': {
-                'Q1': float(revenue_quarterly.loc['Q1', company]),
-                'Q2': float(revenue_quarterly.loc['Q2', company]),
-                'Q3': float(revenue_quarterly.loc['Q3', company]),
-                'Q4': float(revenue_quarterly.loc['Q4', company])
+                'Q1': revenue_q1_2025,
+                'Q2': revenue_q2_2025,
+                'Q3': revenue_q3_2025,
+                'Q4': revenue_q4_2025
             },
             'pbt': {
                 'Q1': float(pbt_quarterly.loc['Q1', company]),
@@ -458,6 +473,12 @@ for company in companies:
                 'Q3': float(pbt_quarterly.loc['Q3', company]),
                 'Q4': float(pbt_quarterly.loc['Q4', company])
             }
+        },
+        'kpi': {
+            'Q1': float(kpi_q1) if not np.isnan(kpi_q1) else None,
+            'Q2': float(kpi_q2) if not np.isnan(kpi_q2) else None,
+            'Q3': float(kpi_q3) if not np.isnan(kpi_q3) else None,
+            'Q4': float(kpi_q4) if not np.isnan(kpi_q4) else None
         }
     }
 
@@ -957,10 +978,16 @@ html_content = f"""
             <div id="chart-company" style="height: 264px; width: 100%; max-width: 100%; box-sizing: border-box;"></div>
         </div>
 
-        <!-- Company Quarterly Comparison Chart - Revenue -->
+        <!-- Company Quarterly Comparison Chart - Revenue Q1 Q2 -->
         <div class="card">
-            <div class="card-title">So sánh doanh thu cùng kỳ 2024</div>
-            <div id="chart-company-quarterly-comparison" style="height: 300px;"></div>
+            <div class="card-title">Đánh giá doanh thu Q1 Q2</div>
+            <div id="chart-company-quarterly-comparison-q12" style="height: 300px;"></div>
+        </div>
+        
+        <!-- Company Quarterly Comparison Chart - Revenue Q3 Q4 -->
+        <div class="card">
+            <div class="card-title">Đánh giá doanh thu Q3 Q4</div>
+            <div id="chart-company-quarterly-comparison-q34" style="height: 300px;"></div>
         </div>
 
         <!-- Company Quarterly Comparison Chart - Profit -->
@@ -1137,7 +1164,8 @@ html_content = f"""
                 setTimeout(() => {{
                     updateCompanyTab(currentCompanyId);
                     Plotly.Plots.resize('chart-company');
-                    Plotly.Plots.resize('chart-company-quarterly-comparison');
+                    Plotly.Plots.resize('chart-company-quarterly-comparison-q12');
+                    Plotly.Plots.resize('chart-company-quarterly-comparison-q34');
                     Plotly.Plots.resize('chart-company-quarterly-pbt-comparison');
                 }}, 200);
             }}
@@ -1192,7 +1220,8 @@ html_content = f"""
             // Resize biểu đồ sau khi chuyển công ty
             setTimeout(() => {{
                 Plotly.Plots.resize('chart-company');
-                Plotly.Plots.resize('chart-company-quarterly-comparison');
+                Plotly.Plots.resize('chart-company-quarterly-comparison-q12');
+                Plotly.Plots.resize('chart-company-quarterly-comparison-q34');
                 Plotly.Plots.resize('chart-company-quarterly-pbt-comparison');
             }}, 100);
         }}
@@ -1347,8 +1376,9 @@ html_content = f"""
             
             Plotly.newPlot('chart-company', [traceBar, traceLine], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
             
-            // Render company quarterly comparison chart
-            renderCompanyQuarterlyComparisonChart(compId);
+            // Render company quarterly comparison charts (Q1-Q2 and Q3-Q4)
+            renderCompanyQuarterlyComparisonChartQ12(compId);
+            renderCompanyQuarterlyComparisonChartQ34(compId);
             renderCompanyQuarterlyPBTComparisonChart(compId);
             
             // Update company analysis section
@@ -1555,17 +1585,19 @@ html_content = f"""
             Plotly.newPlot('chart-quarterly-pbt-comparison-overview', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
         }}
 
-        // Render company quarterly comparison chart (2024 vs 2025 - for each company)
-        function renderCompanyQuarterlyComparisonChart(compId) {{
+        // Render company quarterly comparison chart Q1-Q2 (2024 vs 2025 vs KPI 2025 - for each company)
+        function renderCompanyQuarterlyComparisonChartQ12(compId) {{
             if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) return;
             
-            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            const quarters = ['Q1', 'Q2'];
             const revenue2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].revenue[q]);
             const revenue2025 = quarters.map(q => quarterlyCompanyComparison[compId]['2025'].revenue[q]);
+            const revenueKPI = quarters.map(q => quarterlyCompanyComparison[compId]['kpi'] ? (quarterlyCompanyComparison[compId]['kpi'][q] || null) : null);
             
-            // Tính toán tickvals và ticktext cho yaxis
-            const maxValue = Math.max(...revenue2024, ...revenue2025);
-            const minValue = Math.min(...revenue2024, ...revenue2025);
+            // Tính toán tickvals và ticktext cho yaxis (bao gồm cả KPI)
+            const allValues = [...revenue2024, ...revenue2025, ...revenueKPI.filter(v => v !== null)];
+            const maxValue = Math.max(...allValues);
+            const minValue = Math.min(...allValues);
             const range = maxValue - minValue;
             const tickStep = range > 100000 ? 40000 : range > 50000 ? 20000 : 10000;
             const startTick = Math.floor(minValue / tickStep) * tickStep;
@@ -1619,6 +1651,25 @@ html_content = f"""
                 yaxis: 'y'
             }};
             
+            // Trace 3: KPI 2025
+            const traceKPI = {{
+                x: quarters,
+                y: revenueKPI,
+                type: 'bar',
+                name: 'KH 2025',
+                marker: {{ 
+                    color: '#F5A623',
+                    opacity: 0.8
+                }},
+                text: revenueKPI.map(v => v !== null ? formatNumber(v) : ''),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#F5A623'
+                }},
+                yaxis: 'y'
+            }};
+            
             const layout = {{
                 margin: {{ t: 10, b: 10, l: 10, r: 10 }},
                 xaxis: {{ 
@@ -1654,7 +1705,130 @@ html_content = f"""
                 dragmode: false
             }};
             
-            Plotly.newPlot('chart-company-quarterly-comparison', [trace2024, trace2025], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
+            Plotly.newPlot('chart-company-quarterly-comparison-q12', [trace2024, trace2025, traceKPI], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
+        }}
+        
+        // Render company quarterly comparison chart Q3-Q4 (2024 vs 2025 vs KPI 2025 - for each company)
+        function renderCompanyQuarterlyComparisonChartQ34(compId) {{
+            if (!quarterlyCompanyComparison || !quarterlyCompanyComparison[compId] || !quarterlyCompanyComparison[compId]['2024'] || !quarterlyCompanyComparison[compId]['2025']) return;
+            
+            const quarters = ['Q3', 'Q4'];
+            const revenue2024 = quarters.map(q => quarterlyCompanyComparison[compId]['2024'].revenue[q]);
+            const revenue2025 = quarters.map(q => quarterlyCompanyComparison[compId]['2025'].revenue[q]);
+            const revenueKPI = quarters.map(q => quarterlyCompanyComparison[compId]['kpi'] ? (quarterlyCompanyComparison[compId]['kpi'][q] || null) : null);
+            
+            // Tính toán tickvals và ticktext cho yaxis (bao gồm cả KPI)
+            const allValues = [...revenue2024, ...revenue2025, ...revenueKPI.filter(v => v !== null)];
+            const maxValue = Math.max(...allValues);
+            const minValue = Math.min(...allValues);
+            const range = maxValue - minValue;
+            const tickStep = range > 100000 ? 40000 : range > 50000 ? 20000 : 10000;
+            const startTick = Math.floor(minValue / tickStep) * tickStep;
+            // Tăng endTick lên 20% để có thêm không gian cho label, sau đó giảm 15% vì bên trên nhìn trống quá
+            const endTick = Math.ceil(maxValue / tickStep) * tickStep;
+            let endTickWithPadding = endTick + (endTick - startTick) * 0.2;
+            // Giảm max axis 15%
+            endTickWithPadding = endTickWithPadding - (endTickWithPadding - startTick) * 0.15;
+            const tickvals = [];
+            const ticktext = [];
+            for (let i = startTick; i <= endTickWithPadding; i += tickStep) {{
+                tickvals.push(i);
+                ticktext.push(i.toLocaleString('vi-VN') + ' M');
+            }}
+            
+            // Trace 1: Doanh thu 2024
+            const trace2024 = {{
+                x: quarters,
+                y: revenue2024,
+                type: 'bar',
+                name: '2024',
+                marker: {{ 
+                    color: '#94A3B8',
+                    opacity: 0.7
+                }},
+                text: revenue2024.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#94A3B8'
+                }},
+                yaxis: 'y'
+            }};
+            
+            // Trace 2: Doanh thu 2025
+            const trace2025 = {{
+                x: quarters,
+                y: revenue2025,
+                type: 'bar',
+                name: '2025',
+                marker: {{ 
+                    color: '#1F6FEB',
+                    opacity: 0.8
+                }},
+                text: revenue2025.map(v => formatNumber(v)),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#1F6FEB'
+                }},
+                yaxis: 'y'
+            }};
+            
+            // Trace 3: KPI 2025
+            const traceKPI = {{
+                x: quarters,
+                y: revenueKPI,
+                type: 'bar',
+                name: 'KH 2025',
+                marker: {{ 
+                    color: '#F5A623',
+                    opacity: 0.8
+                }},
+                text: revenueKPI.map(v => v !== null ? formatNumber(v) : ''),
+                textposition: 'outside',
+                textfont: {{ 
+                    size: 10, 
+                    color: '#F5A623'
+                }},
+                yaxis: 'y'
+            }};
+            
+            const layout = {{
+                margin: {{ t: 10, b: 10, l: 10, r: 10 }},
+                xaxis: {{ 
+                    title: '',
+                    tickfont: {{ size: 11 }},
+                    showgrid: false,
+                    fixedrange: true
+                }},
+                yaxis: {{
+                    title: '',
+                    titlefont: {{ size: 11 }},
+                    tickfont: {{ size: 10 }},
+                    showgrid: true,
+                    gridcolor: '#E1E4EB',
+                    tickmode: 'array',
+                    tickvals: tickvals,
+                    ticktext: ticktext,
+                    showticklabels: false,
+                    range: [startTick, endTickWithPadding],
+                    fixedrange: true
+                }},
+                showlegend: true,
+                legend: {{
+                    orientation: 'h',
+                    y: -0.25,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: {{ size: 11 }}
+                }},
+                height: 300,
+                barmode: 'group',
+                hovermode: 'x unified',
+                dragmode: false
+            }};
+            
+            Plotly.newPlot('chart-company-quarterly-comparison-q34', [trace2024, trace2025, traceKPI], layout, {{staticPlot: false, responsive: true, displayModeBar: false}});
         }}
 
         // Render company quarterly PBT comparison chart (2024 vs 2025 - for each company)
@@ -2139,6 +2313,7 @@ html_content = f"""
                     text: textValues,
                     textposition: 'inside',
                     textfont: {{ size: 12, color: 'white', family: 'Arial', weight: 'bold' }},
+                    textangle: 0, // Nằm ngang
                     connector: {{ line: {{ color: '#1F6FEB', width: 2 }} }},
                     decreasing: {{ marker: {{ color: '#E03A3E', line: {{ color: '#E03A3E', width: 2 }} }} }},
                     increasing: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }},
