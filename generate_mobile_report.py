@@ -1925,6 +1925,10 @@ html_content = f"""
             // Resize biểu đồ sau khi chuyển công ty
             setTimeout(() => {{
                 Plotly.Plots.resize('chart-expense-structure-quarterly');
+                Plotly.Plots.resize('chart-expense-waterfall-q1');
+                Plotly.Plots.resize('chart-expense-waterfall-q2');
+                Plotly.Plots.resize('chart-expense-waterfall-q3');
+                Plotly.Plots.resize('chart-expense-waterfall-q4');
             }}, 100);
         }}
         
