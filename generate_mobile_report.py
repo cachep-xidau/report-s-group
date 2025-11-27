@@ -2318,6 +2318,38 @@ html_content = f"""
                     textValues.push(percentage);
                 }}
                 
+                // Tạo mảng màu cho từng cột
+                const markerColors = [];
+                const lineColors = [];
+                for (let i = 0; i < xLabels.length; i++) {{
+                    const label = xLabels[i];
+                    const val = yValues[i];
+                    
+                    if (label === 'LN Trước Thuế') {{
+                        // Cột lợi nhuận: đỏ opacity 80% nếu âm, xanh lá nếu dương
+                        if (val < 0) {{
+                            markerColors.push('rgba(224, 58, 62, 0.8)'); // Đỏ opacity 80%
+                            lineColors.push('rgba(224, 58, 62, 0.8)');
+                        }} else {{
+                            markerColors.push('#2E7D32'); // Xanh lá cây
+                            lineColors.push('#2E7D32');
+                        }}
+                    }} else if (label === 'Giá Vốn' || label === 'CP Bán Hàng' || label === 'CP QLDN' || label === 'CP Khác') {{
+                        // Các cột chi phí: đỏ opacity 30%
+                        markerColors.push('rgba(224, 58, 62, 0.3)');
+                        lineColors.push('rgba(224, 58, 62, 0.3)');
+                    }} else {{
+                        // Các cột khác (Doanh Thu, Lãi Gộp): giữ màu mặc định
+                        if (val < 0) {{
+                            markerColors.push('#E03A3E');
+                            lineColors.push('#E03A3E');
+                        }} else {{
+                            markerColors.push('#1F6FEB');
+                            lineColors.push('#1F6FEB');
+                        }}
+                    }}
+                }}
+                
                 // Create chart configuration
                 const trace = {{
                     type: 'waterfall',
@@ -2331,7 +2363,14 @@ html_content = f"""
                     textfont: {{ size: 12, color: 'white', family: 'Arial', weight: 'bold' }},
                     textangle: 0, // Nằm ngang
                     connector: {{ line: {{ color: '#1F6FEB', width: 2 }} }},
-                    decreasing: {{ marker: {{ color: '#E03A3E', line: {{ color: '#E03A3E', width: 2 }} }} }},
+                    marker: {{
+                        color: markerColors,
+                        line: {{
+                            color: lineColors,
+                            width: 2
+                        }}
+                    }},
+                    decreasing: {{ marker: {{ color: 'rgba(224, 58, 62, 0.3)', line: {{ color: 'rgba(224, 58, 62, 0.3)', width: 2 }} }} }},
                     increasing: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }},
                     totals: {{ marker: {{ color: '#1F6FEB', line: {{ color: '#1F6FEB', width: 2 }} }} }}
                 }};
