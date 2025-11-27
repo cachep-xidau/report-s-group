@@ -1116,6 +1116,14 @@ html_content = f"""
                     Plotly.Plots.resize('chart-quarterly-pbt-comparison-overview');
                 }}, 200);
             }}
+            
+            // Nếu chuyển sang tab expense, cập nhật lại dữ liệu và resize biểu đồ sau khi tab được hiển thị
+            if (tabId === 'tab-expense') {{
+                setTimeout(() => {{
+                    updateExpenseTab(currentExpenseCompanyId);
+                    Plotly.Plots.resize('chart-expense-structure-quarterly');
+                }}, 200);
+            }}
         }}
 
         function goToExpenseTab() {{
@@ -2002,10 +2010,19 @@ html_content = f"""
             }};
             
             const chartElement = document.getElementById('chart-expense-structure-quarterly');
-            if (chartElement) {{
+            if (!chartElement) {{
+                console.error('Chart element not found');
+                return;
+            }}
+            
+            // Đợi một chút để đảm bảo tab đã visible và có width
+            setTimeout(() => {{
                 // Đảm bảo width không vượt quá container
                 const containerWidth = chartElement.offsetWidth || window.innerWidth - 32;
-                layout.width = containerWidth;
+                layout.width = Math.max(containerWidth, 300); // Tối thiểu 300px
+                
+                // Purge chart cũ nếu có
+                Plotly.purge(chartElement);
                 
                 Plotly.newPlot('chart-expense-structure-quarterly', traces, layout, {{
                     staticPlot: false, 
@@ -2013,7 +2030,7 @@ html_content = f"""
                     displayModeBar: false,
                     autosize: true
                 }});
-            }}
+            }}, 100);
         }}
 
         // --- TAB 4: ACTION ---
