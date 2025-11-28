@@ -8,6 +8,8 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from datetime import datetime
+from string import Template
+from pathlib import Path
 
 # ============================================================================
 # HÀM TIỆN ÍCH
@@ -123,6 +125,24 @@ gross_profit_2025_ytd = sum([clean_currency_value(df_2025.iloc[gross_profit_row_
 pbt_2024_ytd = sum([clean_currency_value(df_2024.iloc[pbt_row_2024].get(m, np.nan)) for m in months_ytd_2024])
 pbt_2025_ytd = sum([clean_currency_value(df_2025.iloc[pbt_row_2025].get(m, np.nan)) for m in months_ytd_2025])
 
+# Tính toán cả năm 2024 (12 tháng)
+months_2024_full = get_month_columns(df_2024)
+if len(months_2024_full) < 12:
+    # Nếu chưa đủ 12 tháng, thêm các tháng còn lại
+    for m in ['T11', 'T12']:
+        col_with_space = f' {m} '
+        col_no_space = m
+        if col_with_space in df_2024.columns:
+            months_2024_full.append(col_with_space)
+        elif col_no_space in df_2024.columns:
+            months_2024_full.append(col_no_space)
+        else:
+            months_2024_full.append(m)
+
+revenue_2024_full = sum([clean_currency_value(df_2024.iloc[revenue_row_2024].get(m, np.nan)) for m in months_2024_full if m in df_2024.columns or f' {m} ' in df_2024.columns])
+gross_profit_2024_full = sum([clean_currency_value(df_2024.iloc[gross_profit_row_2024].get(m, np.nan)) for m in months_2024_full if m in df_2024.columns or f' {m} ' in df_2024.columns])
+pbt_2024_full = sum([clean_currency_value(df_2024.iloc[pbt_row_2024].get(m, np.nan)) for m in months_2024_full if m in df_2024.columns or f' {m} ' in df_2024.columns])
+
 # Tính toán theo quý
 quarters = ['Q1', 'Q2', 'Q3', 'Q4']
 revenue_2024_q = {q: calc_quarter(df_2024, revenue_row_2024, q) for q in quarters}
@@ -227,6 +247,8 @@ for company in companies:
     # Tính % KH LNTT (trung bình Q1-Q3)
     pbt_plan_company = {}
     pbt_achieve_company = []
+    pbt_plan_total = 0
+    pbt_actual_total = 0
     for q_idx, q in enumerate(['Q1', 'Q2', 'Q3']):
         if q_idx == 0:
             col_name = 'Kế hoạch'
@@ -236,9 +258,19 @@ for company in companies:
             col_name = 'Kế hoạch.2'
         pbt_plan_val = clean_currency_value(df_2025.iloc[pbt_row_2025].get(col_name, np.nan))
         pbt_actual_val = calc_quarter(df_2025, pbt_row_2025, q)
-        if pbt_plan_val and pbt_plan_val != 0 and not pd.isna(pbt_actual_val):
-            pbt_achieve_company.append(pbt_actual_val / pbt_plan_val * 100)
-    avg_pbt_achieve_company = np.mean(pbt_achieve_company) if pbt_achieve_company else 0
+        if pbt_plan_val and not pd.isna(pbt_plan_val) and not pd.isna(pbt_actual_val):
+            pbt_plan_total += pbt_plan_val
+            pbt_actual_total += pbt_actual_val
+            if pbt_plan_val != 0:
+                pbt_achieve_company.append(pbt_actual_val / pbt_plan_val * 100)
+    
+    # Kiểm tra nếu kế hoạch dương nhưng thực tế âm
+    if pbt_plan_total > 0 and pbt_actual_total < 0:
+        avg_pbt_achieve_company = "Không đạt (lỗ)"
+    elif pbt_achieve_company:
+        avg_pbt_achieve_company = np.mean(pbt_achieve_company)
+    else:
+        avg_pbt_achieve_company = 0
     
     company_data[company] = {
         'revenue_2024': revenue_2024_company,
@@ -260,235 +292,278 @@ for company in companies:
     company_data[company]['pbt_contribution'] = (company_data[company]['pbt_2025'] / total_pbt_2025 * 100) if total_pbt_2025 != 0 else 0
 
 # ============================================================================
+# TÍNH CV (COEFFICIENT OF VARIATION) CHO BIẾN ĐỘNG CHI PHÍ
+# ============================================================================
+
+# Tính CV cho từng loại chi phí theo tháng
+cv_data = {}
+for company in companies:
+    cogs_row = metrics_rows['COGS'][company]
+    selling_row = metrics_rows['Selling Expenses'][company]
+    admin_row = metrics_rows['Admin Expenses'][company]
+    other_row = metrics_rows['Other Expenses'][company]
+    
+    # Lấy dữ liệu theo tháng
+    cogs_monthly = [clean_currency_value(df_2025.iloc[cogs_row].get(m, np.nan)) for m in months_ytd_2025]
+    selling_monthly = [clean_currency_value(df_2025.iloc[selling_row].get(m, np.nan)) for m in months_ytd_2025]
+    admin_monthly = [clean_currency_value(df_2025.iloc[admin_row].get(m, np.nan)) for m in months_ytd_2025]
+    other_monthly = [clean_currency_value(df_2025.iloc[other_row].get(m, np.nan)) for m in months_ytd_2025]
+    
+    # Loại bỏ NaN
+    cogs_monthly = [x for x in cogs_monthly if not pd.isna(x) and x != 0]
+    selling_monthly = [x for x in selling_monthly if not pd.isna(x) and x != 0]
+    admin_monthly = [x for x in admin_monthly if not pd.isna(x) and x != 0]
+    other_monthly = [x for x in other_monthly if not pd.isna(x) and x != 0]
+    
+    # Tính CV = (std / mean) * 100
+    def calc_cv(values):
+        if len(values) == 0:
+            return 0
+        mean_val = np.mean(values)
+        if mean_val == 0:
+            return 0
+        std_val = np.std(values)
+        return (std_val / mean_val) * 100
+    
+    cv_data[company] = {
+        'cogs_cv': calc_cv(cogs_monthly),
+        'selling_cv': calc_cv(selling_monthly),
+        'admin_cv': calc_cv(admin_monthly),
+        'other_cv': calc_cv(other_monthly),
+    }
+
+# ============================================================================
+# TÍNH Q3 CHO TỪNG CÔNG TY
+# ============================================================================
+for company in companies:
+    rev_row_2024 = metrics_rows['Revenue'][company]
+    rev_row_2025 = metrics_rows['Revenue'][company]
+    revenue_q3_2024 = calc_quarter(df_2024, rev_row_2024, 'Q3')
+    revenue_q3_2025 = calc_quarter(df_2025, rev_row_2025, 'Q3')
+    revenue_q3_change = ((revenue_q3_2025 - revenue_q3_2024) / revenue_q3_2024 * 100) if revenue_q3_2024 != 0 else 0
+    company_data[company]['revenue_q3_2024'] = revenue_q3_2024
+    company_data[company]['revenue_q3_2025'] = revenue_q3_2025
+    company_data[company]['revenue_q3_change'] = revenue_q3_change
+
+# ============================================================================
 # TẠO BIỂU ĐỒ
 # ============================================================================
 
-# Chart 1: Doanh thu & LNTT theo quý (2024 vs 2025)
-fig1 = make_subplots(specs=[[{"secondary_y": True}]])
+# Chart 1: Doanh thu theo quý (2024 vs 2025 vs Kế hoạch)
+fig1 = go.Figure()
 
-# Cột doanh thu
-fig1.add_trace(
-    go.Bar(
-        name='Doanh thu 2024',
-        x=['Q1', 'Q2', 'Q3', 'Q4'],
-        y=[revenue_2024_q['Q1'], revenue_2024_q['Q2'], revenue_2024_q['Q3'], revenue_2024_q['Q4']],
-        marker_color='#E5E6E5',
-        text=[format_number(v) for v in [revenue_2024_q['Q1'], revenue_2024_q['Q2'], revenue_2024_q['Q3'], revenue_2024_q['Q4']]],
-        textposition='outside'
-    ),
-    secondary_y=False
-)
-
-fig1.add_trace(
-    go.Bar(
-        name='Doanh thu 2025',
-        x=['Q1', 'Q2', 'Q3', 'Q4'],
-        y=[revenue_2025_q['Q1'], revenue_2025_q['Q2'], revenue_2025_q['Q3'], revenue_2025_q['Q4'] if not pd.isna(revenue_2025_q['Q4']) else 0],
-        marker_color='#3A464E',
-        text=[format_number(v) if not pd.isna(v) else '-' for v in [revenue_2025_q['Q1'], revenue_2025_q['Q2'], revenue_2025_q['Q3'], revenue_2025_q['Q4']]],
-        textposition='outside'
-    ),
-    secondary_y=False
-)
-
-# Đường LNTT (giá trị tuyệt đối)
-fig1.add_trace(
-    go.Scatter(
-        name='LNTT 2024',
-        x=['Q1', 'Q2', 'Q3', 'Q4'],
-        y=[pbt_2024_q['Q1'], pbt_2024_q['Q2'], pbt_2024_q['Q3'], pbt_2024_q['Q4']],
-        mode='lines+markers',
-        line=dict(color='#FE3A45', width=2, dash='dot'),
-        marker=dict(size=8),
-        text=[format_number(v) for v in [pbt_2024_q['Q1'], pbt_2024_q['Q2'], pbt_2024_q['Q3'], pbt_2024_q['Q4']]],
-        textposition='top center'
-    ),
-    secondary_y=True
-)
-
-fig1.add_trace(
-    go.Scatter(
-        name='LNTT 2025',
-        x=['Q1', 'Q2', 'Q3', 'Q4'],
-        y=[pbt_2025_q['Q1'], pbt_2025_q['Q2'], pbt_2025_q['Q3'], pbt_2025_q['Q4'] if not pd.isna(pbt_2025_q['Q4']) else 0],
-        mode='lines+markers',
-        line=dict(color='#2E7D32', width=2),
-        marker=dict(size=8),
-        text=[format_number(v) if not pd.isna(v) else '-' for v in [pbt_2025_q['Q1'], pbt_2025_q['Q2'], pbt_2025_q['Q3'], pbt_2025_q['Q4']]],
-        textposition='top center'
-    ),
-    secondary_y=True
-)
-
-fig1.update_xaxes(title_text="Quý")
-fig1.update_yaxes(title_text="Doanh thu (M)", secondary_y=False)
-fig1.update_yaxes(title_text="LNTT (M)", secondary_y=True)
-
-fig1.update_layout(
-    title='<b>Doanh thu & Biên LNTT theo quý (2024 vs 2025)</b>',
-    barmode='group',
-    height=500,
-    template='plotly_white',
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-)
-
-# Chart 2: Thực tế vs Kế hoạch theo quý (Q1-Q3)
-fig2 = go.Figure()
-
-# Doanh thu Actual
-fig2.add_trace(go.Bar(
-    name='Doanh thu Actual',
-    x=['Q1', 'Q2', 'Q3'],
-    y=[revenue_2025_q['Q1'], revenue_2025_q['Q2'], revenue_2025_q['Q3']],
-    marker_color='#3A464E',
-    text=[format_number(v) for v in [revenue_2025_q['Q1'], revenue_2025_q['Q2'], revenue_2025_q['Q3']]],
-    textposition='outside'
+# Cột doanh thu 2024 (tất cả quý)
+fig1.add_trace(go.Bar(
+    name='Thực tế 2024',
+    x=['Q1', 'Q2', 'Q3', 'Q4'],
+    y=[revenue_2024_q['Q1'], revenue_2024_q['Q2'], revenue_2024_q['Q3'], revenue_2024_q['Q4']],
+    marker_color='#E5E6E5',
+    text=[format_number(v) for v in [revenue_2024_q['Q1'], revenue_2024_q['Q2'], revenue_2024_q['Q3'], revenue_2024_q['Q4']]],
+    textposition='outside',
+    showlegend=True
 ))
 
-# Doanh thu Plan
-fig2.add_trace(go.Bar(
-    name='Doanh thu Plan',
+# Cột doanh thu 2025 (tất cả quý)
+fig1.add_trace(go.Bar(
+    name='Thực tế 2025',
+    x=['Q1', 'Q2', 'Q3', 'Q4'],
+    y=[revenue_2025_q['Q1'], revenue_2025_q['Q2'], revenue_2025_q['Q3'], revenue_2025_q['Q4'] if not pd.isna(revenue_2025_q['Q4']) else 0],
+    marker_color='#3A464E',
+    text=[format_number(v) if not pd.isna(v) else '-' for v in [revenue_2025_q['Q1'], revenue_2025_q['Q2'], revenue_2025_q['Q3'], revenue_2025_q['Q4']]],
+    textposition='outside',
+    showlegend=True
+))
+
+# Cột kế hoạch 2025 (Q1-Q3)
+fig1.add_trace(go.Bar(
+    name='Kế hoạch 2025',
     x=['Q1', 'Q2', 'Q3'],
     y=[revenue_plan_q['Q1'], revenue_plan_q['Q2'], revenue_plan_q['Q3']],
-    marker_color='#E5E6E5',
+    marker_color='#8A9BA8',
     text=[format_number(v) for v in [revenue_plan_q['Q1'], revenue_plan_q['Q2'], revenue_plan_q['Q3']]],
-    textposition='outside'
+    textposition='outside',
+    showlegend=True
 ))
 
-fig2.update_layout(
-    title='<b>Thực tế vs Kế hoạch theo quý (Q1-Q3)</b>',
-    barmode='group',
-    height=400,
-    template='plotly_white',
-    xaxis_title='Quý',
-    yaxis_title='Doanh thu (M)',
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+# Format y-axis với số đầy đủ (không có k)
+fig1.update_xaxes(title_text="Quý")
+fig1.update_yaxes(
+    title_text="",
+    tickformat=',.0f',
+    tickmode='linear',
+    tick0=0,
+    dtick=5000
 )
 
-# Chart 3: Đóng góp doanh thu & LNTT theo công ty
-fig3 = go.Figure()
-
-fig3.add_trace(go.Bar(
-    name='Doanh thu YTD',
-    x=['S', 'T', 'I'],
-    y=[company_data['SAN']['revenue_2025'], company_data['TEENNIE']['revenue_2025'], company_data['TGIL']['revenue_2025']],
-    marker_color='#3A464E',
-    text=[format_number(company_data['SAN']['revenue_2025']), format_number(company_data['TEENNIE']['revenue_2025']), format_number(company_data['TGIL']['revenue_2025'])],
-    textposition='outside'
-))
-
-fig3.add_trace(go.Bar(
-    name='LNTT YTD',
-    x=['S', 'T', 'I'],
-    y=[company_data['SAN']['pbt_2025'], company_data['TEENNIE']['pbt_2025'], company_data['TGIL']['pbt_2025']],
-    marker_color='#2E7D32',
-    text=[format_number(company_data['SAN']['pbt_2025']), format_number(company_data['TEENNIE']['pbt_2025']), format_number(company_data['TGIL']['pbt_2025'])],
-    textposition='outside'
-))
-
-fig3.update_layout(
-    title='<b>Đóng góp doanh thu & LNTT theo công ty</b>',
+fig1.update_layout(
+    title='<b>Doanh thu theo quý</b>',
     barmode='group',
-    height=400,
-    template='plotly_white',
-    xaxis_title='Công ty',
-    yaxis_title='Giá trị (M)',
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-)
-
-# Chart 4: Scatter Growth vs Margin
-fig4 = go.Figure()
-
-colors_company = {'SAN': '#FE3A45', 'TEENNIE': '#2E7D32', 'TGIL': '#FFA500'}
-labels_company = {'SAN': 'S', 'TEENNIE': 'T', 'TGIL': 'I'}
-
-for company in companies:
-    fig4.add_trace(go.Scatter(
-        x=[company_data[company]['revenue_yoy']],
-        y=[company_data[company]['pbt_margin']],
-        mode='markers+text',
-        name=labels_company[company],
-        marker=dict(size=15, color=colors_company[company]),
-        text=[labels_company[company]],
-        textposition='top center',
-        textfont=dict(size=14, color=colors_company[company], family='Arial Black')
-    ))
-
-fig4.update_layout(
-    title='<b>Tăng trưởng & biên lợi nhuận (Growth vs Margin)</b>',
     height=500,
     template='plotly_white',
-    xaxis_title='% tăng trưởng doanh thu YTD',
-    yaxis_title='Biên LNTT (%)',
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5),
+    dragmode=False
+)
+fig1.update_xaxes(fixedrange=True)
+fig1.update_yaxes(fixedrange=True)
+
+# Chart 2: LNTT theo quý (2024 vs 2025 vs Kế hoạch)
+fig2 = go.Figure()
+
+# Cột LNTT 2024 (giá trị tuyệt đối)
+fig2.add_trace(go.Bar(
+    name='Thực tế 2024',
+    x=['Q1', 'Q2', 'Q3', 'Q4'],
+    y=[pbt_2024_q['Q1'], pbt_2024_q['Q2'], pbt_2024_q['Q3'], pbt_2024_q['Q4']],
+    marker_color='#E5E6E5',
+    text=[format_number(v) for v in [pbt_2024_q['Q1'], pbt_2024_q['Q2'], pbt_2024_q['Q3'], pbt_2024_q['Q4']]],
+    textposition='outside',
+    showlegend=True
+))
+
+# Cột LNTT 2025 (giá trị tuyệt đối)
+fig2.add_trace(go.Bar(
+    name='Thực tế 2025',
+    x=['Q1', 'Q2', 'Q3', 'Q4'],
+    y=[pbt_2025_q['Q1'], pbt_2025_q['Q2'], pbt_2025_q['Q3'], pbt_2025_q['Q4'] if not pd.isna(pbt_2025_q['Q4']) else 0],
+    marker_color='#3A464E',
+    text=[format_number(v) if not pd.isna(v) else '-' for v in [pbt_2025_q['Q1'], pbt_2025_q['Q2'], pbt_2025_q['Q3'], pbt_2025_q['Q4']]],
+    textposition='outside',
+    showlegend=True
+))
+
+# Cột LNTT Kế hoạch (Q1-Q3)
+fig2.add_trace(go.Bar(
+    name='Kế hoạch 2025',
+    x=['Q1', 'Q2', 'Q3'],
+    y=[pbt_plan_q['Q1'], pbt_plan_q['Q2'], pbt_plan_q['Q3']],
+    marker_color='#8A9BA8',
+    text=[format_number(v) for v in [pbt_plan_q['Q1'], pbt_plan_q['Q2'], pbt_plan_q['Q3']]],
+    textposition='outside',
+    showlegend=True
+))
+
+# Format y-axis với số đầy đủ
+fig2.update_xaxes(title_text="Quý")
+fig2.update_yaxes(
+    title_text="",
+    tickformat=',.0f',
+    tickmode='linear',
+    tick0=0,
+    dtick=1000
 )
 
-# Chart 5: Stacked bar 100% cho cơ cấu chi phí
-fig5 = go.Figure()
-
-# Tính % trên doanh thu cho từng công ty
-for company, label in zip(companies, ['S', 'T', 'I']):
-    revenue = company_data[company]['revenue_2025']
-    cogs_pct = (company_data[company]['cogs'] / revenue * 100) if revenue != 0 else 0
-    selling_pct = (company_data[company]['selling'] / revenue * 100) if revenue != 0 else 0
-    admin_pct = (company_data[company]['admin'] / revenue * 100) if revenue != 0 else 0
-    other_pct = (company_data[company]['other'] / revenue * 100) if revenue != 0 else 0
-    
-    fig5.add_trace(go.Bar(
-        name=label,
-        x=[label],
-        y=[cogs_pct],
-        marker_color='#8A9BA8',
-        legendgroup='cogs',
-        showlegend=(company == 'SAN')
-    ))
-    
-    fig5.add_trace(go.Bar(
-        name=label,
-        x=[label],
-        y=[selling_pct],
-        marker_color='#C8CDD1',
-        legendgroup='selling',
-        showlegend=(company == 'SAN'),
-        base=[cogs_pct]
-    ))
-    
-    fig5.add_trace(go.Bar(
-        name=label,
-        x=[label],
-        y=[admin_pct],
-        marker_color='#E5E6E5',
-        legendgroup='admin',
-        showlegend=(company == 'SAN'),
-        base=[cogs_pct + selling_pct]
-    ))
-    
-    fig5.add_trace(go.Bar(
-        name=label,
-        x=[label],
-        y=[other_pct],
-        marker_color='#FE3A45',
-        legendgroup='other',
-        showlegend=(company == 'SAN'),
-        base=[cogs_pct + selling_pct + admin_pct]
-    ))
-
-fig5.update_layout(
-    title='<b>Cơ cấu chi phí (% trên doanh thu)</b>',
-    barmode='stack',
-    height=400,
+fig2.update_layout(
+    title='<b>LNTT theo quý</b>',
+    barmode='group',
+    height=500,
     template='plotly_white',
-    xaxis_title='Công ty',
-    yaxis_title='% trên doanh thu',
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1,
-        tracegroupgap=5
-    )
+    legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5),
+    dragmode=False
 )
+fig2.update_xaxes(fixedrange=True)
+fig2.update_yaxes(fixedrange=True)
+
+
+# Chart 3: Doanh thu và LNTT theo từng tháng cho từng công ty
+month_labels = ['T01', 'T02', 'T03', 'T04', 'T05', 'T06', 'T07', 'T08', 'T09', 'T10']
+month_display = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
+
+company_chart_styles = {
+    'SAN': {'line': '#F45C67', 'bar': 'rgba(244, 92, 103, 0.35)', 'name': 'Công ty S'},
+    'TEENNIE': {'line': '#2E7D32', 'bar': 'rgba(46, 125, 50, 0.25)', 'name': 'Công ty T'},
+    'TGIL': {'line': '#F6A623', 'bar': 'rgba(246, 166, 35, 0.30)', 'name': 'Công ty I'},
+}
+
+fig3_S = go.Figure()
+fig3_T = go.Figure()
+fig3_I = go.Figure()
+company_figs = {'SAN': fig3_S, 'TEENNIE': fig3_T, 'TGIL': fig3_I}
+
+for company in companies:
+    rev_row = metrics_rows['Revenue'][company]
+    pbt_row = metrics_rows['Profit Before Tax'][company]
+    revenue_monthly = []
+    pbt_monthly = []
+    for m in month_labels:
+        col = get_month_column(df_2025, m)
+        revenue_monthly.append(clean_currency_value(df_2025.iloc[rev_row].get(col, np.nan)))
+        pbt_monthly.append(clean_currency_value(df_2025.iloc[pbt_row].get(col, np.nan)))
+    
+    fig = company_figs[company]
+    style = company_chart_styles[company]
+    
+    fig.add_trace(go.Scatter(
+        name='Doanh thu',
+        x=month_display,
+        y=revenue_monthly,
+        mode='lines+markers',
+        line=dict(color=style['line'], width=3, shape='spline', smoothing=1.2),
+        marker=dict(size=6, color=style['line']),
+        hovertemplate='%{y:.0f} M'
+    ))
+    
+    # Revenue annotations
+    for month, value in zip(month_display, revenue_monthly):
+        if not pd.isna(value):
+            fig.add_annotation(
+                x=month,
+                y=value,
+                text=format_number(value),
+                showarrow=False,
+                font=dict(color=style['line'], size=11),
+                bgcolor='rgba(255,255,255,0.9)',
+                bordercolor=style['line'],
+                borderwidth=1,
+                borderpad=4,
+                yshift=18
+            )
+    
+    fig.add_trace(go.Bar(
+        name='LNTT',
+        x=month_display,
+        y=pbt_monthly,
+        marker=dict(color=style['bar'], line=dict(color=style['line'], width=1)),
+        hovertemplate='%{y:.0f} M',
+        text=[format_number(v) if not pd.isna(v) else '' for v in pbt_monthly],
+        textposition='outside',
+        textfont=dict(color=style['line'], size=11)
+    ))
+    
+    values = [v for v in revenue_monthly + pbt_monthly if not pd.isna(v)]
+    y_min = min(values) if values else 0
+    y_max = max(values) if values else 0
+    y_range = y_max - y_min if values else 0
+    padding = y_range * 0.2 if y_range else (abs(y_max) * 0.3 if y_max != 0 else 1000)
+    
+    fig.update_layout(
+        title=f"{company_chart_styles[company]['name']}: Doanh thu và LNTT theo từng tháng (10T 2025)",
+        height=380,
+        template='plotly_white',
+        plot_bgcolor="#FFFFFF",
+        paper_bgcolor="#FFFFFF",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        dragmode=False,
+        margin=dict(l=40, r=20, t=60, b=40),
+    )
+    fig.update_xaxes(title_text="Tháng", fixedrange=True)
+    fig.update_yaxes(title_text="Số tiền (M)", fixedrange=True, range=[y_min - padding, y_max + padding])
+
+def calc_cost_pct(company_key):
+    revenue = company_data[company_key]['revenue_2025']
+    if revenue == 0:
+        return {'cogs': 0, 'selling': 0, 'admin': 0, 'other': 0}
+    return {
+        'cogs': company_data[company_key]['cogs'] / revenue * 100,
+        'selling': company_data[company_key]['selling'] / revenue * 100,
+        'admin': company_data[company_key]['admin'] / revenue * 100,
+        'other': company_data[company_key]['other'] / revenue * 100,
+    }
+
+cost_pct = {
+    'SAN': calc_cost_pct('SAN'),
+    'TEENNIE': calc_cost_pct('TEENNIE'),
+    'TGIL': calc_cost_pct('TGIL'),
+}
 
 # Chart 6-9: Waterfall charts (Total, S, T, I)
 def create_waterfall_chart(company_name, company_label, data):
@@ -500,95 +575,69 @@ def create_waterfall_chart(company_name, company_label, data):
     other = data['other']
     pbt = data['pbt_2025']
     
+    # Tính lãi gộp
+    gross_profit = revenue - cogs
+    
     fig = go.Figure()
     
-    # Doanh thu (start)
+    # Tạo waterfall chart với một trace duy nhất
+    # Màu cho LNTT
+    profit_color = "#2E7D32" if pbt >= 0 else "rgba(254, 58, 69, 0.8)"
+    
     fig.add_trace(go.Waterfall(
         orientation="v",
-        measure=["absolute"],
-        x=["Doanh thu"],
+        measure=["absolute", "relative", "total", "relative", "relative", "relative", "total"],
+        x=["Doanh thu", "Giá vốn", "Lãi gộp", "CP Bán hàng", "CP Quản lý", "CP Khác", "LNTT"],
         textposition="outside",
-        text=[format_number(revenue)],
-        y=[revenue],
+        text=[format_number(revenue), format_number(cogs), format_number(gross_profit), 
+              format_number(selling), format_number(admin), format_number(other), format_number(pbt)],
+        y=[revenue, -cogs, gross_profit, -selling, -admin, -other, pbt],
         connector={"line": {"color": "rgb(63, 63, 63)"}},
-        increasing={"marker": {"color": "#3A464E"}},
+        increasing={"marker": {"color": "#2E7D32"}},
         decreasing={"marker": {"color": "rgba(254, 58, 69, 0.3)"}},
+        totals={"marker": {"color": "#2E7D32"}},
     ))
     
-    # Giá vốn
-    fig.add_trace(go.Waterfall(
-        orientation="v",
-        measure=["relative"],
-        x=["Giá vốn"],
-        textposition="outside",
-        text=[format_number(cogs)],
-        y=[-cogs],
-        connector={"line": {"color": "rgb(63, 63, 63)"}},
-        increasing={"marker": {"color": "#3A464E"}},
-        decreasing={"marker": {"color": "rgba(254, 58, 69, 0.3)"}},
-    ))
+    # Cập nhật màu cho bar LNTT (total cuối cùng)
+    # Sử dụng hovertemplate để hiển thị đúng
+    fig.update_traces(
+        totals=dict(marker=dict(color=profit_color))
+    )
     
-    # CPBH
-    fig.add_trace(go.Waterfall(
-        orientation="v",
-        measure=["relative"],
-        x=["CPBH"],
-        textposition="outside",
-        text=[format_number(selling)],
-        y=[-selling],
-        connector={"line": {"color": "rgb(63, 63, 63)"}},
-        increasing={"marker": {"color": "#3A464E"}},
-        decreasing={"marker": {"color": "rgba(254, 58, 69, 0.3)"}},
-    ))
+    # Tính min và max để tăng range axis
+    values = [revenue, -cogs, gross_profit, -selling, -admin, -other, pbt]
+    cumulative_values = []
+    cumsum = 0
+    for i, v in enumerate(values):
+        if i == 0:  # absolute
+            cumsum = v
+        elif i == 2 or i == 6:  # total
+            cumsum = v
+        else:  # relative
+            cumsum += v
+        cumulative_values.append(cumsum)
     
-    # QLDN
-    fig.add_trace(go.Waterfall(
-        orientation="v",
-        measure=["relative"],
-        x=["QLDN"],
-        textposition="outside",
-        text=[format_number(admin)],
-        y=[-admin],
-        connector={"line": {"color": "rgb(63, 63, 63)"}},
-        increasing={"marker": {"color": "#3A464E"}},
-        decreasing={"marker": {"color": "rgba(254, 58, 69, 0.3)"}},
-    ))
+    y_min = min(cumulative_values)
+    y_max = max(cumulative_values)
+    y_range = y_max - y_min
     
-    # Chi phí khác
-    fig.add_trace(go.Waterfall(
-        orientation="v",
-        measure=["relative"],
-        x=["Chi phí khác"],
-        textposition="outside",
-        text=[format_number(other)],
-        y=[-other],
-        connector={"line": {"color": "rgb(63, 63, 63)"}},
-        increasing={"marker": {"color": "#3A464E"}},
-        decreasing={"marker": {"color": "rgba(254, 58, 69, 0.3)"}},
-    ))
-    
-    # LNTT (final)
-    profit_color = "rgba(46, 125, 50, 1)" if pbt >= 0 else "rgba(254, 58, 69, 0.8)"
-    fig.add_trace(go.Waterfall(
-        orientation="v",
-        measure=["total"],
-        x=["LNTT"],
-        textposition="outside",
-        text=[format_number(pbt)],
-        y=[pbt],
-        connector={"line": {"color": "rgb(63, 63, 63)"}},
-        increasing={"marker": {"color": profit_color}},
-        decreasing={"marker": {"color": profit_color}},
-    ))
+    # Thêm padding 15% cho cả min và max
+    y_min_padded = y_min - (y_range * 0.15)
+    y_max_padded = y_max + (y_range * 0.15)
     
     fig.update_layout(
-        title=f'<b>Waterfall: {company_label}</b>',
+        title=f'<b>{company_label}</b>',
         height=400,
         template='plotly_white',
         xaxis_title='',
-        yaxis_title='Giá trị (M)',
-        showlegend=False
+        yaxis_title='Số Tiền (Triệu)',
+        showlegend=False,
+        waterfallgroupgap=0.1,
+        yaxis=dict(range=[y_min_padded, y_max_padded]),
+        dragmode=False
     )
+    fig.update_xaxes(fixedrange=True)
+    fig.update_yaxes(fixedrange=True)
     
     return fig
 
@@ -597,6 +646,40 @@ total_cogs = sum([company_data[c]['cogs'] for c in companies])
 total_selling = sum([company_data[c]['selling'] for c in companies])
 total_admin = sum([company_data[c]['admin'] for c in companies])
 total_other = sum([company_data[c]['other'] for c in companies])
+
+# ============================================================================
+# TÍNH CƠ CẤU CHI PHÍ
+# ============================================================================
+# Cơ cấu chi phí tập đoàn
+total_cogs_pct = (total_cogs / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0
+total_selling_pct = (total_selling / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0
+total_admin_pct = (total_admin / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0
+total_other_pct = (total_other / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0
+total_opex_pct = total_selling_pct + total_admin_pct + total_other_pct
+
+group_cost_pct = {
+    'cogs': total_cogs_pct,
+    'selling': total_selling_pct,
+    'admin': total_admin_pct,
+    'other': total_other_pct,
+    'gross': gross_margin_2025,
+    'pbt': pbt_margin_2025
+}
+
+# Cơ cấu chi phí S
+san_revenue = company_data['SAN']['revenue_2025']
+san_cogs_pct = (company_data['SAN']['cogs'] / san_revenue * 100) if san_revenue != 0 else 0
+san_selling_pct = (company_data['SAN']['selling'] / san_revenue * 100) if san_revenue != 0 else 0
+san_admin_pct = (company_data['SAN']['admin'] / san_revenue * 100) if san_revenue != 0 else 0
+san_other_pct = (company_data['SAN']['other'] / san_revenue * 100) if san_revenue != 0 else 0
+san_opex_pct = san_selling_pct + san_admin_pct + san_other_pct
+
+# So sánh S với tập đoàn
+san_cogs_diff = san_cogs_pct - total_cogs_pct
+san_selling_diff = san_selling_pct - total_selling_pct
+san_admin_diff = san_admin_pct - total_admin_pct
+san_other_diff = san_other_pct - total_other_pct
+san_opex_diff = san_opex_pct - total_opex_pct
 
 total_data = {
     'revenue_2025': revenue_2025_ytd,
@@ -612,530 +695,100 @@ fig7 = create_waterfall_chart('SAN', 'Công ty S', company_data['SAN'])
 fig8 = create_waterfall_chart('TEENNIE', 'Công ty T', company_data['TEENNIE'])
 fig9 = create_waterfall_chart('TGIL', 'Công ty I', company_data['TGIL'])
 
-# ============================================================================
-# TẠO HTML
-# ============================================================================
+gross_profit_change_pct = ((gross_profit_2025_ytd - gross_profit_2024_ytd) / gross_profit_2024_ytd * 100) if gross_profit_2024_ytd != 0 else 0
+pbt_change_pct = ((pbt_2025_ytd - pbt_2024_ytd) / pbt_2024_ytd * 100) if pbt_2024_ytd != 0 else 0
+group_q3_change = ((revenue_2025_q['Q3'] - revenue_2024_q['Q3']) / revenue_2024_q['Q3'] * 100) if revenue_2024_q['Q3'] != 0 else 0
+san_q3_change = company_data['SAN']['revenue_q3_change']
+teennie_q3_change = company_data['TEENNIE']['revenue_q3_change']
+tgil_q3_change = company_data['TGIL']['revenue_q3_change']
+teennie_contribution = company_data['TEENNIE']['pbt_contribution']
+tgil_contribution = company_data['TGIL']['pbt_contribution']
+san_contribution = company_data['SAN']['pbt_contribution']
 
-html_content = f"""
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Báo Cáo Tình Hình Kinh Doanh YTD - S Group</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        
-        body {{
-            font-family: 'Arial', 'Helvetica', sans-serif;
-            font-size: 14px;
-            line-height: 1.4;
-            color: #333;
-            background: #f5f5f5;
-        }}
-        
-        p, li {{
-            line-height: 1.4;
-        }}
-        
-        .container {{
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-        }}
-        
-        /* Cover & Header */
-        .cover {{
-            text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(135deg, #3A464E 0%, #2c3e50 100%);
-            color: white;
-            margin: -20px -20px 40px -20px;
-        }}
-        
-        .cover h1 {{
-            font-size: 38px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            line-height: 1.15;
-        }}
-        
-        .cover .subtitle {{
-            font-size: 16px;
-            margin-bottom: 30px;
-            opacity: 0.9;
-            line-height: 1.3;
-        }}
-        
-        .cover .info {{
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 30px;
-            font-size: 13px;
-        }}
-        
-        /* KPI Cards */
-        .kpi-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }}
-        
-        .kpi-card {{
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }}
-        
-        .kpi-card .label {{
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 10px;
-        }}
-        
-        .kpi-card .value {{
-            font-size: 2em;
-            font-weight: bold;
-            color: #3A464E;
-            margin-bottom: 8px;
-        }}
-        
-        .kpi-card .change {{
-            font-size: 0.9em;
-            color: #2E7D32;
-        }}
-        
-        .kpi-card .change.negative {{
-            color: #FE3A45;
-        }}
-        
-        /* Section */
-        .section {{
-            margin: 40px 0;
-            padding: 30px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }}
-        
-        .section h2 {{
-            font-size: 26px;
-            color: #3A464E;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #3A464E;
-            padding-bottom: 10px;
-            line-height: 1.25;
-        }}
-        
-        .section h3 {{
-            font-size: 20px;
-            color: #3A464E;
-            margin: 30px 0 15px 0;
-            line-height: 1.3;
-        }}
-        
-        /* Table */
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }}
-        
-        table th {{
-            background: #3A464E;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-        }}
-        
-        table td {{
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
-        }}
-        
-        table tr:hover {{
-            background: #f9f9f9;
-        }}
-        
-        table td:last-child {{
-            text-align: right;
-        }}
-        
-        /* Bullet points */
-        .bullet-list {{
-            list-style: none;
-            padding-left: 0;
-        }}
-        
-        .bullet-list li {{
-            padding: 10px 0 10px 25px;
-            position: relative;
-            font-size: 1.1em;
-            line-height: 1.3;
-        }}
-        
-        .bullet-list li:before {{
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: #3A464E;
-            font-size: 1.5em;
-        }}
-        
-        /* Chart container */
-        .chart-container {{
-            margin: 30px 0;
-        }}
-        
-        /* Summary text */
-        .summary-text {{
-            background: #f8f9fa;
-            padding: 20px;
-            border-left: 4px solid #3A464E;
-            margin: 20px 0;
-            font-size: 1em;
-            line-height: 1.5;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Cover & Header -->
-        <div class="cover">
-            <h1>BÁO CÁO TÌNH HÌNH KINH DOANH YTD</h1>
-            <h2 style="font-size: 1.6em; margin-top: 10px;">TẬP ĐOÀN S Group</h2>
-            <div class="subtitle">
-                Kỳ: Tháng 01 – Tháng 10/2025<br>
-                (so sánh với cùng kỳ 2024 & kế hoạch)
-            </div>
-            <div class="info">
-                <div><strong>Người trình bày:</strong> Nguyễn Thanh Hiền</div>
-                <div><strong>Ngày họp:</strong> 01/12/2025</div>
-            </div>
-        </div>
-        
-        <!-- 1. Executive Summary -->
-        <div class="section">
-            <h2>1. Executive Summary (Key highlights)</h2>
-            
-            <!-- 1.1. KPI Cards -->
-            <h3>1.1. Các chỉ số KPI chính</h3>
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="label">Doanh thu YTD 10T 2025</div>
-                    <div class="value">{format_number(revenue_2025_ytd)}</div>
-                    <div class="change {'negative' if revenue_change_pct < 0 else ''}">
-                        ({'+' if revenue_change_pct >= 0 else ''}{revenue_change_pct:.1f}% so với YTD 2024)
-                    </div>
-                </div>
-                
-                <div class="kpi-card">
-                    <div class="label">Lợi nhuận trước thuế YTD 10T 2025</div>
-                    <div class="value">{format_number(pbt_2025_ytd)}</div>
-                    <div class="change">
-                        (≈ x{pbt_multiple:.1f} lần YTD 2024)
-                    </div>
-                </div>
-                
-                <div class="kpi-card">
-                    <div class="label">Biên LNTT YTD 2025</div>
-                    <div class="value">{pbt_margin_2025:.1f}%</div>
-                    <div class="change">
-                        (so với {pbt_margin_2024:.1f}% YTD 2024)
-                    </div>
-                </div>
-                
-                <div class="kpi-card">
-                    <div class="label">% hoàn thành kế hoạch doanh thu (Q1-Q3)</div>
-                    <div class="value">{avg_revenue_achieve:.0f}%</div>
-                </div>
-                
-                <div class="kpi-card">
-                    <div class="label">% hoàn thành kế hoạch LNTT (Q1-Q3)</div>
-                    <div class="value">{avg_pbt_achieve:.0f}%</div>
-                </div>
-            </div>
-            
-            <!-- 1.2. Bullet points -->
-            <h3>1.2. Kết luận nhanh</h3>
-            <ul class="bullet-list">
-                <li>Doanh thu tăng hai chữ số, lợi nhuận tăng đa bội, biên lợi nhuận cải thiện rõ rệt.</li>
-                <li>TEENNIE & TGIL là động lực chính về tăng trưởng lợi nhuận; SAN đang suy giảm và kéo thấp tổng biên.</li>
-                <li>So với kế hoạch 2025, doanh thu bám tương đối, nhưng lợi nhuận còn thấp xa kế hoạch do mix & chi phí.</li>
-            </ul>
-        </div>
-        
-        <!-- 2. Kết quả tài chính YTD -->
-        <div class="section">
-            <h2>2. Kết quả tài chính YTD</h2>
-            
-            <!-- 2.1. Bảng tổng hợp -->
-            <h3>2.1. Bảng tổng hợp</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Chỉ tiêu</th>
-                        <th style="text-align: right;">YTD 10T 2024</th>
-                        <th style="text-align: right;">YTD 10T 2025</th>
-                        <th style="text-align: right;">% thay đổi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Doanh thu thuần</strong></td>
-                        <td style="text-align: right;">{format_number(revenue_2024_ytd)}</td>
-                        <td style="text-align: right;">{format_number(revenue_2025_ytd)}</td>
-                        <td style="text-align: right;">{revenue_change_pct:+.1f}%</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Lợi nhuận gộp</strong></td>
-                        <td style="text-align: right;">{format_number(gross_profit_2024_ytd)}</td>
-                        <td style="text-align: right;">{format_number(gross_profit_2025_ytd)}</td>
-                        <td style="text-align: right;">{((gross_profit_2025_ytd - gross_profit_2024_ytd) / gross_profit_2024_ytd * 100) if gross_profit_2024_ytd != 0 else 0:+.1f}%</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Lợi nhuận trước thuế</strong></td>
-                        <td style="text-align: right;">{format_number(pbt_2024_ytd)}</td>
-                        <td style="text-align: right;">{format_number(pbt_2025_ytd)}</td>
-                        <td style="text-align: right;">{((pbt_2025_ytd - pbt_2024_ytd) / pbt_2024_ytd * 100) if pbt_2024_ytd != 0 else 0:+.1f}%</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Biên lợi nhuận gộp (%)</strong></td>
-                        <td style="text-align: right;">{gross_margin_2024:.1f}%</td>
-                        <td style="text-align: right;">{gross_margin_2025:.1f}%</td>
-                        <td style="text-align: right;">{(gross_margin_2025 - gross_margin_2024):+.1f} pp</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Biên LNTT (%)</strong></td>
-                        <td style="text-align: right;">{pbt_margin_2024:.1f}%</td>
-                        <td style="text-align: right;">{pbt_margin_2025:.1f}%</td>
-                        <td style="text-align: right;">{(pbt_margin_2025 - pbt_margin_2024):+.1f} pp</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <!-- 2.2. Biểu đồ -->
-            <h3>2.2. Biểu đồ</h3>
-            
-            <div class="chart-container">
-                <div id="chart1"></div>
-            </div>
-            
-            <div class="chart-container">
-                <div id="chart2"></div>
-                <div class="summary-text">
-                    <strong>YTD doanh thu đạt ~{avg_revenue_achieve:.0f}% kế hoạch; LNTT đạt ~{avg_pbt_achieve:.0f}% kế hoạch.</strong>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Phần 3: Hiệu suất theo công ty -->
-        <div class="section">
-            <h2>3. Hiệu suất theo công ty (S / T / I)</h2>
-            
-            <h3>3.1. Bảng tóm tắt S/T/I</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Công ty</th>
-                        <th>Doanh thu YTD 2025</th>
-                        <th>% YoY</th>
-                        <th>LNTT YTD 2025</th>
-                        <th>Biên LNTT</th>
-                        <th>% KH LNTT</th>
-                        <th>Nhận xét</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>S</strong></td>
-                        <td>{format_number(company_data['SAN']['revenue_2025'])}</td>
-                        <td>{company_data['SAN']['revenue_yoy']:.1f}%</td>
-                        <td>{format_number(company_data['SAN']['pbt_2025'])}</td>
-                        <td>{company_data['SAN']['pbt_margin']:.1f}%</td>
-                        <td>{company_data['SAN']['pbt_achieve']:.0f}%</td>
-                        <td>Hiệu suất kém</td>
-                    </tr>
-                    <tr>
-                        <td><strong>T</strong></td>
-                        <td>{format_number(company_data['TEENNIE']['revenue_2025'])}</td>
-                        <td>{company_data['TEENNIE']['revenue_yoy']:.1f}%</td>
-                        <td>{format_number(company_data['TEENNIE']['pbt_2025'])}</td>
-                        <td>{company_data['TEENNIE']['pbt_margin']:.1f}%</td>
-                        <td>{company_data['TEENNIE']['pbt_achieve']:.0f}%</td>
-                        <td>Tăng trưởng tốt, lợi nhuận cao</td>
-                    </tr>
-                    <tr>
-                        <td><strong>I</strong></td>
-                        <td>{format_number(company_data['TGIL']['revenue_2025'])}</td>
-                        <td>{company_data['TGIL']['revenue_yoy']:.1f}%</td>
-                        <td>{format_number(company_data['TGIL']['pbt_2025'])}</td>
-                        <td>{company_data['TGIL']['pbt_margin']:.1f}%</td>
-                        <td>{company_data['TGIL']['pbt_achieve']:.0f}%</td>
-                        <td>Ổn định, đang tạo đà phát triển 2026</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3>3.2. Biểu đồ</h3>
-            <div class="chart-container">
-                <div id="chart3"></div>
-            </div>
-            
-            <div class="chart-container">
-                <div id="chart4"></div>
-            </div>
-            
-            <div class="summary-text">
-                <ul class="bullet-list">
-                    <li>TEENNIE là đầu tàu tăng trưởng & lợi nhuận, đóng góp {company_data['TEENNIE']['pbt_contribution']:.0f}% LNTT tập đoàn.</li>
-                    <li>TGIL là case ổn định tích cực, từ lỗ nhẹ năm trước sang biên lợi nhuận ~{company_data['TGIL']['pbt_margin']:.0f}%.</li>
-                    <li>SAN là điểm nghẽn, doanh thu giảm ~{abs(company_data['SAN']['revenue_yoy']):.0f}%, lỗ ~{abs(company_data['SAN']['pbt_margin']):.0f}% → trọng tâm tái cấu trúc.</li>
-                </ul>
-            </div>
-        </div>
-        
-        <!-- Phần 4: Cơ cấu chi phí & biên lợi nhuận -->
-        <div class="section">
-            <h2>4. Cơ cấu chi phí & biên lợi nhuận</h2>
-            
-            <h3>4.1. Bảng cơ cấu chi phí (% trên doanh thu)</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Chỉ tiêu</th>
-                        <th>S</th>
-                        <th>T</th>
-                        <th>I</th>
-                        <th>Toàn tập đoàn</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Giá vốn / Doanh thu</td>
-                        <td>{(company_data['SAN']['cogs'] / company_data['SAN']['revenue_2025'] * 100) if company_data['SAN']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TEENNIE']['cogs'] / company_data['TEENNIE']['revenue_2025'] * 100) if company_data['TEENNIE']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TGIL']['cogs'] / company_data['TGIL']['revenue_2025'] * 100) if company_data['TGIL']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(total_cogs / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0:.1f}%</td>
-                    </tr>
-                    <tr>
-                        <td>CP bán hàng / DT</td>
-                        <td>{(company_data['SAN']['selling'] / company_data['SAN']['revenue_2025'] * 100) if company_data['SAN']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TEENNIE']['selling'] / company_data['TEENNIE']['revenue_2025'] * 100) if company_data['TEENNIE']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TGIL']['selling'] / company_data['TGIL']['revenue_2025'] * 100) if company_data['TGIL']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(total_selling / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0:.1f}%</td>
-                    </tr>
-                    <tr>
-                        <td>CP QLDN / DT</td>
-                        <td>{(company_data['SAN']['admin'] / company_data['SAN']['revenue_2025'] * 100) if company_data['SAN']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TEENNIE']['admin'] / company_data['TEENNIE']['revenue_2025'] * 100) if company_data['TEENNIE']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TGIL']['admin'] / company_data['TGIL']['revenue_2025'] * 100) if company_data['TGIL']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(total_admin / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0:.1f}%</td>
-                    </tr>
-                    <tr>
-                        <td>Chi phí khác / DT</td>
-                        <td>{(company_data['SAN']['other'] / company_data['SAN']['revenue_2025'] * 100) if company_data['SAN']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TEENNIE']['other'] / company_data['TEENNIE']['revenue_2025'] * 100) if company_data['TEENNIE']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TGIL']['other'] / company_data['TGIL']['revenue_2025'] * 100) if company_data['TGIL']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(total_other / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0:.1f}%</td>
-                    </tr>
-                    <tr>
-                        <td>Lợi nhuận gộp / DT</td>
-                        <td>{(company_data['SAN']['gross_profit_2025'] / company_data['SAN']['revenue_2025'] * 100) if company_data['SAN']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TEENNIE']['gross_profit_2025'] / company_data['TEENNIE']['revenue_2025'] * 100) if company_data['TEENNIE']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(company_data['TGIL']['gross_profit_2025'] / company_data['TGIL']['revenue_2025'] * 100) if company_data['TGIL']['revenue_2025'] != 0 else 0:.1f}%</td>
-                        <td>{(gross_profit_2025_ytd / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0:.1f}%</td>
-                    </tr>
-                    <tr>
-                        <td>LNTT / DT</td>
-                        <td>{company_data['SAN']['pbt_margin']:.1f}%</td>
-                        <td>{company_data['TEENNIE']['pbt_margin']:.1f}%</td>
-                        <td>{company_data['TGIL']['pbt_margin']:.1f}%</td>
-                        <td>{pbt_margin_2025:.1f}%</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3>4.2. Biểu đồ</h3>
-            <div class="chart-container">
-                <div id="chart5"></div>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 30px 0;">
-                <div class="chart-container">
-                    <div id="chart6"></div>
-                </div>
-                <div class="chart-container">
-                    <div id="chart7"></div>
-                </div>
-                <div class="chart-container">
-                    <div id="chart8"></div>
-                </div>
-                <div class="chart-container">
-                    <div id="chart9"></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>5. Rủi ro & biến động (volatility)</h2>
-            <p style="color: #666; font-style: italic;">Nội dung sẽ được bổ sung...</p>
-        </div>
-        
-        <div class="section">
-            <h2>6. Chiến lược & định hướng 12–18 tháng</h2>
-            <p style="color: #666; font-style: italic;">Nội dung sẽ được bổ sung...</p>
-        </div>
-    </div>
-    
-    <script>
-        // Render Chart 1
-        var chart1Data = {fig1.to_json()};
-        Plotly.newPlot('chart1', chart1Data.data, chart1Data.layout, {{responsive: true}});
-        
-        // Render Chart 2
-        var chart2Data = {fig2.to_json()};
-        Plotly.newPlot('chart2', chart2Data.data, chart2Data.layout, {{responsive: true}});
-        
-        // Render Chart 3
-        var chart3Data = {fig3.to_json()};
-        Plotly.newPlot('chart3', chart3Data.data, chart3Data.layout, {{responsive: true}});
-        
-        // Render Chart 4
-        var chart4Data = {fig4.to_json()};
-        Plotly.newPlot('chart4', chart4Data.data, chart4Data.layout, {{responsive: true}});
-        
-        // Render Chart 5
-        var chart5Data = {fig5.to_json()};
-        Plotly.newPlot('chart5', chart5Data.data, chart5Data.layout, {{responsive: true}});
-        
-        // Render Chart 6-9 (Waterfall)
-        var chart6Data = {fig6.to_json()};
-        Plotly.newPlot('chart6', chart6Data.data, chart6Data.layout, {{responsive: true}});
-        
-        var chart7Data = {fig7.to_json()};
-        Plotly.newPlot('chart7', chart7Data.data, chart7Data.layout, {{responsive: true}});
-        
-        var chart8Data = {fig8.to_json()};
-        Plotly.newPlot('chart8', chart8Data.data, chart8Data.layout, {{responsive: true}});
-        
-        var chart9Data = {fig9.to_json()};
-        Plotly.newPlot('chart9', chart9Data.data, chart9Data.layout, {{responsive: true}});
-    </script>
-</body>
-</html>
-"""
+template_path = Path('/Users/lucasbraci/Desktop/S Group/report_template_cached.html')
+template_str = template_path.read_text()
+
+def format_plan_value(value):
+    if isinstance(value, str):
+        return value
+    return f"{value:.0f}%"
+
+context = {
+    'kpi_revenue': format_number(revenue_2025_ytd),
+    'kpi_revenue_delta': f"({'+' if revenue_change_pct >= 0 else ''}{revenue_change_pct:.1f}% so với YTD 2024)",
+    'kpi_revenue_change_class': 'negative' if revenue_change_pct < 0 else '',
+    'kpi_pbt': format_number(pbt_2025_ytd),
+    'kpi_pbt_multiple': f"(≈ x{pbt_multiple:.1f} lần YTD 2024)",
+    'kpi_margin': f"{pbt_margin_2025:.1f}%",
+    'kpi_margin_delta': f"(so với {pbt_margin_2024:.1f}% YTD 2024)",
+    'kpi_plan_revenue': f"{avg_revenue_achieve:.0f}%",
+    'kpi_plan_pbt': f"{avg_pbt_achieve:.0f}%",
+    'table_rev_2024': format_number(revenue_2024_ytd),
+    'table_rev_2025': format_number(revenue_2025_ytd),
+    'table_rev_pct': f"{revenue_change_pct:+.1f}%",
+    'table_gross_2024': format_number(gross_profit_2024_ytd),
+    'table_gross_2025': format_number(gross_profit_2025_ytd),
+    'table_gross_pct': f"{gross_profit_change_pct:+.1f}%",
+    'table_pbt_2024': format_number(pbt_2024_ytd),
+    'table_pbt_2025': format_number(pbt_2025_ytd),
+    'table_pbt_pct': f"{pbt_change_pct:+.1f}%",
+    'table_gross_margin_2024': f"{gross_margin_2024:.1f}%",
+    'table_gross_margin_2025': f"{gross_margin_2025:.1f}%",
+    'table_gross_margin_pct': f"{(gross_margin_2025 - gross_margin_2024):+.1f} pp",
+    'table_pbt_margin_2024': f"{pbt_margin_2024:.1f}%",
+    'table_pbt_margin_2025': f"{pbt_margin_2025:.1f}%",
+    'table_pbt_margin_pct': f"{(pbt_margin_2025 - pbt_margin_2024):+.1f} pp",
+    'company_s_revenue': format_number(company_data['SAN']['revenue_2025']),
+    'company_s_yoy': f"{company_data['SAN']['revenue_yoy']:.1f}%",
+    'company_s_pbt': format_number(company_data['SAN']['pbt_2025']),
+    'company_s_margin': f"{company_data['SAN']['pbt_margin']:.1f}%",
+    'company_s_plan': format_plan_value(company_data['SAN']['pbt_achieve']),
+    'company_t_revenue': format_number(company_data['TEENNIE']['revenue_2025']),
+    'company_t_yoy': f"{company_data['TEENNIE']['revenue_yoy']:.1f}%",
+    'company_t_pbt': format_number(company_data['TEENNIE']['pbt_2025']),
+    'company_t_margin': f"{company_data['TEENNIE']['pbt_margin']:.1f}%",
+    'company_t_plan': format_plan_value(company_data['TEENNIE']['pbt_achieve']),
+    'company_i_revenue': format_number(company_data['TGIL']['revenue_2025']),
+    'company_i_yoy': f"{company_data['TGIL']['revenue_yoy']:.1f}%",
+    'company_i_pbt': format_number(company_data['TGIL']['pbt_2025']),
+    'company_i_margin': f"{company_data['TGIL']['pbt_margin']:.1f}%",
+    'company_i_plan': format_plan_value(company_data['TGIL']['pbt_achieve']),
+    'company_s_yoy_magnitude': f"{abs(company_data['SAN']['revenue_yoy']):.0f}%",
+    'company_s_margin_magnitude': f"{abs(company_data['SAN']['pbt_margin']):.1f}%",
+    'teennie_contribution': f"{teennie_contribution:.0f}",
+    'cost_cogs_s': f"{cost_pct['SAN']['cogs']:.1f}%",
+    'cost_cogs_t': f"{cost_pct['TEENNIE']['cogs']:.1f}%",
+    'cost_cogs_i': f"{cost_pct['TGIL']['cogs']:.1f}%",
+    'cost_cogs_group': f"{group_cost_pct['cogs']:.1f}%",
+    'cost_selling_s': f"{cost_pct['SAN']['selling']:.1f}%",
+    'cost_selling_t': f"{cost_pct['TEENNIE']['selling']:.1f}%",
+    'cost_selling_i': f"{cost_pct['TGIL']['selling']:.1f}%",
+    'cost_selling_group': f"{group_cost_pct['selling']:.1f}%",
+    'cost_admin_s': f"{cost_pct['SAN']['admin']:.1f}%",
+    'cost_admin_t': f"{cost_pct['TEENNIE']['admin']:.1f}%",
+    'cost_admin_i': f"{cost_pct['TGIL']['admin']:.1f}%",
+    'cost_admin_group': f"{group_cost_pct['admin']:.1f}%",
+    'cost_other_s': f"{cost_pct['SAN']['other']:.1f}%",
+    'cost_other_t': f"{cost_pct['TEENNIE']['other']:.1f}%",
+    'cost_other_i': f"{cost_pct['TGIL']['other']:.1f}%",
+    'cost_other_group': f"{group_cost_pct['other']:.1f}%",
+    'cost_gross_s': f"{(company_data['SAN']['gross_profit_2025'] / company_data['SAN']['revenue_2025'] * 100) if company_data['SAN']['revenue_2025'] != 0 else 0:.1f}%",
+    'cost_gross_t': f"{(company_data['TEENNIE']['gross_profit_2025'] / company_data['TEENNIE']['revenue_2025'] * 100) if company_data['TEENNIE']['revenue_2025'] != 0 else 0:.1f}%",
+    'cost_gross_i': f"{(company_data['TGIL']['gross_profit_2025'] / company_data['TGIL']['revenue_2025'] * 100) if company_data['TGIL']['revenue_2025'] != 0 else 0:.1f}%",
+    'cost_gross_group': f"{group_cost_pct['gross']:.1f}%",
+    'cost_pbt_group': f"{group_cost_pct['pbt']:.1f}%",
+    'chart1_json': fig1.to_json(),
+    'chart2_json': fig2.to_json(),
+    'chart3_s_json': fig3_S.to_json(),
+    'chart3_t_json': fig3_T.to_json(),
+    'chart3_i_json': fig3_I.to_json(),
+    'chart6_json': fig6.to_json(),
+    'chart7_json': fig7.to_json(),
+    'chart8_json': fig8.to_json(),
+    'chart9_json': fig9.to_json(),
+}
+
+html_content = Template(template_str).substitute(context)
 
 # Ghi file HTML
 output_file = '/Users/lucasbraci/Desktop/S Group/report_web.html'
