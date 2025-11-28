@@ -73,6 +73,41 @@
             margin-top: 0;
         }
         
+        /* Chart with Commentary Layout */
+        .chart-commentary-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 40px;
+            margin: 30px 0;
+        }
+        
+        .chart-commentary-left {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-commentary-right {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .commentary-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2E7D32;
+            line-height: 1.8;
+            font-size: 0.95em;
+        }
+        
+        .commentary-text p {
+            margin: 10px 0;
+        }
+        
+        .commentary-text strong {
+            color: #2E7D32;
+        }
+        
         /* KPI Cards */
         .kpi-grid {
             display: grid;
@@ -364,10 +399,33 @@
             <!-- 2.2. Biểu đồ -->
             <h3>2.2. Biểu đồ</h3>
             
-            <h4>Chart 1: Doanh thu & LNTT theo năm (YTD 2024 vs 2025)</h4>
-            
-            <div class="chart-container">
-                <div id="chart1"></div>
+            <div class="chart-commentary-layout">
+                <div class="chart-commentary-left">
+                    <h4>Chart 1: Doanh thu & LNTT theo năm (YTD 2024 vs 2025)</h4>
+                    <div class="chart-container">
+                        <div id="chart1"></div>
+                    </div>
+                </div>
+                
+                <div class="chart-commentary-right">
+                    <h4>Thuyết minh</h4>
+                    <div class="commentary-text">
+                        <p><strong>2024:</strong> Q2 thấp nhất, Q3 & Q4 là mùa cao điểm doanh thu.</p>
+                        
+                        <p><strong>2025:</strong> chu kỳ đã đổi</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Q2 trở thành quý mạnh nhất về doanh thu.</li>
+                            <li>Q3 2025 doanh thu thấp hơn Q3 2024 ~4,7%, dù YTD vẫn tăng nhờ Q1–Q2.</li>
+                        </ul>
+                        
+                        <p>Về chu kỳ, cao điểm vẫn quanh Q2–Q3, tức là "Mùa vụ" doanh thu vẫn tồn tại, nhưng</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>Mùa vụ lợi nhuận đã được cải thiện rõ rệt:</strong></li>
+                            <li>Q2 không còn là "khoảng trống lợi nhuận".</li>
+                            <li>Q3 trở thành quý vừa có doanh thu cao, vừa có biên lợi nhuận rất tốt.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
             
             <div class="chart-container">
