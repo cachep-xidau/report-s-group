@@ -1,6 +1,6 @@
 """
-Tạo Báo Cáo Tình Hình Kinh Doanh YTD - Tập Đoàn S Group
-Báo cáo mới hoàn toàn với cấu trúc rõ ràng
+Generate YTD Business Performance Report - S Group
+Full report with clear structure
 """
 
 import pandas as pd
@@ -12,11 +12,11 @@ from string import Template
 from pathlib import Path
 
 # ============================================================================
-# HÀM TIỆN ÍCH
+# UTILITY FUNCTIONS
 # ============================================================================
 
 def clean_currency_value(value):
-    """Chuyển đổi định dạng số Việt Nam sang float"""
+    """Convert Vietnamese number format to float"""
     if pd.isna(value) or value == '' or value == '-':
         return np.nan
     if isinstance(value, str):
@@ -30,13 +30,13 @@ def clean_currency_value(value):
     return float(value)
 
 def format_number(value):
-    """Format số với dấu chấm phân cách hàng nghìn và thêm M"""
+    """Format number with dot separator and add M"""
     if pd.isna(value):
         return "-"
     return f"{value:,.0f} M".replace(',', '.')
 
 def get_month_column(df, month_name):
-    """Lấy tên cột đúng cho tháng"""
+    """Get correct column name for month"""
     col_with_space = f' {month_name} '
     col_no_space = month_name
     if col_with_space in df.columns:
@@ -47,7 +47,7 @@ def get_month_column(df, month_name):
         return month_name
 
 def calc_quarter(df, row_idx, quarter):
-    """Tính tổng theo quý"""
+    """Calculate total by quarter"""
     if quarter == 'Q1':
         month_names = ['T01', 'T02', 'T03']
     elif quarter == 'Q2':
@@ -68,20 +68,20 @@ def calc_quarter(df, row_idx, quarter):
     return total
 
 # ============================================================================
-# ĐỌC DỮ LIỆU
+# READ DATA
 # ============================================================================
 
-# Đọc file 2024
+# Read 2024 file
 df_2024 = pd.read_csv('/Users/lucasbraci/Desktop/S Group/Phan tich 2024.csv')
 df_2024.columns = df_2024.columns.str.strip()
 
-# Đọc file 2025
+# Read 2025 file
 df_2025 = pd.read_csv('/Users/lucasbraci/Desktop/S Group/Phan tich 2025.csv')
 df_2025.columns = df_2025.columns.str.strip()
 
-# Tên cột - một số có khoảng trắng, một số không
+# Column names - some with spaces, some without
 def get_month_columns(df):
-    """Lấy danh sách tên cột cho các tháng"""
+    """Get list of column names for months"""
     months = []
     for m in ['T01', 'T02', 'T03', 'T04', 'T05', 'T06', 'T07', 'T08', 'T09', 'T10']:
         col_with_space = f' {m} '
@@ -97,12 +97,12 @@ def get_month_columns(df):
 months_ytd_2024 = get_month_columns(df_2024)
 months_ytd_2025 = get_month_columns(df_2025)
 
-# Row indices trong CSV (index bắt đầu từ 0)
-# Row 0 (index 0): DOANH THU THUẦN TỪ BÁN HÀNG (Total)
-# Row 18 (index 18): LÃI GỘP (Total) - cần kiểm tra lại
-# Row 124 (index 124): LỢI NHUẬN KẾ TOÁN TRƯỚC THUẾ (Total) - cần kiểm tra lại
+# Row indices in CSV (index starts from 0)
+# Row 0 (index 0): NET REVENUE FROM SALES (Total)
+# Row 18 (index 18): GROSS PROFIT (Total) - need to verify
+# Row 124 (index 124): PROFIT BEFORE TAX (Total) - need to verify
 
-# Tìm đúng dòng bằng cách tìm theo tên
+# Find correct row by name pattern
 def find_row_by_name(df, name_pattern):
     for i in range(len(df)):
         name = str(df.iloc[i].get('CHỈ TIÊU BÁO CÁO', '')).strip()
@@ -117,7 +117,7 @@ gross_profit_row_2025 = find_row_by_name(df_2025, 'LÃI GỘP')
 pbt_row_2024 = find_row_by_name(df_2024, 'LỢI NHUẬN KẾ TOÁN TRƯỚC THUẾ')
 pbt_row_2025 = find_row_by_name(df_2025, 'LỢI NHUẬN KẾ TOÁN TRƯỚC THUẾ')
 
-# Tính toán YTD 10T
+# Calculate YTD 10M
 revenue_2024_ytd = sum([clean_currency_value(df_2024.iloc[revenue_row_2024].get(m, np.nan)) for m in months_ytd_2024])
 revenue_2025_ytd = sum([clean_currency_value(df_2025.iloc[revenue_row_2025].get(m, np.nan)) for m in months_ytd_2025])
 gross_profit_2024_ytd = sum([clean_currency_value(df_2024.iloc[gross_profit_row_2024].get(m, np.nan)) for m in months_ytd_2024])
@@ -125,10 +125,10 @@ gross_profit_2025_ytd = sum([clean_currency_value(df_2025.iloc[gross_profit_row_
 pbt_2024_ytd = sum([clean_currency_value(df_2024.iloc[pbt_row_2024].get(m, np.nan)) for m in months_ytd_2024])
 pbt_2025_ytd = sum([clean_currency_value(df_2025.iloc[pbt_row_2025].get(m, np.nan)) for m in months_ytd_2025])
 
-# Tính toán cả năm 2024 (12 tháng)
+# Calculate full year 2024 (12 months)
 months_2024_full = get_month_columns(df_2024)
 if len(months_2024_full) < 12:
-    # Nếu chưa đủ 12 tháng, thêm các tháng còn lại
+    # If less than 12 months, add remaining months
     for m in ['T11', 'T12']:
         col_with_space = f' {m} '
         col_no_space = m
@@ -143,15 +143,15 @@ revenue_2024_full = sum([clean_currency_value(df_2024.iloc[revenue_row_2024].get
 gross_profit_2024_full = sum([clean_currency_value(df_2024.iloc[gross_profit_row_2024].get(m, np.nan)) for m in months_2024_full if m in df_2024.columns or f' {m} ' in df_2024.columns])
 pbt_2024_full = sum([clean_currency_value(df_2024.iloc[pbt_row_2024].get(m, np.nan)) for m in months_2024_full if m in df_2024.columns or f' {m} ' in df_2024.columns])
 
-# Tính toán theo quý
+# Calculate by quarter
 quarters = ['Q1', 'Q2', 'Q3', 'Q4']
 revenue_2024_q = {q: calc_quarter(df_2024, revenue_row_2024, q) for q in quarters}
 revenue_2025_q = {q: calc_quarter(df_2025, revenue_row_2025, q) for q in quarters}
 pbt_2024_q = {q: calc_quarter(df_2024, pbt_row_2024, q) for q in quarters}
 pbt_2025_q = {q: calc_quarter(df_2025, pbt_row_2025, q) for q in quarters}
 
-# Đọc kế hoạch từ file 2025
-# Cột "Kế hoạch" cho Q1, "Kế hoạch.1" cho Q2, "Kế hoạch.2" cho Q3
+# Read plan from 2025 file
+# Column "Kế hoạch" for Q1, "Kế hoạch.1" for Q2, "Kế hoạch.2" for Q3
 revenue_plan_q = {}
 pbt_plan_q = {}
 for q_idx, q in enumerate(['Q1', 'Q2', 'Q3']):
@@ -165,7 +165,7 @@ for q_idx, q in enumerate(['Q1', 'Q2', 'Q3']):
     revenue_plan_q[q] = clean_currency_value(df_2025.iloc[revenue_row_2025].get(col_name, np.nan))
     pbt_plan_q[q] = clean_currency_value(df_2025.iloc[pbt_row_2025].get(col_name, np.nan))
 
-# Tính % hoàn thành kế hoạch
+# Calculate % plan completion
 revenue_achieve_q = {}
 pbt_achieve_q = {}
 for q in ['Q1', 'Q2', 'Q3']:
@@ -179,11 +179,11 @@ for q in ['Q1', 'Q2', 'Q3']:
     else:
         pbt_achieve_q[q] = 0
 
-# Tính trung bình % hoàn thành
+# Calculate average % completion
 avg_revenue_achieve = np.mean([revenue_achieve_q[q] for q in ['Q1', 'Q2', 'Q3']])
 avg_pbt_achieve = np.mean([pbt_achieve_q[q] for q in ['Q1', 'Q2', 'Q3']])
 
-# Tính toán các chỉ số
+# Calculate metrics
 revenue_change_pct = ((revenue_2025_ytd - revenue_2024_ytd) / revenue_2024_ytd * 100) if revenue_2024_ytd != 0 else 0
 pbt_multiple = (pbt_2025_ytd / pbt_2024_ytd) if pbt_2024_ytd != 0 else 0
 gross_margin_2024 = (gross_profit_2024_ytd / revenue_2024_ytd * 100) if revenue_2024_ytd != 0 else 0
@@ -192,10 +192,10 @@ pbt_margin_2024 = (pbt_2024_ytd / revenue_2024_ytd * 100) if revenue_2024_ytd !=
 pbt_margin_2025 = (pbt_2025_ytd / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0
 
 # ============================================================================
-# DỮ LIỆU THEO TỪNG CÔNG TY (S/T/I)
+# DATA BY COMPANY (S/T/I)
 # ============================================================================
 
-# Row indices cho từng công ty (theo cấu trúc CSV)
+# Row indices per company (per CSV structure)
 metrics_rows = {
     'Revenue': {'Total': 0, 'SAN': 1, 'TEENNIE': 2, 'TGIL': 3},
     'COGS': {'Total': 4, 'SAN': 5, 'TEENNIE': 9, 'TGIL': 13},
@@ -206,28 +206,28 @@ metrics_rows = {
     'Profit Before Tax': {'Total': 123, 'SAN': 124, 'TEENNIE': 125, 'TGIL': 126},
 }
 
-# Tính YTD cho từng công ty
+# Calculate YTD per company
 companies = ['SAN', 'TEENNIE', 'TGIL']
 company_data = {}
 
 for company in companies:
-    # Doanh thu
+    # Revenue
     rev_row_2024 = metrics_rows['Revenue'][company]
     rev_row_2025 = metrics_rows['Revenue'][company]
     revenue_2024_company = sum([clean_currency_value(df_2024.iloc[rev_row_2024].get(m, np.nan)) for m in months_ytd_2024])
     revenue_2025_company = sum([clean_currency_value(df_2025.iloc[rev_row_2025].get(m, np.nan)) for m in months_ytd_2025])
     
-    # Lợi nhuận gộp
+    # Gross profit
     gp_row_2025 = metrics_rows['Gross Profit'][company]
     gross_profit_2025_company = sum([clean_currency_value(df_2025.iloc[gp_row_2025].get(m, np.nan)) for m in months_ytd_2025])
     
-    # LNTT
+    # PBT
     pbt_row_2024 = metrics_rows['Profit Before Tax'][company]
     pbt_row_2025 = metrics_rows['Profit Before Tax'][company]
     pbt_2024_company = sum([clean_currency_value(df_2024.iloc[pbt_row_2024].get(m, np.nan)) for m in months_ytd_2024])
     pbt_2025_company = sum([clean_currency_value(df_2025.iloc[pbt_row_2025].get(m, np.nan)) for m in months_ytd_2025])
     
-    # Chi phí
+    # Expenses
     cogs_row_2025 = metrics_rows['COGS'][company]
     selling_row_2025 = metrics_rows['Selling Expenses'][company]
     admin_row_2025 = metrics_rows['Admin Expenses'][company]
@@ -238,13 +238,13 @@ for company in companies:
     admin_2025_company = sum([clean_currency_value(df_2025.iloc[admin_row_2025].get(m, np.nan)) for m in months_ytd_2025])
     other_2025_company = sum([clean_currency_value(df_2025.iloc[other_row_2025].get(m, np.nan)) for m in months_ytd_2025])
     
-    # Tính % YoY
+    # Calculate % YoY
     revenue_yoy = ((revenue_2025_company - revenue_2024_company) / revenue_2024_company * 100) if revenue_2024_company != 0 else 0
     
-    # Tính biên LNTT
+    # Calculate pre-tax margin
     pbt_margin_company = (pbt_2025_company / revenue_2025_company * 100) if revenue_2025_company != 0 else 0
     
-    # Tính % KH LNTT (trung bình Q1-Q3)
+    # Calculate % profit plan (average Q1-Q3)
     pbt_plan_company = {}
     pbt_achieve_company = []
     pbt_plan_total = 0
@@ -264,9 +264,9 @@ for company in companies:
             if pbt_plan_val != 0:
                 pbt_achieve_company.append(pbt_actual_val / pbt_plan_val * 100)
     
-    # Kiểm tra nếu kế hoạch dương nhưng thực tế âm
+    # Check if plan is positive but actual is negative
     if pbt_plan_total > 0 and pbt_actual_total < 0:
-        avg_pbt_achieve_company = "Không đạt (lỗ)"
+        avg_pbt_achieve_company = "Missed (Loss)"
     elif pbt_achieve_company:
         avg_pbt_achieve_company = np.mean(pbt_achieve_company)
     else:
@@ -286,16 +286,16 @@ for company in companies:
         'other': other_2025_company,
     }
 
-# Tính % đóng góp LNTT
+# Calculate % profit contribution
 total_pbt_2025 = sum([company_data[c]['pbt_2025'] for c in companies])
 for company in companies:
     company_data[company]['pbt_contribution'] = (company_data[company]['pbt_2025'] / total_pbt_2025 * 100) if total_pbt_2025 != 0 else 0
 
 # ============================================================================
-# TÍNH CV (COEFFICIENT OF VARIATION) CHO BIẾN ĐỘNG CHI PHÍ
+# CALCULATE CV (COEFFICIENT OF VARIATION) FOR COST VOLATILITY
 # ============================================================================
 
-# Tính CV cho từng loại chi phí theo tháng
+# Calculate CV per cost type by month
 cv_data = {}
 for company in companies:
     cogs_row = metrics_rows['COGS'][company]
@@ -303,19 +303,19 @@ for company in companies:
     admin_row = metrics_rows['Admin Expenses'][company]
     other_row = metrics_rows['Other Expenses'][company]
     
-    # Lấy dữ liệu theo tháng
+    # Get monthly data
     cogs_monthly = [clean_currency_value(df_2025.iloc[cogs_row].get(m, np.nan)) for m in months_ytd_2025]
     selling_monthly = [clean_currency_value(df_2025.iloc[selling_row].get(m, np.nan)) for m in months_ytd_2025]
     admin_monthly = [clean_currency_value(df_2025.iloc[admin_row].get(m, np.nan)) for m in months_ytd_2025]
     other_monthly = [clean_currency_value(df_2025.iloc[other_row].get(m, np.nan)) for m in months_ytd_2025]
     
-    # Loại bỏ NaN
+    # Remove NaN
     cogs_monthly = [x for x in cogs_monthly if not pd.isna(x) and x != 0]
     selling_monthly = [x for x in selling_monthly if not pd.isna(x) and x != 0]
     admin_monthly = [x for x in admin_monthly if not pd.isna(x) and x != 0]
     other_monthly = [x for x in other_monthly if not pd.isna(x) and x != 0]
     
-    # Tính CV = (std / mean) * 100
+    # Calculate CV = (std / mean) * 100
     def calc_cv(values):
         if len(values) == 0:
             return 0
@@ -333,7 +333,7 @@ for company in companies:
     }
 
 # ============================================================================
-# TÍNH Q3 CHO TỪNG CÔNG TY
+# CALCULATE Q3 PER COMPANY
 # ============================================================================
 for company in companies:
     rev_row_2024 = metrics_rows['Revenue'][company]
@@ -346,13 +346,13 @@ for company in companies:
     company_data[company]['revenue_q3_change'] = revenue_q3_change
 
 # ============================================================================
-# TẠO BIỂU ĐỒ
+# CREATE CHARTS
 # ============================================================================
 
-# Chart 1: Doanh thu theo quý (2024 vs 2025 vs Kế hoạch)
+# Chart 1: Revenue by Quarter (2024 vs 2025 vs Plan)
 fig1 = go.Figure()
 
-# Cột doanh thu 2024 (tất cả quý)
+# Revenue 2024 bars (all quarters)
 fig1.add_trace(go.Bar(
     name='Actual 2024',
     x=['Q1', 'Q2', 'Q3', 'Q4'],
@@ -363,7 +363,7 @@ fig1.add_trace(go.Bar(
     showlegend=True
 ))
 
-# Cột doanh thu 2025 (tất cả quý)
+# Revenue 2025 bars (all quarters)
 fig1.add_trace(go.Bar(
     name='Actual 2025',
     x=['Q1', 'Q2', 'Q3', 'Q4'],
@@ -374,7 +374,7 @@ fig1.add_trace(go.Bar(
     showlegend=True
 ))
 
-# Cột kế hoạch 2025 (Q1-Q3)
+# Plan 2025 bars (Q1-Q3)
 fig1.add_trace(go.Bar(
     name='Plan 2025',
     x=['Q1', 'Q2', 'Q3'],
@@ -385,7 +385,7 @@ fig1.add_trace(go.Bar(
     showlegend=True
 ))
 
-# Format y-axis với số đầy đủ (không có k)
+# Format y-axis with full numbers (no k)
 fig1.update_xaxes(title_text="Quarter")
 fig1.update_yaxes(
     title_text="",
@@ -406,10 +406,10 @@ fig1.update_layout(
 fig1.update_xaxes(fixedrange=True)
 fig1.update_yaxes(fixedrange=True)
 
-# Chart 2: LNTT theo quý (2024 vs 2025 vs Kế hoạch)
+# Chart 2: Pre-tax Profit by Quarter (2024 vs 2025 vs Plan)
 fig2 = go.Figure()
 
-# Cột LNTT 2024 (giá trị tuyệt đối)
+# PBT 2024 bars (absolute values)
 fig2.add_trace(go.Bar(
     name='Actual 2024',
     x=['Q1', 'Q2', 'Q3', 'Q4'],
@@ -420,7 +420,7 @@ fig2.add_trace(go.Bar(
     showlegend=True
 ))
 
-# Cột LNTT 2025 (giá trị tuyệt đối)
+# PBT 2025 bars (absolute values)
 fig2.add_trace(go.Bar(
     name='Actual 2025',
     x=['Q1', 'Q2', 'Q3', 'Q4'],
@@ -431,7 +431,7 @@ fig2.add_trace(go.Bar(
     showlegend=True
 ))
 
-# Cột LNTT Kế hoạch (Q1-Q3)
+# PBT Plan bars (Q1-Q3)
 fig2.add_trace(go.Bar(
     name='Plan 2025',
     x=['Q1', 'Q2', 'Q3'],
@@ -442,7 +442,7 @@ fig2.add_trace(go.Bar(
     showlegend=True
 ))
 
-# Format y-axis với số đầy đủ
+# Format y-axis with full numbers
 fig2.update_xaxes(title_text="Quarter")
 fig2.update_yaxes(
     title_text="",
@@ -464,7 +464,7 @@ fig2.update_xaxes(fixedrange=True)
 fig2.update_yaxes(fixedrange=True)
 
 
-# Chart 3: Monthly Revenue and Profit cho từng công ty
+# Chart 3: Monthly Revenue and Profit per company
 month_labels = ['T01', 'T02', 'T03', 'T04', 'T05', 'T06', 'T07', 'T08', 'T09', 'T10']
 month_display = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
 
@@ -567,7 +567,7 @@ cost_pct = {
 
 # Chart 6-9: Waterfall charts (Total, S, T, I)
 def create_waterfall_chart(company_name, company_label, data):
-    """Tạo waterfall chart cho một công ty"""
+    """Create waterfall chart for a company"""
     revenue = data['revenue_2025']
     cogs = data['cogs']
     selling = data['selling']
@@ -575,13 +575,13 @@ def create_waterfall_chart(company_name, company_label, data):
     other = data['other']
     pbt = data['pbt_2025']
     
-    # Tính lãi gộp
+    # Calculate gross profit
     gross_profit = revenue - cogs
     
     fig = go.Figure()
     
-    # Tạo waterfall chart với một trace duy nhất
-    # Màu cho LNTT
+    # Create waterfall chart with a single trace
+    # Color for PBT
     profit_color = "#2E7D32" if pbt >= 0 else "rgba(254, 58, 69, 0.8)"
     
     fig.add_trace(go.Waterfall(
@@ -598,13 +598,13 @@ def create_waterfall_chart(company_name, company_label, data):
         totals={"marker": {"color": "#2E7D32"}},
     ))
     
-    # Cập nhật màu cho bar LNTT (total cuối cùng)
-    # Sử dụng hovertemplate để hiển thị đúng
+    # Update color for PBT bar (last total)
+    # Use hovertemplate for correct display
     fig.update_traces(
         totals=dict(marker=dict(color=profit_color))
     )
     
-    # Tính min và max để tăng range axis
+    # Calculate min and max to expand axis range
     values = [revenue, -cogs, gross_profit, -selling, -admin, -other, pbt]
     cumulative_values = []
     cumsum = 0
@@ -621,7 +621,7 @@ def create_waterfall_chart(company_name, company_label, data):
     y_max = max(cumulative_values)
     y_range = y_max - y_min
     
-    # Thêm padding 15% cho cả min và max
+    # Add 15% padding for both min and max
     y_min_padded = y_min - (y_range * 0.15)
     y_max_padded = y_max + (y_range * 0.15)
     
@@ -641,16 +641,16 @@ def create_waterfall_chart(company_name, company_label, data):
     
     return fig
 
-# Tính dữ liệu Total
+# Calculate Total data
 total_cogs = sum([company_data[c]['cogs'] for c in companies])
 total_selling = sum([company_data[c]['selling'] for c in companies])
 total_admin = sum([company_data[c]['admin'] for c in companies])
 total_other = sum([company_data[c]['other'] for c in companies])
 
 # ============================================================================
-# TÍNH CƠ CẤU CHI PHÍ
+# CALCULATE COST STRUCTURE
 # ============================================================================
-# Cơ cấu chi phí tập đoàn
+# Group cost structure
 total_cogs_pct = (total_cogs / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0
 total_selling_pct = (total_selling / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0
 total_admin_pct = (total_admin / revenue_2025_ytd * 100) if revenue_2025_ytd != 0 else 0
@@ -666,7 +666,7 @@ group_cost_pct = {
     'pbt': pbt_margin_2025
 }
 
-# Cơ cấu chi phí S
+# Company S cost structure
 san_revenue = company_data['SAN']['revenue_2025']
 san_cogs_pct = (company_data['SAN']['cogs'] / san_revenue * 100) if san_revenue != 0 else 0
 san_selling_pct = (company_data['SAN']['selling'] / san_revenue * 100) if san_revenue != 0 else 0
@@ -674,7 +674,7 @@ san_admin_pct = (company_data['SAN']['admin'] / san_revenue * 100) if san_revenu
 san_other_pct = (company_data['SAN']['other'] / san_revenue * 100) if san_revenue != 0 else 0
 san_opex_pct = san_selling_pct + san_admin_pct + san_other_pct
 
-# So sánh S với tập đoàn
+# Compare S vs Group
 san_cogs_diff = san_cogs_pct - total_cogs_pct
 san_selling_diff = san_selling_pct - total_selling_pct
 san_admin_diff = san_admin_pct - total_admin_pct
@@ -720,7 +720,7 @@ context = {
     'kpi_pbt': format_number(pbt_2025_ytd),
     'kpi_pbt_multiple': f"(≈ x{pbt_multiple:.1f} x vs YTD 2024)",
     'kpi_margin': f"{pbt_margin_2025:.1f}%",
-    'kpi_margin_delta': f"(so với {pbt_margin_2024:.1f}% YTD 2024)",
+    'kpi_margin_delta': f"(vs {pbt_margin_2024:.1f}% YTD 2024)",
     'kpi_plan_revenue': f"{avg_revenue_achieve:.0f}%",
     'kpi_plan_pbt': f"{avg_pbt_achieve:.0f}%",
     'table_rev_2024': format_number(revenue_2024_ytd),
@@ -795,6 +795,6 @@ output_file = '/Users/lucasbraci/Desktop/S Group/report_web.html'
 with open(output_file, 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("✅ BÁO CÁO ĐÃ ĐƯỢC TẠO THÀNH CÔNG!")
+print("✅ REPORT GENERATED SUCCESSFULLY!")
 print(f"📄 File: {output_file}")
 
