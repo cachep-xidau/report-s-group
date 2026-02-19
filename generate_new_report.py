@@ -354,7 +354,7 @@ fig1 = go.Figure()
 
 # Cột doanh thu 2024 (tất cả quý)
 fig1.add_trace(go.Bar(
-    name='Thực tế 2024',
+    name='Actual 2024',
     x=['Q1', 'Q2', 'Q3', 'Q4'],
     y=[revenue_2024_q['Q1'], revenue_2024_q['Q2'], revenue_2024_q['Q3'], revenue_2024_q['Q4']],
     marker_color='#E5E6E5',
@@ -365,7 +365,7 @@ fig1.add_trace(go.Bar(
 
 # Cột doanh thu 2025 (tất cả quý)
 fig1.add_trace(go.Bar(
-    name='Thực tế 2025',
+    name='Actual 2025',
     x=['Q1', 'Q2', 'Q3', 'Q4'],
     y=[revenue_2025_q['Q1'], revenue_2025_q['Q2'], revenue_2025_q['Q3'], revenue_2025_q['Q4'] if not pd.isna(revenue_2025_q['Q4']) else 0],
     marker_color='#3A464E',
@@ -376,7 +376,7 @@ fig1.add_trace(go.Bar(
 
 # Cột kế hoạch 2025 (Q1-Q3)
 fig1.add_trace(go.Bar(
-    name='Kế hoạch 2025',
+    name='Plan 2025',
     x=['Q1', 'Q2', 'Q3'],
     y=[revenue_plan_q['Q1'], revenue_plan_q['Q2'], revenue_plan_q['Q3']],
     marker_color='#8A9BA8',
@@ -386,7 +386,7 @@ fig1.add_trace(go.Bar(
 ))
 
 # Format y-axis với số đầy đủ (không có k)
-fig1.update_xaxes(title_text="Quý")
+fig1.update_xaxes(title_text="Quarter")
 fig1.update_yaxes(
     title_text="",
     tickformat=',.0f',
@@ -396,7 +396,7 @@ fig1.update_yaxes(
 )
 
 fig1.update_layout(
-    title='<b>Doanh thu theo quý</b>',
+    title='<b>Revenue by Quarter</b>',
     barmode='group',
     height=500,
     template='plotly_white',
@@ -411,7 +411,7 @@ fig2 = go.Figure()
 
 # Cột LNTT 2024 (giá trị tuyệt đối)
 fig2.add_trace(go.Bar(
-    name='Thực tế 2024',
+    name='Actual 2024',
     x=['Q1', 'Q2', 'Q3', 'Q4'],
     y=[pbt_2024_q['Q1'], pbt_2024_q['Q2'], pbt_2024_q['Q3'], pbt_2024_q['Q4']],
     marker_color='#E5E6E5',
@@ -422,7 +422,7 @@ fig2.add_trace(go.Bar(
 
 # Cột LNTT 2025 (giá trị tuyệt đối)
 fig2.add_trace(go.Bar(
-    name='Thực tế 2025',
+    name='Actual 2025',
     x=['Q1', 'Q2', 'Q3', 'Q4'],
     y=[pbt_2025_q['Q1'], pbt_2025_q['Q2'], pbt_2025_q['Q3'], pbt_2025_q['Q4'] if not pd.isna(pbt_2025_q['Q4']) else 0],
     marker_color='#3A464E',
@@ -433,7 +433,7 @@ fig2.add_trace(go.Bar(
 
 # Cột LNTT Kế hoạch (Q1-Q3)
 fig2.add_trace(go.Bar(
-    name='Kế hoạch 2025',
+    name='Plan 2025',
     x=['Q1', 'Q2', 'Q3'],
     y=[pbt_plan_q['Q1'], pbt_plan_q['Q2'], pbt_plan_q['Q3']],
     marker_color='#8A9BA8',
@@ -443,7 +443,7 @@ fig2.add_trace(go.Bar(
 ))
 
 # Format y-axis với số đầy đủ
-fig2.update_xaxes(title_text="Quý")
+fig2.update_xaxes(title_text="Quarter")
 fig2.update_yaxes(
     title_text="",
     tickformat=',.0f',
@@ -453,7 +453,7 @@ fig2.update_yaxes(
 )
 
 fig2.update_layout(
-    title='<b>LNTT theo quý</b>',
+    title='<b>Pre-tax Profit by Quarter</b>',
     barmode='group',
     height=500,
     template='plotly_white',
@@ -464,14 +464,14 @@ fig2.update_xaxes(fixedrange=True)
 fig2.update_yaxes(fixedrange=True)
 
 
-# Chart 3: Doanh thu và LNTT theo từng tháng cho từng công ty
+# Chart 3: Monthly Revenue and Profit cho từng công ty
 month_labels = ['T01', 'T02', 'T03', 'T04', 'T05', 'T06', 'T07', 'T08', 'T09', 'T10']
 month_display = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
 
 company_chart_styles = {
-    'SAN': {'line': '#F45C67', 'bar': 'rgba(244, 92, 103, 0.35)', 'name': 'Công ty S'},
-    'TEENNIE': {'line': '#2E7D32', 'bar': 'rgba(46, 125, 50, 0.25)', 'name': 'Công ty T'},
-    'TGIL': {'line': '#F6A623', 'bar': 'rgba(246, 166, 35, 0.30)', 'name': 'Công ty I'},
+    'SAN': {'line': '#F45C67', 'bar': 'rgba(244, 92, 103, 0.35)', 'name': 'Company S'},
+    'TEENNIE': {'line': '#2E7D32', 'bar': 'rgba(46, 125, 50, 0.25)', 'name': 'Company T'},
+    'TGIL': {'line': '#F6A623', 'bar': 'rgba(246, 166, 35, 0.30)', 'name': 'Company I'},
 }
 
 fig3_S = go.Figure()
@@ -493,7 +493,7 @@ for company in companies:
     style = company_chart_styles[company]
     
     fig.add_trace(go.Scatter(
-        name='Doanh thu',
+        name='Revenue',
         x=month_display,
         y=revenue_monthly,
         mode='lines+markers',
@@ -519,7 +519,7 @@ for company in companies:
             )
     
     fig.add_trace(go.Bar(
-        name='LNTT',
+        name='Pre-tax Profit',
         x=month_display,
         y=pbt_monthly,
         marker=dict(color=style['bar'], line=dict(color=style['line'], width=1)),
@@ -536,7 +536,7 @@ for company in companies:
     padding = y_range * 0.2 if y_range else (abs(y_max) * 0.3 if y_max != 0 else 1000)
     
     fig.update_layout(
-        title=f"{company_chart_styles[company]['name']}: Doanh thu và LNTT theo từng tháng (10T 2025)",
+        title=f"{company_chart_styles[company]['name']}: Monthly Revenue and Profit (10T 2025)",
         height=380,
         template='plotly_white',
         plot_bgcolor="#FFFFFF",
@@ -545,8 +545,8 @@ for company in companies:
         dragmode=False,
         margin=dict(l=40, r=20, t=60, b=40),
     )
-    fig.update_xaxes(title_text="Tháng", fixedrange=True)
-    fig.update_yaxes(title_text="Số tiền (M)", fixedrange=True, range=[y_min - padding, y_max + padding])
+    fig.update_xaxes(title_text="Month", fixedrange=True)
+    fig.update_yaxes(title_text="Amount (M)", fixedrange=True, range=[y_min - padding, y_max + padding])
 
 def calc_cost_pct(company_key):
     revenue = company_data[company_key]['revenue_2025']
@@ -587,7 +587,7 @@ def create_waterfall_chart(company_name, company_label, data):
     fig.add_trace(go.Waterfall(
         orientation="v",
         measure=["absolute", "relative", "total", "relative", "relative", "relative", "total"],
-        x=["Doanh thu", "Giá vốn", "Lãi gộp", "CP Bán hàng", "CP Quản lý", "CP Khác", "LNTT"],
+        x=["Revenue", "COGS", "Gross Profit", "Selling Exp", "G&A Exp", "Other Exp", "Pre-tax Profit"],
         textposition="outside",
         text=[format_number(revenue), format_number(cogs), format_number(gross_profit), 
               format_number(selling), format_number(admin), format_number(other), format_number(pbt)],
@@ -630,7 +630,7 @@ def create_waterfall_chart(company_name, company_label, data):
         height=400,
         template='plotly_white',
         xaxis_title='',
-        yaxis_title='Số Tiền (Triệu)',
+        yaxis_title='Amount (Million)',
         showlegend=False,
         waterfallgroupgap=0.1,
         yaxis=dict(range=[y_min_padded, y_max_padded]),
@@ -690,10 +690,10 @@ total_data = {
     'pbt_2025': pbt_2025_ytd,
 }
 
-fig6 = create_waterfall_chart('Total', 'Toàn tập đoàn', total_data)
-fig7 = create_waterfall_chart('SAN', 'Công ty S', company_data['SAN'])
-fig8 = create_waterfall_chart('TEENNIE', 'Công ty T', company_data['TEENNIE'])
-fig9 = create_waterfall_chart('TGIL', 'Công ty I', company_data['TGIL'])
+fig6 = create_waterfall_chart('Total', 'Total Group', total_data)
+fig7 = create_waterfall_chart('SAN', 'Company S', company_data['SAN'])
+fig8 = create_waterfall_chart('TEENNIE', 'Company T', company_data['TEENNIE'])
+fig9 = create_waterfall_chart('TGIL', 'Company I', company_data['TGIL'])
 
 gross_profit_change_pct = ((gross_profit_2025_ytd - gross_profit_2024_ytd) / gross_profit_2024_ytd * 100) if gross_profit_2024_ytd != 0 else 0
 pbt_change_pct = ((pbt_2025_ytd - pbt_2024_ytd) / pbt_2024_ytd * 100) if pbt_2024_ytd != 0 else 0
@@ -715,10 +715,10 @@ def format_plan_value(value):
 
 context = {
     'kpi_revenue': format_number(revenue_2025_ytd),
-    'kpi_revenue_delta': f"({'+' if revenue_change_pct >= 0 else ''}{revenue_change_pct:.1f}% so với YTD 2024)",
+    'kpi_revenue_delta': f"({'+' if revenue_change_pct >= 0 else ''}{revenue_change_pct:.1f}% vs YTD 2024)",
     'kpi_revenue_change_class': 'negative' if revenue_change_pct < 0 else '',
     'kpi_pbt': format_number(pbt_2025_ytd),
-    'kpi_pbt_multiple': f"(≈ x{pbt_multiple:.1f} lần YTD 2024)",
+    'kpi_pbt_multiple': f"(≈ x{pbt_multiple:.1f} x vs YTD 2024)",
     'kpi_margin': f"{pbt_margin_2025:.1f}%",
     'kpi_margin_delta': f"(so với {pbt_margin_2024:.1f}% YTD 2024)",
     'kpi_plan_revenue': f"{avg_revenue_achieve:.0f}%",
